@@ -9,6 +9,7 @@ runtime: shiny
 ```{r setup, include=FALSE}
 library(readxl)
 knitr::opts_chunk$set(echo = TRUE)
+#Just one chunk of the excel file 
 jobdata <- read_excel("cpsa2024.xlsx")
 ```
 
