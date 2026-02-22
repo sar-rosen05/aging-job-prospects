@@ -1,0 +1,25 @@
+---
+title: "U.S. Labor Market Trends (2020–2023)"
+author: "Shahlan Finchan + Group 3"
+date: "2026-02-18"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(readxl)
+```
+
+## Importing Data 
+```{r load-data, include = FALSE}
+library(tidyverse)
+library(readxl)
+
+t9_2020_raw <- read_excel(
+  "data/cps_2020_table9.xlsx",
+  skip = 3
+)
+
+names(t9_2020_raw)
+```
+
