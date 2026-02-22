@@ -7,12 +7,30 @@ runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
+
+library(janitor)    
 library(readxl)
+library(dplyr)
+library(tidyr)
+library(stringr) 
 knitr::opts_chunk$set(echo = TRUE)
-#Just one chunk of the excel file 
-jobdata <- read_excel("cpsa2024.xlsx")
+data2017 <- read_excel("cpsaat11b.xlsx")
+
+
 ```
 
+```{r cleaning}
+data2017 <- data2017 |> 
+  slice(-(1:3))
+data2017 <- data2017 |> 
+  slice(-2)
+data2017 <- data2017 |> 
+  slice(-3)
+
+
+
+
+```
 
 
 ```{r eruptions, echo=FALSE}
