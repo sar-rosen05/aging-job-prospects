@@ -20,5 +20,16 @@ t9_2020 <- read_excel(
 t9_2020 <- t9_2020 %>%
   mutate(across(-Occupation, readr::parse_number))
 
+# 3. Pivot longer to create tidy format
+t9_tidy <- t9_2020 %>%
+  pivot_longer(
+    cols = -Occupation,              
+    names_to = c("sex", "age"),       
+    names_sep = "_",
+    values_to = "employment"         
+  ) %>%
+  mutate(age = as.numeric(age))       
 
+# 4. Inspect tidy data
+glimpse(t9_tidy)
 ```
