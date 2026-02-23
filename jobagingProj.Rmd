@@ -9,6 +9,7 @@ runtime: shiny
 ```{r setup, include=FALSE}
 library(shiny)
 library(readxl)
+library(tidyverse)
 
 knitr::opts_chunk$set(echo = TRUE)
 
