@@ -55,6 +55,11 @@ df_2019_raw <- read_excel("cpsaat11b-2019.xlsx",
                           col_names = FALSE)
 ```
 
+```{r}
+colnames(df_2019_raw) <- as.character(df_2019_raw[2, ])
+df_2019_raw <- df_2019_raw[-c(1,2), ]
+```
+
 
 Note the use of the `height` parameter to determine how much vertical space the embedded application should occupy.
 
