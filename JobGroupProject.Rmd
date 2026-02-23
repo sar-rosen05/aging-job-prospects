@@ -3,12 +3,14 @@ title: "U.S. Labor Market Trends (2020–2023)"
 author: "Shahlan Finchan + Group 3"
 date: "2026-02-18"
 output: html_document
+runtime: shiny
 ---
 
 
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(readxl)
+library(shiny)
 
 ## Read Excel file 
 t9_2020 <- read_excel(
@@ -32,4 +34,19 @@ t9_tidy <- t9_2020 %>%
 
 # 4. Inspect tidy data
 glimpse(t9_tidy)
+
+
+```
+
+```{r} 
+# Dropdowns
+selectInput("sex_input", "Select Sex:", choices = unique(t9_tidy$sex))
+selectInput("age_input", "Select Age:", choices = unique(t9_tidy$age))
+
+# Filtered table
+renderTable({
+  req(input$sex_input, input$age_input)
+  t9_tidy %>%
+    filter(sex == input$sex_input, age == input$age_input)
+})
 ```
