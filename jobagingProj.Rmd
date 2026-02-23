@@ -1,6 +1,6 @@
 ---
 title: "JobAgeProject"
-author: "Obydah Jazaeri"
+author: "Obydah Jazaeri, Sarah Rosen"
 date: "2026-02-21"
 output: html_document
 runtime: shiny
@@ -48,6 +48,13 @@ shinyAppDir(
   )
 )
 ```
+
+```{r}
+df_2019_raw <- read_excel("cpsaat11b-2019.xlsx",
+                          skip = 1,
+                          col_names = FALSE)
+```
+
 
 Note the use of the `height` parameter to determine how much vertical space the embedded application should occupy.
 
