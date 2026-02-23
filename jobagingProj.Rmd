@@ -7,6 +7,7 @@ runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
+library(shiny)
 library(readxl)
 knitr::opts_chunk$set(echo = TRUE)
 #Just one chunk of the excel file 
@@ -17,14 +18,14 @@ jobdata <- read_excel("cpsa2024.xlsx")
 
 ```{r eruptions, echo=FALSE}
 inputPanel(
-  selectInput("n_breaks", label = "Number of bins:",
+  selectinput("n_breaks", label = "Number of bins:",
               choices = c(10, 20, 35, 50), selected = 20),
   
-  sliderInput("bw_adjust", label = "Bandwidth adjustment:",
+  sliderinput("bw_adjust", label = "Bandwidth adjustment:",
               min = 0.2, max = 2, value = 1, step = 0.2)
 )
 
-renderPlot({
+renderplot({
   hist(faithful$eruptions, probability = TRUE, breaks = as.numeric(input$n_breaks),
        xlab = "Duration (minutes)", main = "Geyser eruption duration")
   
