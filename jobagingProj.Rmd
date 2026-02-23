@@ -49,6 +49,19 @@ shinyAppDir(
 )
 ```
 
+```{r import}
+df_2019 <- read_excel("cpsaat11b-2019.xlsx", skip = 4)
+
+head(df_2019)
+
+colnames(df_2019)
+
+colnames(df_2019)[1] <- "Occupation"
+
+colnames(df_2019) <- gsub("\\r\\n", " ", colnames(df_2019))
+
+colnames(df_2019)
+```
 
 
 
