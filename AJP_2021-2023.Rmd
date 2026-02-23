@@ -1,0 +1,106 @@
+---
+title: 'Aging Job Prospects: 2021–2023 Analysis'
+author: "Zuwiyda Hirse"
+date: "2026-02-23"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(readxl)
+library(janitor)
+
+# Make a function that cleans ONE year
+clean_one_year <- function(file, year_num) {
+
+  # read the sheet, but skip the title rows
+  raw <- read_excel(file, skip = 2, col_names = FALSE)
+
+  #row 1 and row 2 are headers inside the data
+  header1 <- as.character(unlist(raw[1, ]))
+  header2 <- as.character(unlist(raw[2, ]))
+
+  # use header2 when it exists, otherwise use header1
+  col_names <- ifelse(!is.na(header2) & header2 != "", header2, header1)
+
+  # remove the two header rows and set the column names
+  df <- raw[-c(1, 2), ]
+  names(df) <- col_names
+
+  #clean column names
+  df <- df %>% clean_names()
+
+  # keep only real rows with an occupation name
+  df <- df %>% filter(!is.na(occupation), occupation != "")
+
+  # turn all the age columns into numbers (fixes "-" and weird text)
+  df <- df %>%
+    mutate(across(-occupation, ~ parse_number(as.character(.x))))
+
+  # add year column
+  df <- df %>% mutate(year = year_num)
+
+  return(df)
+}
+
+#Clean each year
+d21 <- clean_one_year("cps_2021_11b.xlsx", 2021)
+d22 <- clean_one_year("cps_2022_11b.xlsx", 2022)
+d23 <- clean_one_year("cps_2023_11b.xlsx", 2023)
+
+# Stack them together
+bls_clean <- bind_rows(d21, d22, d23)
+glimpse(bls_clean)
+
+```
+
+# Making the Data Tidy
+After cleaning and combining the data, I convert it into tidy format so each age group becomes a row instead of separate columns. This makes it easier to filter and use in Shiny.
+
+```{r}
+# Convert to tidy (long) format
+bls_tidy <- bls_clean %>%
+  pivot_longer(
+    cols = -c(occupation, year),
+    names_to = "age_group",
+    values_to = "employed_thousands"
+  ) %>%
+  filter(!is.na(employed_thousands))
+
+glimpse(bls_tidy)
+
+# Remove the columns that are NOT age groups (the x2021/x2022/x2023 ones)
+bls_tidy <- bls_tidy %>%
+  filter(!str_detect(age_group, "^x"),
+         age_group != "na_8")
+
+# Rename the age group codes into real labels
+bls_tidy <- bls_tidy %>%
+  mutate(age_group = case_when(
+    age_group == "na"   ~ "16 to 19 years",
+    age_group == "na_2" ~ "20 to 24 years",
+    age_group == "na_3" ~ "25 to 34 years",
+    age_group == "na_4" ~ "35 to 44 years",
+    age_group == "na_5" ~ "45 to 54 years",
+    age_group == "na_6" ~ "55 to 64 years",
+    age_group == "na_7" ~ "65 years and over",
+    TRUE ~ age_group
+  ))
+unique(bls_tidy$age_group)
+```
+
+
+```{r}
+shinyAppDir(
+  system.file("examples/06_tabsets", package = "shiny"),
+  options = list(
+    width = "100%", height = 550
+  )
+)
+```
+
+
+
+
