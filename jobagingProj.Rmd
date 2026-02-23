@@ -36,10 +36,6 @@ renderPlot({
 })
 ```
 
-## Embedded Application
-
-It's also possible to embed an entire Shiny application within an R Markdown document using the `shinyAppDir` function. This example embeds a Shiny application located in another directory:
-
 ```{r tabsets, echo=FALSE}
 shinyAppDir(
   system.file("examples/06_tabsets", package = "shiny"),
@@ -61,15 +57,37 @@ colnames(df_2019)[1] <- "Occupation"
 colnames(df_2019) <- gsub("\\r\\n", " ", colnames(df_2019))
 
 colnames(df_2019)
+
+df_2019 <- df_2019[, -c(2, ncol(df_2019))]
+
+df_2019_tidy <- df_2019 %>%
+  pivot_longer(
+    cols = -Occupation, 
+    names_to = "age_group",
+    values_to = "employed"
+  ) %>%
+  mutate (
+    year = 2019,
+    employed = as.numeric(employed)
+  )
+glimpse(df_2019_tidy)
 ```
 
+```{r}
+inputPanel(
+  selectInput("age", "Select Age Group:",
+              choices = unique(df_2019_tidy$age_group))
+)
 
-
-Note the use of the `height` parameter to determine how much vertical space the embedded application should occupy.
-
-You can also use the `shinyApp` function to define an application inline rather then in an external directory.
-
-In all of R code chunks above the `echo = FALSE` attribute is used. This is to prevent the R code within the chunk from rendering in the document alongside the Shiny components.
-
+renderPlot({
+  df_2019_tidy %>%
+    filter(age_group == input$age) %>%
+    slice_max(employed, n = 10) %>%
+    ggplot(aes(x = reorder(Occupation, employed),
+               y = employed)) +
+    geom_col() +
+    coord_flip()
+})
+```
 
 
