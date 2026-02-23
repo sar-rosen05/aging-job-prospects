@@ -15,20 +15,39 @@ library(tidyr)
 library(stringr) 
 knitr::opts_chunk$set(echo = TRUE)
 data2017 <- read_excel("cpsaat11b.xlsx")
-
-
+data2018 <- read_excel("data2018.xlsx")
+data2019 <- read_excel("data2019.xlsx")
 ```
 
-```{r cleaning}
+```{r cleaning 2017/18/19 }
 data2017 <- data2017 |> 
   slice(-(1:3))
 data2017 <- data2017 |> 
   slice(-2)
 data2017 <- data2017 |> 
   slice(-3)
-
 data2017 <- data2017 |>
   row_to_names(row_number = 1)
+
+data2018 <- data2018 |> 
+  slice(-(1:3))
+data2018 <- data2018 |> 
+  slice(-2)
+data2018 <- data2018 |> 
+  slice(-3)
+data2018 <- data2018 |>
+  row_to_names(row_number = 1)
+
+data2019 <- data2019 |> 
+  slice(-(1:3))
+data2019 <- data2019 |> 
+  slice(-2)
+data2019 <- data2019 |> 
+  slice(-3)
+data2019 <- data2019 |>
+  row_to_names(row_number = 1)
+
+
 
 ```
 
