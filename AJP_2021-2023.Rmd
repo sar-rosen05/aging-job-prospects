@@ -70,6 +70,25 @@ bls_tidy <- bls_clean %>%
   filter(!is.na(employed_thousands))
 
 glimpse(bls_tidy)
+
+# Remove the columns that are NOT age groups (the x2021/x2022/x2023 ones)
+bls_tidy <- bls_tidy %>%
+  filter(!str_detect(age_group, "^x"),
+         age_group != "na_8")
+
+# Rename the age group codes into real labels
+bls_tidy <- bls_tidy %>%
+  mutate(age_group = case_when(
+    age_group == "na"   ~ "16 to 19 years",
+    age_group == "na_2" ~ "20 to 24 years",
+    age_group == "na_3" ~ "25 to 34 years",
+    age_group == "na_4" ~ "35 to 44 years",
+    age_group == "na_5" ~ "45 to 54 years",
+    age_group == "na_6" ~ "55 to 64 years",
+    age_group == "na_7" ~ "65 years and over",
+    TRUE ~ age_group
+  ))
+unique(bls_tidy$age_group)
 ```
 
 
