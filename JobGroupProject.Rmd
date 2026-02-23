@@ -39,7 +39,7 @@ glimpse(t9_tidy)
 ```
 
 ```{r} 
-# Dropdowns
+# Implementing Shiny with dropdowns
 selectInput("sex_input", "Select Sex:", choices = unique(t9_tidy$sex))
 selectInput("age_input", "Select Age:", choices = unique(t9_tidy$age))
 
@@ -50,3 +50,16 @@ renderTable({
     filter(sex == input$sex_input, age == input$age_input)
 })
 ```
+
+```{r} 
+## Practice Histogram  
+ggplot(t9_tidy %>% filter(sex != "Total"), 
+       aes(x = employment, fill = sex)) +
+  geom_histogram(position = "dodge", bins = 20, alpha = 0.8) +
+  ggtitle("Distribution of Employment by Sex") +
+  xlab("Employment Count") +
+  ylab("Frequency") +
+  theme_minimal()
+```
+
+The data is right-skewed, indicating that most indivisuals fall in the lower employment count brackets. 
