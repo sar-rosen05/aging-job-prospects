@@ -11,6 +11,49 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(readxl)
 library(janitor)
+
+# Make a function that cleans ONE year
+clean_one_year <- function(file, year_num) {
+
+  # read the sheet, but skip the title rows
+  raw <- read_excel(file, skip = 2, col_names = FALSE)
+
+  #row 1 and row 2 are headers inside the data
+  header1 <- as.character(unlist(raw[1, ]))
+  header2 <- as.character(unlist(raw[2, ]))
+
+  # use header2 when it exists, otherwise use header1
+  col_names <- ifelse(!is.na(header2) & header2 != "", header2, header1)
+
+  # remove the two header rows and set the column names
+  df <- raw[-c(1, 2), ]
+  names(df) <- col_names
+
+  #clean column names
+  df <- df %>% clean_names()
+
+  # keep only real rows with an occupation name
+  df <- df %>% filter(!is.na(occupation), occupation != "")
+
+  # turn all the age columns into numbers (fixes "-" and weird text)
+  df <- df %>%
+    mutate(across(-occupation, ~ parse_number(as.character(.x))))
+
+  # add year column
+  df <- df %>% mutate(year = year_num)
+
+  return(df)
+}
+
+#Clean each year
+d21 <- clean_one_year("cps_2021_11b.xlsx", 2021)
+d22 <- clean_one_year("cps_2022_11b.xlsx", 2022)
+d23 <- clean_one_year("cps_2023_11b.xlsx", 2023)
+
+# Stack them together
+bls_clean <- bind_rows(d21, d22, d23)
+glimpse(bls_clean)
+
 ```
 
 This R Markdown document is made interactive using Shiny. Unlike the more traditional workflow of creating static reports, you can now create documents that allow your readers to change the assumptions underlying your analysis and see the results immediately. 
