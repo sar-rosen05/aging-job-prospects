@@ -11,39 +11,69 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(readxl)
 library(janitor)
+
+# Make a function that cleans ONE year
+clean_one_year <- function(file, year_num) {
+
+  # read the sheet, but skip the title rows
+  raw <- read_excel(file, skip = 2, col_names = FALSE)
+
+  #row 1 and row 2 are headers inside the data
+  header1 <- as.character(unlist(raw[1, ]))
+  header2 <- as.character(unlist(raw[2, ]))
+
+  # use header2 when it exists, otherwise use header1
+  col_names <- ifelse(!is.na(header2) & header2 != "", header2, header1)
+
+  # remove the two header rows and set the column names
+  df <- raw[-c(1, 2), ]
+  names(df) <- col_names
+
+  #clean column names
+  df <- df %>% clean_names()
+
+  # keep only real rows with an occupation name
+  df <- df %>% filter(!is.na(occupation), occupation != "")
+
+  # turn all the age columns into numbers (fixes "-" and weird text)
+  df <- df %>%
+    mutate(across(-occupation, ~ parse_number(as.character(.x))))
+
+  # add year column
+  df <- df %>% mutate(year = year_num)
+
+  return(df)
+}
+
+#Clean each year
+d21 <- clean_one_year("cps_2021_11b.xlsx", 2021)
+d22 <- clean_one_year("cps_2022_11b.xlsx", 2022)
+d23 <- clean_one_year("cps_2023_11b.xlsx", 2023)
+
+# Stack them together
+bls_clean <- bind_rows(d21, d22, d23)
+glimpse(bls_clean)
+
 ```
 
-This R Markdown document is made interactive using Shiny. Unlike the more traditional workflow of creating static reports, you can now create documents that allow your readers to change the assumptions underlying your analysis and see the results immediately. 
+# Making the Data Tidy
+After cleaning and combining the data, I convert it into tidy format so each age group becomes a row instead of separate columns. This makes it easier to filter and use in Shiny.
 
-To learn more, see [Interactive Documents](http://rmarkdown.rstudio.com/authoring_shiny.html).
+```{r}
+# Convert to tidy (long) format
+bls_tidy <- bls_clean %>%
+  pivot_longer(
+    cols = -c(occupation, year),
+    names_to = "age_group",
+    values_to = "employed_thousands"
+  ) %>%
+  filter(!is.na(employed_thousands))
 
-## Inputs and Outputs
-
-You can embed Shiny inputs and outputs in your document. Outputs are automatically updated whenever inputs change.  This demonstrates how a standard R plot can be made interactive by wrapping it in the Shiny `renderPlot` function. The `selectInput` and `sliderInput` functions create the input widgets used to drive the plot.
-
-```{r eruptions, echo=FALSE}
-inputPanel(
-  selectInput("n_breaks", label = "Number of bins:",
-              choices = c(10, 20, 35, 50), selected = 20),
-  
-  sliderInput("bw_adjust", label = "Bandwidth adjustment:",
-              min = 0.2, max = 2, value = 1, step = 0.2)
-)
-
-renderPlot({
-  hist(faithful$eruptions, probability = TRUE, breaks = as.numeric(input$n_breaks),
-       xlab = "Duration (minutes)", main = "Geyser eruption duration")
-  
-  dens <- density(faithful$eruptions, adjust = input$bw_adjust)
-  lines(dens, col = "blue")
-})
+glimpse(bls_tidy)
 ```
 
-## Embedded Application
 
-It's also possible to embed an entire Shiny application within an R Markdown document using the `shinyAppDir` function. This example embeds a Shiny application located in another directory:
-
-```{r tabsets, echo=FALSE}
+```{r}
 shinyAppDir(
   system.file("examples/06_tabsets", package = "shiny"),
   options = list(
@@ -52,11 +82,6 @@ shinyAppDir(
 )
 ```
 
-Note the use of the `height` parameter to determine how much vertical space the embedded application should occupy.
-
-You can also use the `shinyApp` function to define an application inline rather then in an external directory.
-
-In all of R code chunks above the `echo = FALSE` attribute is used. This is to prevent the R code within the chunk from rendering in the document alongside the Shiny components.
 
 
 
