@@ -11,7 +11,7 @@ library(shiny)
 library(readxl)
 library(tidyverse)
 
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 
 jobdata <- read_excel("cpsa2024.xlsx")
 ```
@@ -45,7 +45,10 @@ shinyAppDir(
 )
 ```
 
-```{r import}
+## 2019 11b Data
+
+Represents employment by age group, given a drop-down menu for individual age groups.
+```{r import, echo=FALSE}
 df_2019 <- read_excel("cpsaat11b-2019.xlsx", skip = 4)
 
 head(df_2019)
@@ -73,7 +76,7 @@ df_2019_tidy <- df_2019 %>%
 glimpse(df_2019_tidy)
 ```
 
-```{r}
+```{r, echo=FALSE}
 inputPanel(
   selectInput("age", "Select Age Group:",
               choices = unique(df_2019_tidy$age_group))
