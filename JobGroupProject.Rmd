@@ -103,6 +103,12 @@ t9_tidy <- bind_rows(
   t9_2023_tidy
 )
 
+# Cleaning collums 
+t9_tidy <- t9_tidy %>%
+  filter(!is.na(age))
+t9_tidy <- t9_tidy %>%
+  mutate(age = as.numeric(str_remove(age, "\\+")))
+
 # 4. Inspect tidy data
 glimpse(t9_tidy)
 
@@ -127,8 +133,9 @@ renderTable({
 })
 ```
 
+## Practice Histogram 
 ```{r} 
-## Practice Histogram  
+ 
 ggplot(t9_tidy %>% filter(sex != "Total"), 
        aes(x = employment, fill = sex)) +
   geom_histogram(position = "dodge", bins = 20, alpha = 0.8) +
@@ -158,4 +165,16 @@ ggplot(t9_tidy %>% filter(Occupation %in% top_occupations, sex != "Total"),
        x = "Occupation", y = "Number Employed") +
   theme_minimal()
 ```
+
+## Option 2 for Gender Differences in Occupations
+```{r}
+ggplot(t9_tidy %>% filter(sex == "Total", Occupation %in% top_occupations),
+       aes(x = age, y = employment)) +
+  geom_line(color = "steelblue") +
+  facet_wrap(~Occupation, scales = "free_y") +
+  labs(title = "Employment Age Profiles by Occupation",
+       x = "Age", y = "Number Employed") +
+  theme_minimal()
+```
+
 
