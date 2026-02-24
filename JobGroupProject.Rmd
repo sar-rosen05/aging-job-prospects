@@ -166,15 +166,23 @@ ggplot(t9_tidy %>% filter(Occupation %in% top_occupations, sex != "Total"),
   theme_minimal()
 ```
 
-## Option 2 for Gender Differences in Occupations
+## Option 2 for Gender Differences in Occupations HeatMap
 ```{r}
-ggplot(t9_tidy %>% filter(sex == "Total", Occupation %in% top_occupations),
-       aes(x = age, y = employment)) +
-  geom_line(color = "steelblue") +
-  facet_wrap(~Occupation, scales = "free_y") +
-  labs(title = "Employment Age Profiles by Occupation",
-       x = "Age", y = "Number Employed") +
-  theme_minimal()
+# Ensure age is numeric and remove NA
+t9_heat <- t9_tidy %>%
+  filter(sex == "Total") %>%
+  mutate(age = as.numeric(age)) %>%
+  filter(!is.na(age))
+
+# Plot
+ggplot(t9_heat, aes(x = factor(age), y = Occupation, fill = employment)) +
+  geom_tile(color = "white") +                     # create tiles
+  scale_fill_viridis_c(option = "plasma") +        # color scheme
+  facet_wrap(~year, nrow = 1) +                    # one panel per year
+  labs(title = "Heatmap of Employment by Age and Occupation (2020–2023)",
+       x = "Age", y = "Occupation", fill = "Employed") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
 
