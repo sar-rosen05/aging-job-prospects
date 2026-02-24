@@ -3,6 +3,7 @@ title: "Job Aging Prospects Analysis"
 author: "Dareen Padilla"
 date: "2026-02-23"
 output: html_document
+runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
@@ -67,4 +68,27 @@ all_years <- bind_rows(
   cleaned_2013,
   cleaned_2014,
   cleaned_2015)
+```
+
+```{r Implementing Shiny Dropdowns, echo = FALSE}
+selectInput("Select_AgeGroup", 
+            "Select Age Group:", 
+            choices = unique(all_years$age_group)
+            )
+selectInput("Select_Year", 
+            "Select Year:", 
+            choices = unique(all_years$year)
+            )
+
+
+renderTable({
+  req(input$Select_AgeGroup, 
+      input$Select_Year)
+  
+  all_years %>% 
+    filter(age_group == input$Select_AgeGroup, 
+           year== input$Select_Year) %>%
+    
+    slice_max(total_employment, n = 10) 
+})
 ```
