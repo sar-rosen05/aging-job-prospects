@@ -37,7 +37,7 @@ colnames(data_2013)
 
 #Cleaning
 
-## Column Names
+## Column Names and Adding Year
 ```{r}
 data_2011 <- data_2011 %>%
   clean_names()
@@ -45,7 +45,7 @@ data_2011 <- data_2011 %>%
 data_2012 <- data_2012 %>%
   clean_names()
   mutate(year = 2012)
-data_2012 <- data_2012 %>%
+data_2013 <- data_2013 %>%
   clean_names()
   mutate(year = 2013)
 ```
@@ -54,10 +54,9 @@ colnames(data_2011)
 colnames(data_2012)
 colnames(data_2013)
 
+# Putting Into 1 Dataset
 ```{r}
-
-```
-
-
-
+employment_raw <- bind_rows(data_2011, data_2012, data_2013)
+glimpse(employment_raw)
+``` 
 
