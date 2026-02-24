@@ -41,15 +41,22 @@ colnames(data_2013)
 ```{r}
 data_2011 <- data_2011 %>%
   clean_names()
+  mutate(year = 2011)
 data_2012 <- data_2012 %>%
   clean_names()
+  mutate(year = 2012)
 data_2012 <- data_2012 %>%
   clean_names()
+  mutate(year = 2013)
 ```
 
 colnames(data_2011)
 colnames(data_2012)
 colnames(data_2013)
+
+```{r}
+
+```
 
 
 
