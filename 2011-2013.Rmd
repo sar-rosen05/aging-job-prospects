@@ -13,5 +13,15 @@ library(readxl)
 library(janitor)
 ```
 
+# Assigning Excel Files
+```{r}
+data_2011 <- read_excel("cpsaat11b_2011.xlsx")
+data_2012 <- read_excel("cpsaat11b_2012.xlsx")
+data_2013 <- read_excel("cpsaat11b_2013.xlsx")
+```
+
+- Assigns 2011 11b data to data_2011 variable
+- Assigns 2012 11b data to data_2012 variable
+- Assigns 2013 11b data to data_2013 variable
 
 
