@@ -34,8 +34,17 @@ t9_2023 <- read_excel(
 )
 
 
-# 2. Convert numeric columns from text to numbers
+# 2. Convert numeric columns from text to numbers for 2020 to 2023
 t9_2020 <- t9_2020 %>%
+  mutate(across(-Occupation, readr::parse_number))
+
+t9_2021 <- t9_2021 %>%
+  mutate(across(-Occupation, readr::parse_number))
+
+t9_2022 <- t9_2022 %>%
+  mutate(across(-Occupation, readr::parse_number))
+
+t9_2023 <- t9_2023 %>%
   mutate(across(-Occupation, readr::parse_number))
 
 # 3. Pivot longer to create tidy format
@@ -46,7 +55,43 @@ t9_tidy <- t9_2020 %>%
     names_sep = "_",
     values_to = "employment"         
   ) %>%
-  mutate(age = as.numeric(age))       
+  mutate(age = as.numeric(age))    
+
+t9_2021_tidy <- t9_2021 %>%
+  pivot_longer(
+    cols = -Occupation,
+    names_to = c("sex","age"),
+    names_sep = "_",
+    values_to = "employment"
+  ) %>%
+  mutate(
+    age = as.numeric(age),
+    year = 2021
+  )
+
+t9_2022_tidy <- t9_2022 %>%
+  pivot_longer(
+    cols = -Occupation,
+    names_to = c("sex","age"),
+    names_sep = "_",
+    values_to = "employment"
+  ) %>%
+  mutate(
+    age = as.numeric(age),
+    year = 2022
+  )
+
+t9_2023_tidy <- t9_2023 %>%
+  pivot_longer(
+    cols = -Occupation,
+    names_to = c("sex","age"),
+    names_sep = "_",
+    values_to = "employment"
+  ) %>%
+  mutate(
+    age = as.numeric(age),
+    year = 2023
+  )
 
 # 4. Inspect tidy data
 glimpse(t9_tidy)
@@ -78,4 +123,4 @@ ggplot(t9_tidy %>% filter(sex != "Total"),
   theme_minimal()
 ```
 
-The data is right-skewed, indicating that most indivisuals fall in the lower employment count brackets. 
+The data is right-skewed, indicating that most individuals fall in the lower employment count brackets. 
