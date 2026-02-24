@@ -17,6 +17,22 @@ t9_2020 <- read_excel(
   "2020 Table 9.xlsx", 
   col_types = c("text", "text", "text", "text", "text", "text")
 )
+## Read Excel files for additional years
+
+t9_2021 <- read_excel(
+  "2021_Table_9-2.xlsx",
+  col_types = c("text","text","text","text","text","text")
+)
+
+t9_2022 <- read_excel(
+  "2022_Table_9.xlsx",
+  col_types = c("text","text","text","text","text","text")
+)
+
+t9_2023 <- read_excel(
+  "2023_Table_9.xlsx",
+  col_types = c("text","text","text","text","text","text")
+)
 
 # 2. Convert numeric columns from text to numbers
 t9_2020 <- t9_2020 %>%
