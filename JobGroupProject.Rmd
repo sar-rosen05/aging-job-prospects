@@ -110,9 +110,10 @@ glimpse(t9_tidy)
 ```
 
 ```{r} 
-# Implementing Shiny with dropdowns
+# Implementing Shiny with drop downs
 selectInput("sex_input", "Select Sex:", choices = unique(t9_tidy$sex))
 selectInput("age_input", "Select Age:", choices = unique(t9_tidy$age))
+selectInput("year_input", "Select Year:", choices = unique(t9_tidy$year))
 
 # Filtered table
 renderTable({
