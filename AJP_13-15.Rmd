@@ -92,3 +92,25 @@ renderTable({
     slice_max(total_employment, n = 10) 
 })
 ```
+
+```{r Practicing Visualizations}
+renderPlot({
+  req(input$Select_AgeGroup, input$Select_Year)
+  
+  all_years %>% 
+    filter(age_group == input$Select_AgeGroup,
+           year == input$Select_Year) %>%
+    slice_max(total_employment, n = 10) %>% 
+    ggplot(aes(x = reorder(occupation, total_employment),     #Sorts the occupation based off of total employment
+               y = total_employment, 
+               fill = occupation)) +
+    geom_col() + 
+    labs(title = "Top 10 Ocupations based of Age Group & Year",
+         x = "Occupation", 
+         y = "Total Employment") +
+    coord_flip() +
+    theme_minimal() +
+    theme(legend.position = "none")
+})
+
+```
