@@ -1,42 +1,70 @@
 ---
 title: "JobAgeProject"
-author: "Obydah Jazaeri"
+author: "Obydah Jazaeri, Sarah Rosen"
 date: "2026-02-21"
 output: html_document
 runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
+<<<<<<< HEAD
+library(shiny)
 library(readxl)
-knitr::opts_chunk$set(echo = TRUE)
-#Just one chunk of the excel file 
+library(tidyverse)
+
+knitr::opts_chunk$set(echo = FALSE)
+
 jobdata <- read_excel("cpsa2024.xlsx")
+=======
+
+library(janitor)    
+library(readxl)
+library(dplyr)
+library(tidyr)
+library(stringr) 
+library(ggplot2)
+knitr::opts_chunk$set(echo = TRUE)
+data2017 <- read_excel("cpsaat11b.xlsx")
+data2018 <- read_excel("data2018.xlsx")
+data2019 <- read_excel("data2019.xlsx")
+>>>>>>> f9aaddcf96db12d53e5ed7ab45988ad945cc5f9a
 ```
 
-
-
-```{r eruptions, echo=FALSE}
-inputPanel(
-  selectInput("n_breaks", label = "Number of bins:",
-              choices = c(10, 20, 35, 50), selected = 20),
+```{r cleaning}
+clean_cps_year <- function(df, year) {
   
-  sliderInput("bw_adjust", label = "Bandwidth adjustment:",
-              min = 0.2, max = 2, value = 1, step = 0.2)
-)
+  df %>%
+    slice(-c(1:3)) %>%   # remove header junk
+    rename(
+      occupation = 1,
+      median_age = 2,
+      `16_to_19_years` = 3,
+      `20_to_24_years` = 4,
+      `25_to_34_years` = 5,
+      `35_to_44_years` = 6,
+      `45_to_54_years` = 7,
+      `55_to_64_years` = 8,
+      `65_years_and_over` = 9
+    ) %>%
+    filter(occupation != "Total employed") %>%
+    
+    # DROP median age before pivoting
+    select(-median_age) %>%
+    
+    pivot_longer(
+      cols = -occupation,
+      names_to = "age_group",
+      values_to = "employment_thousands"
+    ) %>%
+    mutate(
+      year = year,
+      employment_thousands = readr::parse_number(employment_thousands)
+    )
+}
 
-renderPlot({
-  hist(faithful$eruptions, probability = TRUE, breaks = as.numeric(input$n_breaks),
-       xlab = "Duration (minutes)", main = "Geyser eruption duration")
-  
-  dens <- density(faithful$eruptions, adjust = input$bw_adjust)
-  lines(dens, col = "blue")
-})
 ```
 
-## Embedded Application
-
-It's also possible to embed an entire Shiny application within an R Markdown document using the `shinyAppDir` function. This example embeds a Shiny application located in another directory:
-
+<<<<<<< HEAD
 ```{r tabsets, echo=FALSE}
 shinyAppDir(
   system.file("examples/06_tabsets", package = "shiny"),
@@ -46,11 +74,56 @@ shinyAppDir(
 )
 ```
 
-Note the use of the `height` parameter to determine how much vertical space the embedded application should occupy.
+## 2019 11b Data
 
-You can also use the `shinyApp` function to define an application inline rather then in an external directory.
+Represents employment by age group, given a drop-down menu for individual age groups.
+```{r import, echo=FALSE}
+df_2019 <- read_excel("cpsaat11b-2019.xlsx", skip = 4)
+=======
 
-In all of R code chunks above the `echo = FALSE` attribute is used. This is to prevent the R code within the chunk from rendering in the document alongside the Shiny components.
 
+>>>>>>> f9aaddcf96db12d53e5ed7ab45988ad945cc5f9a
+
+head(df_2019)
+
+colnames(df_2019)
+
+colnames(df_2019)[1] <- "Occupation"
+
+colnames(df_2019) <- gsub("\\r\\n", " ", colnames(df_2019))
+
+colnames(df_2019)
+
+df_2019 <- df_2019[, -c(2, ncol(df_2019))]
+
+df_2019_tidy <- df_2019 %>%
+  pivot_longer(
+    cols = -Occupation, 
+    names_to = "age_group",
+    values_to = "employed"
+  ) %>%
+  mutate (
+    year = 2019,
+    employed = as.numeric(employed)
+  )
+glimpse(df_2019_tidy)
+```
+
+```{r, echo=FALSE}
+inputPanel(
+  selectInput("age", "Select Age Group:",
+              choices = unique(df_2019_tidy$age_group))
+)
+
+renderPlot({
+  df_2019_tidy %>%
+    filter(age_group == input$age) %>%
+    slice_max(employed, n = 10) %>%
+    ggplot(aes(x = reorder(Occupation, employed),
+               y = employed)) +
+    geom_col() +
+    coord_flip()
+})
+```
 
 
