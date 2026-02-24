@@ -137,5 +137,19 @@ ggplot(t9_tidy %>% filter(sex != "Total"),
   ylab("Frequency") +
   theme_minimal()
 ```
-
 The data is right-skewed, indicating that most individuals fall in the lower employment count brackets. 
+
+## Gender Differences in Occupations
+```{r}
+ggplot(t9_tidy %>% filter(sex != "Total"),
+       aes(x = Occupation, y = employment, fill = sex)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  labs(
+    title = "Employment by Occupation and Sex (2020–2023)",
+    x = "Occupation",
+    y = "Number Employed"
+  ) +
+  theme_minimal()
+```
+
