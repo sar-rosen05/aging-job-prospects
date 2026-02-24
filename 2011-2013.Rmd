@@ -24,4 +24,15 @@ data_2013 <- read_excel("cpsaat11b_2013.xlsx")
 - Assigns 2012 11b data to data_2012 variable
 - Assigns 2013 11b data to data_2013 variable
 
+# Testing
+## Top 6 Rows
+head(data_2011)
+head(data_2012)
+head(data_2013)
+
+## Column Names
+colnames(data_2011)
+colnames(data_2012)
+colnames(data_2013)
+
 
