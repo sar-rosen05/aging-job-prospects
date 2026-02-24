@@ -48,17 +48,17 @@ t9_2023 <- t9_2023 %>%
   mutate(across(-Occupation, readr::parse_number))
 
 # 3. Pivot longer to create tidy format
-t9_tidy <- t9_2020 %>%
+t9_2020_tidy <- t9_2020 %>%
   pivot_longer(
-    cols = -Occupation,              
-    names_to = c("sex", "age"),       
+    cols = -Occupation,
+    names_to = c("sex","age"),
     names_sep = "_",
-    values_to = "employment"         
+    values_to = "employment"
   ) %>%
-   mutate(
+  mutate(
     age = as.numeric(age),
     year = 2020
-  )    
+  )   
 
 t9_2021_tidy <- t9_2021 %>%
   pivot_longer(
