@@ -95,6 +95,13 @@ t9_2023_tidy <- t9_2023 %>%
     age = as.numeric(age),
     year = 2023
   )
+# Combine all years
+t9_tidy <- bind_rows(
+  t9_2020_tidy,
+  t9_2021_tidy,
+  t9_2022_tidy,
+  t9_2023_tidy
+)
 
 # 4. Inspect tidy data
 glimpse(t9_tidy)
