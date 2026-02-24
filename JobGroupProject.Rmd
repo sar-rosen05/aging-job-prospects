@@ -117,9 +117,13 @@ selectInput("year_input", "Select Year:", choices = unique(t9_tidy$year))
 
 # Filtered table
 renderTable({
-  req(input$sex_input, input$age_input)
+  req(input$sex_input, input$age_input, input$year_input)
   t9_tidy %>%
-    filter(sex == input$sex_input, age == input$age_input)
+    filter(
+      sex == input$sex_input,
+      age == input$age_input,
+      year == input$year_input
+    )
 })
 ```
 
