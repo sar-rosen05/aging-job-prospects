@@ -55,7 +55,10 @@ t9_tidy <- t9_2020 %>%
     names_sep = "_",
     values_to = "employment"         
   ) %>%
-  mutate(age = as.numeric(age))    
+   mutate(
+    age = as.numeric(age),
+    year = 2020
+  )    
 
 t9_2021_tidy <- t9_2021 %>%
   pivot_longer(
