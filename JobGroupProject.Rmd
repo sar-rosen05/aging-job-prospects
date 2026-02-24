@@ -141,15 +141,21 @@ The data is right-skewed, indicating that most individuals fall in the lower emp
 
 ## Gender Differences in Occupations
 ```{r}
-ggplot(t9_tidy %>% filter(sex != "Total"),
+library(dplyr)
+top_occupations <- t9_tidy %>%
+  filter(sex != "Total") %>%
+  group_by(Occupation) %>%
+  summarise(total_employment = sum(employment, na.rm = TRUE)) %>%
+  arrange(desc(total_employment)) %>%
+  slice_head(n = 10) %>%
+  pull(Occupation)
+
+ggplot(t9_tidy %>% filter(Occupation %in% top_occupations, sex != "Total"),
        aes(x = Occupation, y = employment, fill = sex)) +
   geom_bar(stat = "identity", position = "dodge") +
   coord_flip() +
-  labs(
-    title = "Employment by Occupation and Sex (2020–2023)",
-    x = "Occupation",
-    y = "Number Employed"
-  ) +
+  labs(title = "Top 10 Occupations by Employment and Sex",
+       x = "Occupation", y = "Number Employed") +
   theme_minimal()
 ```
 
