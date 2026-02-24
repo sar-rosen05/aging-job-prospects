@@ -35,4 +35,22 @@ colnames(data_2011)
 colnames(data_2012)
 colnames(data_2013)
 
+#Cleaning
+
+## Column Names
+```{r}
+data_2011 <- data_2011 %>%
+  clean_names()
+data_2012 <- data_2012 %>%
+  clean_names()
+data_2012 <- data_2012 %>%
+  clean_names()
+```
+
+colnames(data_2011)
+colnames(data_2012)
+colnames(data_2013)
+
+
+
 
