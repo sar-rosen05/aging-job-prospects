@@ -29,10 +29,10 @@ head(data)
 library(tidyverse)
 library(readxl)
 
-# Read the 2015 data (skip the messy header rows)
+# Read the 2015 data
 data_2015 <- read_excel("cpsaat03.xlsx", skip = 7)
 
-# Manually build clean age group data from 2015
+# Clean 2015 Data
 age_groups <- c("16-19", "20-24", "25-34", "35-44", "45-54", "55-64", "65+")
 employed <- c(4734, 14022, 32742, 31252, 32643, 24975, 8465)
 employment_pct <- c(28.5, 63.8, 76.6, 78.7, 76.6, 61.5, 18.2)
@@ -41,7 +41,7 @@ df_2015 <- data.frame(age_group = age_groups,
                        employed = employed, 
                        employment_rate = employment_pct)
 
-# Bar chart of employment rate by age group
+# Bar chart of employment rate by age group 
 ggplot(df_2015, aes(x = age_group, y = employment_rate, fill = age_group)) +
   geom_bar(stat = "identity") +
   labs(title = "Employment Rate by Age Group (2015)",
