@@ -1,5 +1,4 @@
----
-title: "JobAgeProject"
+--title: "JobAgeProject"
 author: "Obydah Jazaeri"
 date: "2026-02-21"
 output: html_document
@@ -126,6 +125,8 @@ server <- function(input, output) {
 shinyApp(ui = ui, server = server)
 
 ```
+
+
 
 
 

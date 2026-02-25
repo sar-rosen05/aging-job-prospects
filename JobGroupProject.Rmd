@@ -12,25 +12,102 @@ library(tidyverse)
 library(readxl)
 library(shiny)
 
-## Read Excel file 
+## Read Excel file for all of Table 9 from 2020 to 2023
 t9_2020 <- read_excel(
   "2020 Table 9.xlsx", 
   col_types = c("text", "text", "text", "text", "text", "text")
 )
 
-# 2. Convert numeric columns from text to numbers
+t9_2021 <- read_excel(
+  "2021_Table_9-2.xlsx",
+  col_types = c("text","text","text","text","text","text")
+)
+
+t9_2022 <- read_excel(
+  "2022_Table_9.xlsx",
+  col_types = c("text","text","text","text","text","text")
+)
+
+t9_2023 <- read_excel(
+  "2023_Table_9.xlsx",
+  col_types = c("text","text","text","text","text","text")
+)
+
+
+# 2. Convert numeric columns from text to numbers for 2020 to 2023
 t9_2020 <- t9_2020 %>%
   mutate(across(-Occupation, readr::parse_number))
 
+t9_2021 <- t9_2021 %>%
+  mutate(across(-Occupation, readr::parse_number))
+
+t9_2022 <- t9_2022 %>%
+  mutate(across(-Occupation, readr::parse_number))
+
+t9_2023 <- t9_2023 %>%
+  mutate(across(-Occupation, readr::parse_number))
+
 # 3. Pivot longer to create tidy format
-t9_tidy <- t9_2020 %>%
+t9_2020_tidy <- t9_2020 %>%
   pivot_longer(
-    cols = -Occupation,              
-    names_to = c("sex", "age"),       
+    cols = -Occupation,
+    names_to = c("sex","age"),
     names_sep = "_",
-    values_to = "employment"         
+    values_to = "employment"
   ) %>%
-  mutate(age = as.numeric(age))       
+  mutate(
+    age = as.numeric(age),
+    year = 2020
+  )   
+
+t9_2021_tidy <- t9_2021 %>%
+  pivot_longer(
+    cols = -Occupation,
+    names_to = c("sex","age"),
+    names_sep = "_",
+    values_to = "employment"
+  ) %>%
+  mutate(
+    age = as.numeric(age),
+    year = 2021
+  )
+
+t9_2022_tidy <- t9_2022 %>%
+  pivot_longer(
+    cols = -Occupation,
+    names_to = c("sex","age"),
+    names_sep = "_",
+    values_to = "employment"
+  ) %>%
+  mutate(
+    age = as.numeric(age),
+    year = 2022
+  )
+
+t9_2023_tidy <- t9_2023 %>%
+  pivot_longer(
+    cols = -Occupation,
+    names_to = c("sex","age"),
+    names_sep = "_",
+    values_to = "employment"
+  ) %>%
+  mutate(
+    age = as.numeric(age),
+    year = 2023
+  )
+# Combine all years
+t9_tidy <- bind_rows(
+  t9_2020_tidy,
+  t9_2021_tidy,
+  t9_2022_tidy,
+  t9_2023_tidy
+)
+
+# Cleaning collums 
+t9_tidy <- t9_tidy %>%
+  filter(!is.na(age))
+t9_tidy <- t9_tidy %>%
+  mutate(age = as.numeric(str_remove(age, "\\+")))
 
 # 4. Inspect tidy data
 glimpse(t9_tidy)
@@ -39,20 +116,26 @@ glimpse(t9_tidy)
 ```
 
 ```{r} 
-# Implementing Shiny with dropdowns
+# Implementing Shiny with drop downs
 selectInput("sex_input", "Select Sex:", choices = unique(t9_tidy$sex))
 selectInput("age_input", "Select Age:", choices = unique(t9_tidy$age))
+selectInput("year_input", "Select Year:", choices = unique(t9_tidy$year))
 
 # Filtered table
 renderTable({
-  req(input$sex_input, input$age_input)
+  req(input$sex_input, input$age_input, input$year_input)
   t9_tidy %>%
-    filter(sex == input$sex_input, age == input$age_input)
+    filter(
+      sex == input$sex_input,
+      age == input$age_input,
+      year == input$year_input
+    )
 })
 ```
 
+## Practice Histogram 
 ```{r} 
-## Practice Histogram  
+ 
 ggplot(t9_tidy %>% filter(sex != "Total"), 
        aes(x = employment, fill = sex)) +
   geom_histogram(position = "dodge", bins = 20, alpha = 0.8) +
@@ -61,5 +144,45 @@ ggplot(t9_tidy %>% filter(sex != "Total"),
   ylab("Frequency") +
   theme_minimal()
 ```
+The data is right-skewed, indicating that most individuals fall in the lower employment count brackets. 
 
-The data is right-skewed, indicating that most indivisuals fall in the lower employment count brackets. 
+## Gender Differences in Occupations
+```{r}
+library(dplyr)
+top_occupations <- t9_tidy %>%
+  filter(sex != "Total") %>%
+  group_by(Occupation) %>%
+  summarise(total_employment = sum(employment, na.rm = TRUE)) %>%
+  arrange(desc(total_employment)) %>%
+  slice_head(n = 10) %>%
+  pull(Occupation)
+
+ggplot(t9_tidy %>% filter(Occupation %in% top_occupations, sex != "Total"),
+       aes(x = Occupation, y = employment, fill = sex)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  labs(title = "Top 10 Occupations by Employment and Sex",
+       x = "Occupation", y = "Number Employed") +
+  theme_minimal()
+```
+
+## Option 2 for Gender Differences in Occupations HeatMap
+```{r}
+# Ensure age is numeric and remove NA
+t9_heat <- t9_tidy %>%
+  filter(sex == "Total") %>%
+  mutate(age = as.numeric(age)) %>%
+  filter(!is.na(age))
+
+# Plot
+ggplot(t9_heat, aes(x = factor(age), y = Occupation, fill = employment)) +
+  geom_tile(color = "white") +                     # create tiles
+  scale_fill_viridis_c(option = "plasma") +        # color scheme
+  facet_wrap(~year, nrow = 1) +                    # one panel per year
+  labs(title = "Heatmap of Employment by Age and Occupation (2020–2023)",
+       x = "Age", y = "Occupation", fill = "Employed") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+

@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(readxl)
 library(janitor)
+library(shiny)
 
 # Make a function that cleans ONE year
 clean_one_year <- function(file, year_num) {
@@ -90,17 +91,37 @@ bls_tidy <- bls_tidy %>%
   ))
 unique(bls_tidy$age_group)
 ```
+## First Shiny chart
 
+This is my first quick chart using the CPS 11B data (2021–2023).
 
-```{r}
-shinyAppDir(
-  system.file("examples/06_tabsets", package = "shiny"),
-  options = list(
-    width = "100%", height = 550
+```{r, echo=FALSE}
+inputPanel(
+  selectizeInput(
+    "occ",
+    "Pick an occupation:",
+    choices = sort(unique(bls_tidy$occupation)),
+    selected = "Total employed",
+    multiple = FALSE,
+    options = list(placeholder = "Start typing...")
   )
 )
-```
 
+renderPlot({
+  plot_data <- bls_tidy %>%
+    filter(occupation == input$occ)
+
+  ggplot(plot_data, aes(x = age_group, y = employed_thousands)) +
+    geom_col(fill = "steelblue") +
+    facet_wrap(~year) +
+    labs(
+      title = paste0("Employed persons by age group (", input$occ, ")"),
+      x = "Age group",
+      y = "Employed (thousands)"
+    ) +
+    theme(axis.text.x = element_text(angle = 35, hjust = 1))
+})
+```
 
 
 
