@@ -55,7 +55,24 @@ clean_cps_year <- function(df, year) {
 ```
 
 
-
-
+```{r draft graph}
+cps_clean %>%
+  filter(year == 2018) %>%
+  group_by(occupation) %>%
+  summarise(
+    total_employment = sum(employment_thousands, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  # keep only top 8 occupations so the pie is readable
+  slice_max(total_employment, n = 8) %>%
+  ggplot(aes(x = "", y = total_employment, fill = occupation)) +
+  geom_col(width = 1) +
+  coord_polar(theta = "y") +
+  labs(
+    title = "Job Distribution by Occupation (2019)",
+    fill = "Occupation"
+  ) +
+  theme_void()
+```
 
 
