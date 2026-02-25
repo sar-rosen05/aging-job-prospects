@@ -7,7 +7,7 @@ runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
-
+library(shiny)
 library(janitor)    
 library(readxl)
 library(dplyr)
@@ -24,7 +24,7 @@ data2019 <- read_excel("data2019.xlsx")
 clean_cps_year <- function(df, year) {
   
   df %>%
-    slice(-c(1:3)) %>%   # remove header junk
+    slice(-c(1:3)) %>%   
     rename(
       occupation = 1,
       median_age = 2,
@@ -54,25 +54,78 @@ clean_cps_year <- function(df, year) {
 
 ```
 
+```{r create-cps-clean}
+data2017_clean <- clean_cps_year(data2017, 2017)
+data2018_clean <- clean_cps_year(data2018, 2018)
+data2019_clean <- clean_cps_year(data2019, 2019)
 
-```{r draft graph}
-cps_clean %>%
-  filter(year == 2018) %>%
-  group_by(occupation) %>%
-  summarise(
-    total_employment = sum(employment_thousands, na.rm = TRUE),
-    .groups = "drop"
-  ) %>%
-  # keep only top 8 occupations so the pie is readable
-  slice_max(total_employment, n = 8) %>%
-  ggplot(aes(x = "", y = total_employment, fill = occupation)) +
-  geom_col(width = 1) +
-  coord_polar(theta = "y") +
-  labs(
-    title = "Job Distribution by Occupation (2019)",
-    fill = "Occupation"
-  ) +
-  theme_void()
+cps_clean <- bind_rows(
+  data2017_clean,
+  data2018_clean,
+  data2019_clean
+)
 ```
+
+
+
+```{r shiny graph }
+ui <- fluidPage(
+  
+  titlePanel("Job Distribution by Occupation"),
+  
+  sidebarLayout(
+    
+    sidebarPanel(
+      
+      selectInput(
+        inputId = "year",
+        label = "Select Year:",
+        choices = sort(unique(cps_clean$year)),
+        selected = max(cps_clean$year)
+      ),
+      
+      selectInput(
+        inputId = "occupation",
+        label = "Select Occupations:",
+        choices = sort(unique(cps_clean$occupation)),
+        selected = unique(cps_clean$occupation)[1:6],
+        multiple = TRUE
+      )
+    ),
+    
+    mainPanel(
+      plotOutput("piePlot")
+    )
+  )
+)
+
+server <- function(input, output) {
+  
+  output$piePlot <- renderPlot({
+    
+    cps_clean %>%
+      filter(
+        year == input$year,
+        occupation %in% input$occupation
+      ) %>%
+      group_by(occupation) %>%
+      summarise(
+        total_employment = sum(employment_thousands, na.rm = TRUE),
+        .groups = "drop"
+      ) %>%
+      ggplot(aes(x = "", y = total_employment, fill = occupation)) +
+      geom_col(width = 1) +
+      coord_polar(theta = "y") +
+      labs(
+        title = paste("Job Distribution by Occupation,", input$year),
+        fill = "Occupation"
+      ) +
+      theme_void()
+  })
+}
+shinyApp(ui = ui, server = server)
+
+```
+
 
 
