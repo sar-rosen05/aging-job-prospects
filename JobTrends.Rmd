@@ -9,3 +9,11 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r load-data}
+library(tidyverse)
+
+# Load Table 8 data
+data <- read_csv("Table_8_Data.csv")
+
+glimpse(data)
+```
