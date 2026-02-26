@@ -9,6 +9,7 @@ runtime: shiny
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(shiny)
+library(writexl)
 library(tidyverse)
 library(janitor)    
 library(readxl)
@@ -100,8 +101,69 @@ clean11b_data <- bind_rows(
 )
 ```
 
-```{r Shahlan's Cleaning Code for 8}
+```{r Shahlans Cleaning Code for 8}
+t8 <- read_excel(
+  "Table_8_Data.xlsx",
+  col_types = c("text","text","text","text","text","text","text","text")
+)
 
+glimpse(t8)
+
+# Convert all columns from text to numbers
+t8 <- t8 %>%
+  mutate(across(c(FT_Total, PT_Total, Unemp_FT, Unemp_PT), readr::parse_number))
+
+# Pivot to Tidy Format
+t8_tidy <- t8 %>%
+  pivot_longer(
+    cols = c(FT_Total, PT_Total, Unemp_FT, Unemp_PT),
+    names_to = c("Measure","Time"),
+    names_sep = "_",
+    values_to = "Count"
+  ) %>%
+  # Combine Measure and Time info into meaningful columns
+  mutate(
+    FT = if_else(Measure == "FT" & Time == "Total", Count, NA_real_),
+    PT = if_else(Measure == "PT" & Time == "Total", Count, NA_real_),
+    Unemp = if_else(Measure == "Unemp", Count, NA_real_)
+  ) %>%
+  group_by(Year, Sex, Race, Age) %>%
+  summarise(
+    FT = sum(FT, na.rm = TRUE),
+    PT = sum(PT, na.rm = TRUE),
+    Unemp = sum(Unemp, na.rm = TRUE)
+  ) %>%
+  ungroup() %>%
+  mutate(Total = FT + PT)
+
+
+glimpse(t8_tidy)
+
+
+
+t8_tidy <- t8_tidy %>%
+  filter(!is.na(Sex) & !is.na(Race) & !is.na(Age))
+
+
+t8_tidy <- t8_tidy %>%
+  mutate(
+    Total = as.numeric(Total),
+    Unemp = as.numeric(Unemp)
+  )
+
+t8_tidy <- t8_tidy %>%
+  mutate(Year = as.numeric(Year))
+
+
+t8_tidy <- t8_tidy %>%
+  mutate(Age = factor(Age, 
+                      levels = c("16 to 19","20 to 24","20+","25 to 54","25+","55+"),
+                      ordered = TRUE))
+
+
+write_xlsx(t8_tidy, "Table_8_Data_Tidy.xlsx")
+
+summary(t8_tidy)
 
 
 
