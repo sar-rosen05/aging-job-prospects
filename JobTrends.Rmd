@@ -12,7 +12,15 @@ library(stringr)
 knitr::opts_chunk$set(echo = TRUE)
 
 # Loading Table 8 data
-t8 <- read_excel("Table_8_Data.xlsx", col_types = "text")
+t8 <- read_excel(
+  "Table_8.xlsx",
+  col_types = c("text","text","text","text","text","text","text","text")
+)
 
 glimpse(t8)
+
+# Convert all columns from text to numbers
+t8 <- t8 %>%
+  mutate(across(c(FT_Total, PT_Total, Unemp_FT, Unemp_PT), readr::parse_number))
+
 ```
