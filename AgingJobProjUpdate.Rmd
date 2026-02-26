@@ -1,0 +1,36 @@
+---
+title: "AgingJobUpdate"
+author: "Obydah Jazaeri"
+date: "2026-02-26"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(shiny)
+library(tidyverse)
+library(janitor)    
+library(readxl)
+library(tidyr)
+library(stringr) 
+library(ggplot2)
+knitr::opts_chunk$set(echo = TRUE)
+data2011 <- read_excel("11b_2011.xlsx")
+data2012 <- read_excel("11b_2012.xlsx")
+data2013 <- read_excel("11b_2013.xlsx")
+data2014 <- read_excel("11b_2014.xlsx")
+data2015 <- read_excel("11b_2015.xlsx")
+data2016 <- read_excel("11b_2016.xlsx")
+data2017 <- read_excel("11b_2017.xlsx")
+data2018 <- read_excel("11b_2018.xlsx")
+data2019 <- read_excel("11b_2019.xlsx")
+data2020 <- read_excel("11b_2020.xlsx")
+data2021 <- read_excel("11b_2021.xlsx")
+data2022 <- read_excel("11b_2022.xlsx")
+data2023 <- read_excel("11b_2023.xlsx")
+data2024 <- read_excel("11b_2024.xlsx")
+```
+
+
+
