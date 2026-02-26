@@ -6,14 +6,13 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-```{r load-data}
 library(tidyverse)
+library(readxl)
+library(stringr)
+knitr::opts_chunk$set(echo = TRUE)
 
-# Load Table 8 data
-data <- read_csv("Table_8_Data.csv")
+# Loading Table 8 data
+t8 <- read_excel("Table_8_Data.xlsx", col_types = "text")
 
-glimpse(data)
+glimpse(t8)
 ```
