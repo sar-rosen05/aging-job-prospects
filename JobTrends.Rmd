@@ -9,6 +9,7 @@ output: html_document
 library(tidyverse)
 library(readxl)
 library(stringr)
+library(writexl)
 knitr::opts_chunk$set(echo = TRUE)
 
 # Loading Table 8 data
@@ -27,16 +28,47 @@ t8 <- t8 %>%
 t8_tidy <- t8 %>%
   pivot_longer(
     cols = c(FT_Total, PT_Total, Unemp_FT, Unemp_PT),
-    names_to = c("Measure","Type"),
+    names_to = c("Measure","Time"),
     names_sep = "_",
     values_to = "Count"
   ) %>%
-  pivot_wider(
-    names_from = Measure,
-    values_from = Count
-  )
+  # Combine Measure and Time info into meaningful columns
+  mutate(
+    FT = if_else(Measure == "FT" & Time == "Total", Count, NA_real_),
+    PT = if_else(Measure == "PT" & Time == "Total", Count, NA_real_),
+    Unemp = if_else(Measure == "Unemp", Count, NA_real_)
+  ) %>%
+  group_by(Year, Sex, Race, Age) %>%
+  summarise(
+    FT = sum(FT, na.rm = TRUE),
+    PT = sum(PT, na.rm = TRUE),
+    Unemp = sum(Unemp, na.rm = TRUE)
+  ) %>%
+  ungroup() %>%
+  mutate(Total = FT + PT)
 
 
 glimpse(t8_tidy)
 
+
+
+t8_tidy <- t8_tidy %>%
+  filter(!is.na(Sex) & !is.na(Race) & !is.na(Age))
+
+
+t8_tidy <- t8_tidy %>%
+  mutate(
+    Total = as.numeric(Total),
+    Unemp = as.numeric(Unemp)
+  )
+
+t8_tidy <- t8_tidy %>%
+  mutate(Year = as.numeric(Year))
+
+
+
+
+write_xlsx(t8_tidy, "Table_8_Data_Tidy.xlsx")
+
+summary(t8_tidy)
 ```
