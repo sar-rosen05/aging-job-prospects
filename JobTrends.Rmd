@@ -65,7 +65,10 @@ t8_tidy <- t8_tidy %>%
 t8_tidy <- t8_tidy %>%
   mutate(Year = as.numeric(Year))
 
-
+t8_tidy <- t8_tidy %>%
+  mutate(Age = factor(Age, 
+                      levels = c("16 to 19","20 to 24","20+","25 to 54","25+","55+"),
+                      ordered = TRUE))
 
 
 write_xlsx(t8_tidy, "Table_8_Data_Tidy.xlsx")
