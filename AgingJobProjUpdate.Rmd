@@ -82,7 +82,7 @@ data2022_clean <- clean_cps_year(data2022, 2022)
 data2023_clean <- clean_cps_year(data2023, 2023)
 data2024_clean <- clean_cps_year(data2024, 2024
                                  )
-cps_clean <- bind_rows(
+clean11b_data <- bind_rows(
   data2011_clean,
   data2012_clean,
   data2013_clean,
@@ -99,9 +99,5 @@ cps_clean <- bind_rows(
   data2024_clean
 )
 ```
-
-
-
-
 
 
