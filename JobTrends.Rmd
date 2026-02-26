@@ -1,0 +1,11 @@
+---
+title: "U.S. Labor Market Trends (2011-2024)"
+author: "Shahlan Finchan"
+date: "2026-02-26"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
