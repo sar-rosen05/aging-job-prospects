@@ -100,4 +100,41 @@ clean11b_data <- bind_rows(
 )
 ```
 
+```{r Shahlan's Cleaning Code for 8}
+
+
+
+
+```
+
+
+```{r Obydahs Graph section}
+
+```
+
+
+```{r Shahlans Graph Section}
+
+```
+
+
+```{r Dareens Graph Section}
+
+```
+
+```{r Sarahs Graphs Section}
+
+```
+
+```{r Sammys Graph Section}
+
+```
+
+```{r Rishitas Graph Section}
+
+```
+
+```{r Zuwidyas graph section}
+
+```
 
