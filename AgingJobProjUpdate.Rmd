@@ -110,10 +110,6 @@ t8 <- read_excel(
   "Table_8_Data.xlsx",
   col_types = c("text","text","text","text","text","text","text","text")
 )
-=======
-```{r Shahlan Cleaning Code for 8}
->>>>>>> 2572b38 (Added table 8 cleaning code to final document)
-
 glimpse(t8)
 
 # Convert all columns from text to numbers
