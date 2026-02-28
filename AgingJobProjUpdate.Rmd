@@ -31,6 +31,7 @@ data2021 <- read_excel("11b_2021.xlsx")
 data2022 <- read_excel("11b_2022.xlsx")
 data2023 <- read_excel("11b_2023.xlsx")
 data2024 <- read_excel("11b_2024.xlsx")
+table8_data <- read_excel("Table_8_Data.xlsx")
 ```
 
 ```{r cleaning}
@@ -82,7 +83,9 @@ data2021_clean <- clean_cps_year(data2021, 2021)
 data2022_clean <- clean_cps_year(data2022, 2022)
 data2023_clean <- clean_cps_year(data2023, 2023)
 data2024_clean <- clean_cps_year(data2024, 2024
-                                 )
+)
+
+                 
 clean11b_data <- bind_rows(
   data2011_clean,
   data2012_clean,
@@ -101,11 +104,15 @@ clean11b_data <- bind_rows(
 )
 ```
 
+<<<<<<< HEAD
 ```{r Shahlans Cleaning Code for 8}
 t8 <- read_excel(
   "Table_8_Data.xlsx",
   col_types = c("text","text","text","text","text","text","text","text")
 )
+=======
+```{r Shahlan Cleaning Code for 8}
+>>>>>>> 2572b38 (Added table 8 cleaning code to final document)
 
 glimpse(t8)
 
@@ -165,7 +172,50 @@ write_xlsx(t8_tidy, "Table_8_Data_Tidy.xlsx")
 
 summary(t8_tidy)
 
+clean_table8 <- function(df) {
+  
+  df %>%
+    
+    pivot_longer(
+      cols = c(FT_Total, PT_Total, Unemp_FT, Unemp_PT),
+      names_to = c("measure","time"),
+      names_sep = "_",
+      values_to = "count"
+    ) %>%
+    
+   
+    mutate(
+      FT = if_else(measure == "FT" & time == "Total", count, NA_real_),
+      PT = if_else(measure == "PT" & time == "Total", count, NA_real_),
+      Unemp = if_else(measure == "Unemp", count, NA_real_)
+    ) %>%
+    
+    
+    group_by(Year, Sex, Race, Age) %>%
+    summarise(
+      FT = sum(FT, na.rm = TRUE),
+      PT = sum(PT, na.rm = TRUE),
+      Unemp = sum(Unemp, na.rm = TRUE),
+      .groups = "drop"
+    ) %>%
+    
+    
+    mutate(
+      Total = FT + PT,
+      Year = as.integer(Year),
+      Age = factor(
+        Age,
+        levels = c("16 to 19","20 to 24","20+","25 to 54","25+","55+"),
+        ordered = TRUE
+      )
+    ) %>%
+    
+    
+    filter(!is.na(Sex), !is.na(Race), !is.na(Age))
+}
 
+
+clean8_data <- clean_table8(table8_data)
 
 ```
 
