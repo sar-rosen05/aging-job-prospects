@@ -223,7 +223,6 @@ clean8_data <- clean_table8(table8_data)
 
 ```{r Shahlans Graph Section}
 
-
 library(ggplot2)
 library(dplyr)
 library(ggthemes)
