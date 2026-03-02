@@ -230,6 +230,8 @@ clean8_data <- clean_table8(table8_data)
 library(ggplot2)
 library(dplyr)
 library(ggthemes)
+library(plotly)
+
 
 myColors <- c(
   "#264653",  
@@ -238,6 +240,7 @@ myColors <- c(
   "#E76F51",  
   "#6D597A"   
 )
+
 
 t8_unemp_age <- clean8_data %>%
   mutate(
@@ -248,16 +251,29 @@ t8_unemp_age <- clean8_data %>%
   summarise(
     Unemployment_Rate = mean(Unemployment_Rate, na.rm = TRUE),
     .groups = "drop"
-  )
+  ) %>%
+  arrange(Age, Year) 
 
-ggplot(t8_unemp_age, aes(x = Year, y = Unemployment_Rate, color = Age)) +
-geom_line(linewidth = 1.2, alpha = 0.8) +
-geom_point(size = 2) +
+
+p <- ggplot(t8_unemp_age, aes(
+      x = Year,
+      y = Unemployment_Rate,
+      color = Age,      
+      group = Age,      
+      text = paste(     
+        "Year:", Year,
+        "<br>Age:", Age,
+        "<br>Unemployment Rate:", scales::percent(Unemployment_Rate)
+      )
+    )) +
+  geom_line(linewidth = 1.2, alpha = 0.8) +
+  geom_point(size = 2) +
   labs(
     title = "Unemployment Rate by Age Group (2011–2024)",
     subtitle = "Comparing unemployment trends across age groups",
     x = "Year",
-    y = "Unemployment Rate"
+    y = "Unemployment Rate",
+    color = "Age Group"   
   ) +
   scale_x_continuous(breaks = 2011:2024) +
   scale_y_continuous(labels = scales::percent_format()) +
@@ -268,8 +284,14 @@ geom_point(size = 2) +
     text = element_text(family = "Times New Roman")
   )
 
+# interactive with hover feature
+ggplotly(p, tooltip = "text")
+
+
 
 ```
+
+
 
 
 ```{r Dareens Graph Section}
