@@ -223,6 +223,36 @@ clean8_data <- clean_table8(table8_data)
 
 ```{r Shahlans Graph Section}
 
+
+library(ggplot2)
+library(dplyr)
+library(ggthemes)
+
+myColors <- c(
+  "#264653",  
+  "#2A9D8F",  
+  "#E9C46A", 
+  "#F4A261", 
+  "#E76F51",  
+  "#6D597A"   
+)
+
+t8_unemp_age <- table8_data %>%
+  filter(!is.na(Age)) %>%  
+  mutate(
+    Year = as.numeric(Year),
+    Total_Employed = FT_Total + PT_Total,
+    Total_Unemployed = Unemp_FT + Unemp_PT,
+    Labor_Force = Total_Employed + Total_Unemployed,
+    Unemployment_Rate = Total_Unemployed / Labor_Force
+  ) %>%
+  group_by(Year, Age) %>%
+  summarise(
+    Unemployment_Rate = mean(Unemployment_Rate, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+
 ```
 
 
