@@ -252,6 +252,24 @@ t8_unemp_age <- table8_data %>%
     .groups = "drop"
   )
 
+ggplot(t8_unemp_age, aes(x = Year, y = Unemployment_Rate, color = Age)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 2.5) +
+  labs(
+    title = "Unemployment Rate by Age Group (2011–2024)",
+    subtitle = "Comparing unemployment trends across age groups",
+    x = "Year",
+    y = "Unemployment Rate"
+  ) +
+  scale_x_continuous(breaks = 2011:2024) +
+  scale_y_continuous(labels = scales::percent_format()) +
+  scale_color_manual(values = myColors) +
+  theme_fivethirtyeight() +
+  theme(
+    axis.title = element_text(),
+    text = element_text(family = "Times New Roman")
+  )
+
 
 ```
 
