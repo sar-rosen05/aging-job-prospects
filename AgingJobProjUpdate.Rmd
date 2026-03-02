@@ -286,7 +286,7 @@ p <- ggplot(t8_unemp_age, aes(
   )
 
 # interactive with hover feature
-ggplotly(p, tooltip = "text") %>%  # * pipe here
+ggplotly(p, tooltip = "text") %>% 
   layout(
     hoverlabel = list(
       font = list(
@@ -296,7 +296,9 @@ ggplotly(p, tooltip = "text") %>%  # * pipe here
       ),
       bgcolor = "white",             
       bordercolor = "transparent"
-    )
+    ),
+    xaxis = list(fixedrange = TRUE), 
+    yaxis = list(fixedrange = TRUE)
   ) %>%
   config(displayModeBar = FALSE)
 
