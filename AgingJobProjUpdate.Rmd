@@ -231,6 +231,7 @@ library(ggplot2)
 library(dplyr)
 library(ggthemes)
 library(plotly)
+library(scales)
 
 
 myColors <- c(
@@ -263,7 +264,7 @@ p <- ggplot(t8_unemp_age, aes(
       text = paste(     
         "Year:", Year,
         "<br>Age:", Age,
-        "<br>Unemployment Rate:", scales::percent(Unemployment_Rate)
+        "<br>Unemployment Rate:", percent(Unemployment_Rate, accuracy = 1)
       )
     )) +
   geom_line(linewidth = 1.2, alpha = 0.8) +
@@ -285,7 +286,20 @@ p <- ggplot(t8_unemp_age, aes(
   )
 
 # interactive with hover feature
-ggplotly(p, tooltip = "text")
+ggplotly(p, tooltip = "text") %>%  # * pipe here
+  layout(
+    hoverlabel = list(
+      font = list(
+        family = "Times New Roman",  
+        size = 12,                  
+        color = "black"              
+      ),
+      bgcolor = "white",             
+      bordercolor = "transparent"
+    )
+  ) %>%
+  config(displayModeBar = FALSE)
+
 
 
 
