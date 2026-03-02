@@ -253,8 +253,9 @@ t8_unemp_age <- table8_data %>%
   )
 
 ggplot(t8_unemp_age, aes(x = Year, y = Unemployment_Rate, color = Age)) +
-  geom_line(size = 1.2) +
-  geom_point(size = 2.5) +
+  geom_line(size = 1) +
+  geom_point(size = 2) +
+  geom_line(size = 1.2, alpha = 0.8)+
   labs(
     title = "Unemployment Rate by Age Group (2011–2024)",
     subtitle = "Comparing unemployment trends across age groups",
