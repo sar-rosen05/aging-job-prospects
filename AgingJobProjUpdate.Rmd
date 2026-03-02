@@ -196,18 +196,22 @@ clean_table8 <- function(df) {
     ) %>%
     
     
-    mutate(
-      Total = FT + PT,
-      Year = as.integer(Year),
-      Age = factor(
-        Age,
-        levels = c("16 to 19","20 to 24","20+","25 to 54","25+","55+"),
-        ordered = TRUE
-      )
-    ) %>%
-    
-    
-    filter(!is.na(Sex), !is.na(Race), !is.na(Age))
+  mutate(
+  Total = FT + PT,
+  Year = as.integer(Year),
+  Age = factor(
+    Age,
+    levels = c("16 to 19","20 to 24","20+","25 to 54","25+","55+"),
+    ordered = TRUE
+  )
+) %>%
+
+filter(
+  !is.na(Sex),
+  !is.na(Race),
+  !is.na(Age),
+  !Age %in% c("20+", "25+")
+)
 }
 
 
@@ -231,19 +235,14 @@ myColors <- c(
   "#264653",  
   "#2A9D8F",  
   "#E9C46A", 
-  "#F4A261", 
   "#E76F51",  
   "#6D597A"   
 )
 
-t8_unemp_age <- table8_data %>%
-  filter(!is.na(Age)) %>%  
+t8_unemp_age <- clean8_data %>%
   mutate(
-    Year = as.numeric(Year),
-    Total_Employed = FT_Total + PT_Total,
-    Total_Unemployed = Unemp_FT + Unemp_PT,
-    Labor_Force = Total_Employed + Total_Unemployed,
-    Unemployment_Rate = Total_Unemployed / Labor_Force
+    Labor_Force = Total + Unemp,
+    Unemployment_Rate = Unemp / Labor_Force
   ) %>%
   group_by(Year, Age) %>%
   summarise(
@@ -252,9 +251,8 @@ t8_unemp_age <- table8_data %>%
   )
 
 ggplot(t8_unemp_age, aes(x = Year, y = Unemployment_Rate, color = Age)) +
-  geom_line(size = 1) +
-  geom_point(size = 2) +
-  geom_line(size = 1.2, alpha = 0.8)+
+geom_line(linewidth = 1.2, alpha = 0.8) +
+geom_point(size = 2) +
   labs(
     title = "Unemployment Rate by Age Group (2011–2024)",
     subtitle = "Comparing unemployment trends across age groups",
