@@ -279,19 +279,6 @@ server <- function(input, output) {
   output$unempPlot <- renderPlotly({
 
 
-t8_unemp_age <- clean8_data %>%
-  mutate(
-    Labor_Force = Total + Unemp,
-    Unemployment_Rate = Unemp / Labor_Force
-  ) %>%
-  group_by(Year, Age) %>%
-  summarise(
-    Unemployment_Rate = mean(Unemployment_Rate, na.rm = TRUE),
-    .groups = "drop"
-  ) %>%
-  arrange(Age, Year) 
-
-
 p <- ggplot(t8_unemp_age, aes(
       x = Year,
       y = Unemployment_Rate,
