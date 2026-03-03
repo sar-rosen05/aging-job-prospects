@@ -227,6 +227,7 @@ clean8_data <- clean_table8(table8_data)
 
 ```{r Shahlans Graph Section}
 
+library(shiny)
 library(ggplot2)
 library(dplyr)
 library(ggthemes)
@@ -241,6 +242,21 @@ myColors <- c(
   "#E76F51",  
   "#6D597A"   
 )
+
+ui <- fluidPage(
+  
+  titlePanel("Unemployment Rate by Age Group"),
+  
+  sidebarLayout(
+    
+    sidebarPanel(
+      
+      checkboxGroupInput(
+        "age_select",
+        "Select Age Groups:",
+        choices = unique(t8_unemp_age$Age),
+        selected = unique(t8_unemp_age$Age)
+      ),
 
 
 t8_unemp_age <- clean8_data %>%
@@ -301,9 +317,6 @@ ggplotly(p, tooltip = "text") %>%
     yaxis = list(fixedrange = TRUE)
   ) %>%
   config(displayModeBar = FALSE)
-
-
-
 
 ```
 
