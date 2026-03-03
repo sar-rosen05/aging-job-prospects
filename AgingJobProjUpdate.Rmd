@@ -257,6 +257,25 @@ ui <- fluidPage(
         choices = unique(t8_unemp_age$Age),
         selected = unique(t8_unemp_age$Age)
       ),
+      checkboxInput("show_points", "Show Points", value = TRUE)
+    ),
+    
+    mainPanel(
+      plotlyOutput("unempPlot")
+    )
+  )
+)
+
+server <- function(input, output) {
+  
+  filtered_data <- reactive({
+    t8_unemp_age %>%
+      filter(
+        Age %in% input$age_select,
+        Year >= input$year_range[1],
+        Year <= input$year_range[2]
+      )
+  })
 
 
 t8_unemp_age <- clean8_data %>%
