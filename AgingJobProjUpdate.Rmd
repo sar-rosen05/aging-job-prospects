@@ -276,6 +276,7 @@ server <- function(input, output) {
         Year <= input$year_range[2]
       )
   })
+  output$unempPlot <- renderPlotly({
 
 
 t8_unemp_age <- clean8_data %>%
@@ -336,6 +337,21 @@ ggplotly(p, tooltip = "text") %>%
     yaxis = list(fixedrange = TRUE)
   ) %>%
   config(displayModeBar = FALSE)
+
+if (input$show_points) {
+      p <- p + geom_point(size = 2)
+    }
+    
+    ggplotly(p, tooltip = "text") %>%
+      layout(
+        xaxis = list(fixedrange = TRUE),
+        yaxis = list(fixedrange = TRUE)
+      ) %>%
+      config(displayModeBar = FALSE)
+  })
+}
+
+shinyApp(ui, server)
 
 ```
 
