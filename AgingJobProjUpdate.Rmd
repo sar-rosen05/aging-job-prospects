@@ -240,22 +240,24 @@ myColors <- c(
 # Prepare summarized data for plotting
 t8_unemp_age <- clean8_data %>%
   filter(!Age %in% c("20+", "25+")) %>%   
-  mutate(Labor_Force = Total + Unemp,
-         Unemployment_Rate = Unemp / Labor_Force) %>%
+  mutate(
+    Labor_Force = Total + Unemp,
+    Unemployment_Rate = Unemp / Labor_Force
+  ) %>%
   group_by(Year, Age) %>%
-  summarise(Unemployment_Rate = mean(Unemployment_Rate, na.rm = TRUE), .groups = "drop") %>%
+  summarise(
+    Unemployment_Rate = mean(Unemployment_Rate, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
   ungroup() %>%
   droplevels()   
 
 # Shiny UI
 ui <- fluidPage(
-  
   titlePanel("Unemployment Rate by Age Group"),
   
   sidebarLayout(
-    
     sidebarPanel(
-      
       checkboxGroupInput(
         "age_select",
         "Select Age Groups:",
@@ -304,8 +306,7 @@ server <- function(input, output) {
       text = paste(
         "Year:", Year,
         "<br>Age:", Age,
-        "<br>Unemployment Rate:",
-        percent(Unemployment_Rate, accuracy = 1)
+        "<br>Unemployment Rate:", percent(Unemployment_Rate, accuracy = 1)
       )
     )) +
       geom_line(linewidth = 1.2, alpha = 0.8) +
@@ -328,11 +329,17 @@ server <- function(input, output) {
     ggplotly(p, tooltip = "text") %>%
       layout(
         xaxis = list(fixedrange = TRUE),
-        yaxis = list(fixedrange = TRUE)
+        yaxis = list(fixedrange = TRUE),
+        hoverlabel = list(
+          font = list(family = "Times New Roman", size = 12, color = "black"),
+          bgcolor = "white",
+          bordercolor = "transparent"
+        )
       ) %>%
       config(displayModeBar = FALSE)
-  })
-}
+    
+  }) # end renderPlotly
+} # end server
 
 shinyApp(ui, server)
 ```
