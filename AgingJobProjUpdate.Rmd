@@ -1,6 +1,6 @@
 ---
 title: "AgingJobUpdate"
-author: "Obydah Jazaeri, Shahlan Finchan"
+author: "Obydah Jazaeri, Shahlan Finchan, Sarah Rosen"
 date: "2026-02-26"
 output: html_document
 runtime: shiny
