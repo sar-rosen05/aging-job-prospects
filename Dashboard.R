@@ -124,3 +124,54 @@ clean_table8 <- function(df) {
 }
 
 clean8_data <- clean_table8(table8_data)
+
+
+
+
+
+
+
+# UI
+
+ui <- navbarPage(
+  
+  title = "U.S. Occupational Employment Dashboard (2011–2024)",
+  theme = shinytheme("flatly"),
+  
+
+  # Overview of panels for reference
+  
+  tabPanel("# Overview",
+           h2("Put your plots here"),
+           p("Add a summary of your code here and explain what the visualization is showing."),
+           plotlyOutput("overviewPlot")
+  ),
+  # ------------------------------
+  # Age-Based Trends (Shahlan)
+  # ------------------------------
+  tabPanel("# Age-Based Trends",
+           sidebarLayout(
+             sidebarPanel(
+               checkboxGroupInput(
+                 "age_select",
+                 "Select Age Groups:",
+                 choices = unique(t8_unemp_age$Age),
+                 selected = unique(t8_unemp_age$Age)
+               ),
+               sliderInput(
+                 "year_range",
+                 "Select Year Range:",
+                 min = min(t8_unemp_age$Year),
+                 max = max(t8_unemp_age$Year),
+                 value = c(min(t8_unemp_age$Year), max(t8_unemp_age$Year)),
+                 step = 1,
+                 sep = ""
+               )
+             ),
+             mainPanel(
+               h3("Put your plots here"),
+               p("Add a summary of your code here explaining what this plot shows."),
+               plotlyOutput("agePlot")
+             )
+           )
+  ),
