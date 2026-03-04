@@ -537,8 +537,8 @@ output$retire_line <- plotly::renderPlotly({
   req(nrow(d) > 0)
 
   p <- ggplot(d, aes(x = year, y = value)) +
-    geom_line() +
-    geom_point() +
+    geom_line(size = 1.2) +
+    geom_point(size = 2) +
     labs(
       title = paste("Retirement Trend:", input$occ_ret),
       x = "Year",
@@ -562,10 +562,20 @@ output$retire_line <- plotly::renderPlotly({
   }
 
   plotly::ggplotly(p, tooltip = c("x", "y")) %>% 
-    layout(
+    plotly::config(displayModeBar = TRUE) %>%
+    plotly::layout(
       hovermode = "closest",
-      legend = list(orientation = "v")
-      )
+      legend = list(orientation = "v"),
+      modebar = list(
+        orientation = "v",
+        bgcolor = "rgba(255,255,255,0.7)",
+        x = 1.05,   # push to the right (try 1.02–1.10)
+        xanchor = "left",
+        y = 1,      # top
+        yanchor = "top"
+      ),
+      margin = list(t = 80)  # add top space so title has room
+    )
   })
 
 output$retire_line <- renderPlotly({
