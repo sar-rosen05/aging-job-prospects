@@ -105,6 +105,24 @@ clean11b_data <- bind_rows(
 )
 ```
 
+```{r retirement-prep, include=FALSE}
+retire_metrics <- clean11b_data %>%
+  group_by(occupation, year) %>%
+  summarise(
+    c65 = sum(employment_thousands[age_group == "65_years_and_over"], na.rm = TRUE),
+    c55 = sum(employment_thousands[age_group %in% c("55_to_64_years", "65_years_and_over")], na.rm = TRUE),
+    total = sum(employment_thousands, na.rm = TRUE),
+    pct65 = 100 * c65 / total,
+    pct55 = 100 * c55 / total,
+    .groups = "drop"
+  ) %>%
+  filter(!is.na(total), total > 0)
+
+occ_choices_ret <- sort(unique(retire_metrics$occupation))
+year_min <- min(retire_metrics$year, na.rm = TRUE)
+year_max <- max(retire_metrics$year, na.rm = TRUE)
+```
+
 <<<<<<< HEAD
 ```{r Shahlans Cleaning Code for 8}
 t8 <- read_excel(
