@@ -206,12 +206,37 @@ ui <- navbarPage(
 
   # Industry Trends (Obydah)
 
+<<<<<<< HEAD
   tabPanel(" Industry Trends",
            h3("Put your plots here"),
            p("Add a summary of your code here."),
            plotOutput("industryPlot")
+=======
+  tabPanel(
+    "# Industry Trends",
+    sidebarLayout(
+      sidebarPanel(
+        selectInput(
+          inputId = "industry_year",
+          label = "Select Year:",
+          choices = sort(unique(clean11b_data$year)),
+          selected = max(clean11b_data$year)
+        ),
+        selectInput(
+          inputId = "top_n",
+          label = "Number of Top Occupations:",
+          choices = c(3, 5, 10, 15),
+          selected = 5
+        )
+      ),
+      mainPanel(
+        h3("Occupational Employment Distribution"),
+        p("This pie chart shows how employment is distributed across the top occupations in a selected year."),
+        plotOutput("industryPlot", height = "450px")
+      )
+    )
+>>>>>>> 1e7cc10e7d5afa3300a99572ba638c59e68561ba
   ),
-  
 
   # Structural Shifts (Dareen)
 
@@ -322,7 +347,29 @@ server <- function(input, output) {
   })
   
   # Other members' plots placeholders
-  output$industryPlot <- renderPlot({ })
+  output$industryPlot <- renderPlot({
+    
+    clean11b_data %>%
+      dplyr::filter(year == input$industry_year) %>%
+      dplyr::group_by(occupation) %>%
+      dplyr::summarise(
+        total_employment = sum(employment_thousands, na.rm = TRUE),
+        .groups = "drop"
+      ) %>%
+      dplyr::arrange(dplyr::desc(total_employment)) %>%
+      dplyr::slice_head(n = as.numeric(input$top_n)) %>%
+      ggplot(aes(x = 1, y = total_employment, fill = occupation)) +
+      geom_col(width = 1) +
+      coord_polar(theta = "y") +
+      labs(
+        title = paste(
+          "Top", input$top_n,
+          "Occupations by Employment,", input$industry_year
+        ),
+        fill = "Occupation"
+      ) +
+      theme_void()
+  })
   output$shiftPlot <- renderPlot({ })
   output$automationPlot <- renderPlot({ })
   output$unempPlot <- renderPlot({ })

@@ -287,6 +287,15 @@ ui <- fluidPage(
         choices = levels(droplevels(t8_unemp_age$Age)),
         selected = levels(droplevels(t8_unemp_age$Age))
       ),
+<<<<<<< HEAD
+      
+      selectInput(
+        inputId = "top_n",
+        label = "Number of Top Occupations:",
+        choices = c(3, 5, 10, 15),
+        selected = 5
+      )
+=======
       sliderInput(
         "year_range",
         "Select Year Range:",
@@ -297,6 +306,7 @@ ui <- fluidPage(
         sep = ""
       ),
       checkboxInput("show_points", "Show Points", value = TRUE)
+>>>>>>> a8e90fc406f1f326fe095cdcc9ee969b668b16a2
     ),
     
     mainPanel(
@@ -308,6 +318,28 @@ ui <- fluidPage(
 # Shiny Server
 server <- function(input, output) {
   
+<<<<<<< HEAD
+  output$piePlot <- renderPlot({
+    
+    clean11b_data %>%
+      dplyr::filter(year == input$year) %>%
+      dplyr::group_by(occupation) %>%
+      dplyr::summarise(
+        total_employment = sum(employment_thousands, na.rm = TRUE),
+        .groups = "drop"
+      ) %>%
+      dplyr::arrange(dplyr::desc(total_employment)) %>%
+      dplyr::slice_head(n = as.numeric(input$top_n)) %>%
+      ggplot(aes(x = 1, y = total_employment, fill = occupation)) +
+      geom_col(width = 1) +
+      coord_polar(theta = "y") +
+      labs(
+        title = paste(
+          "Top", input$top_n,
+          "Occupations by Employment,", input$year
+        ),
+        fill = "Occupation"
+=======
   filtered_data <- reactive({
     t8_unemp_age %>%
       filter(
@@ -342,6 +374,7 @@ server <- function(input, output) {
         x = NULL,
         y = NULL,
         color = "Age Group"
+>>>>>>> a8e90fc406f1f326fe095cdcc9ee969b668b16a2
       ) +
       theme_fivethirtyeight() +
       theme(text = element_text(family = "Times New Roman"))
@@ -363,14 +396,75 @@ server <- function(input, output) {
       config(displayModeBar = FALSE)
   })
 }
+<<<<<<< HEAD
 
-# Run the Shiny App
-shinyApp(ui, server)
+shinyApp(ui = ui, server = server )
+```
+=======
+>>>>>>> a8e90fc406f1f326fe095cdcc9ee969b668b16a2
+
+
 
 ```
 
 ```{r Obydahs Graph section}
+ui <- fluidPage(
+  
+  titlePanel("Job Distribution by Occupation"),
+  
+  sidebarLayout(
+    
+    sidebarPanel(
+      
+      selectInput(
+        inputId = "year",
+        label = "Select Year:",
+        choices = sort(unique(clean11b_data$year)),
+        selected = max(clean11b_data$year)
+      ),
+      
+      selectInput(
+        inputId = "top_n",
+        label = "Number of Top Occupations:",
+        choices = c(3, 5, 10, 15),
+        selected = 5
+      )
+    ),
+    
+    mainPanel(
+      plotOutput("piePlot")
+    )
+  )
+)
 
+server <- function(input, output) {
+  
+  output$piePlot <- renderPlot({
+    
+    clean11b_data %>%
+      dplyr::filter(year == input$year) %>%
+      dplyr::group_by(occupation) %>%
+      dplyr::summarise(
+        total_employment = sum(employment_thousands, na.rm = TRUE),
+        .groups = "drop"
+      ) %>%
+      dplyr::arrange(dplyr::desc(total_employment)) %>%
+      dplyr::slice_head(n = as.numeric(input$top_n)) %>%
+      ggplot(aes(x = 1, y = total_employment, fill = occupation)) +
+      geom_col(width = 1) +
+      coord_polar(theta = "y") +
+      labs(
+        title = paste(
+          "Top", input$top_n,
+          "Occupations by Employment,", input$year
+        ),
+        fill = "Occupation"
+      ) +
+      theme_void()
+  })
+}
+
+shinyApp(ui = ui, server = server )
 ```
 
 ```{r Dareens Graph Section}
