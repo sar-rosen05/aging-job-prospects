@@ -171,7 +171,16 @@ summary(t8_tidy)
 
 
 ```{r Obydahs Graph section}
-
+ggplot(genz_top, aes(x = factor(year), y = genz_employment, fill = occupation)) +
+  geom_col() +
+  labs(
+    title = "Gen Z Employment by Occupation Over Time",
+    subtitle = "Ages 16–24 (CPS Annual Averages)",
+    x = "Year",
+    y = "Employment (thousands of persons)",
+    fill = "Occupation"
+  ) +
+  theme_minimal()
 ```
 
 
