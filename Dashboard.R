@@ -293,4 +293,16 @@ server <- function(input, output) {
       config(displayModeBar = FALSE)
   })
   
+  # Other members' plots placeholders
+  output$industryPlot <- renderPlot({ })
+  output$shiftPlot <- renderPlot({ })
+  output$automationPlot <- renderPlot({ })
+  output$unempPlot <- renderPlot({ })
+  output$retirementPlot <- renderPlot({ })
+})
+
+
+
+# RUN APP
+shinyApp(ui, server)
 
