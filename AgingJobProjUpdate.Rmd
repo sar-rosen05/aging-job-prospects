@@ -17,6 +17,8 @@ library(tidyr)
 library(stringr) 
 library(ggplot2)
 library(plotly)
+library(dplyr)
+library(scales)
 knitr::opts_chunk$set(echo = TRUE)
 data2011 <- read_excel("11b_2011.xlsx")
 data2012 <- read_excel("11b_2012.xlsx")
@@ -605,8 +607,89 @@ output$retire_line <- renderPlotly({
 
 ```
 
+
 ```{r Rishitas Graph Section}
 
+ui <- fluidPage(
+  titlePanel("Unemployment Rate by Race (2011–2023)"),
+  sidebarLayout(
+    sidebarPanel(
+      checkboxGroupInput(
+        "race_select",
+        "Select Race Groups:",
+        choices = unique(clean8_data$Race),
+        selected = unique(clean8_data$Race)
+      ),
+      sliderInput(
+        "year_range_race",
+        "Select Year Range:",
+        min = min(clean8_data$Year),
+        max = max(clean8_data$Year),
+        value = c(min(clean8_data$Year), max(clean8_data$Year)),
+        step = 1,
+        sep = ""
+      )
+    ),
+    mainPanel(
+      plotlyOutput("racePlot")
+    )
+  )
+)
+
+server <- function(input, output) {
+  race_data <- reactive({
+    clean8_data %>%
+      filter(
+        Race %in% input$race_select,
+        Year >= input$year_range_race[1],
+        Year <= input$year_range_race[2]
+      ) %>%
+      mutate(
+        Labor_Force = Total + Unemp,
+        Unemployment_Rate = Unemp / Labor_Force
+      ) %>%
+      group_by(Year, Race) %>%
+      summarise(
+        Unemployment_Rate = mean(Unemployment_Rate, na.rm = TRUE),
+        .groups = "drop"
+      )
+  })
+  
+  output$racePlot <- renderPlotly({
+    p <- ggplot(
+      race_data(),
+      aes(
+        x = Year,
+        y = Unemployment_Rate,
+        color = Race,
+        group = Race,
+        text = paste(
+          "Year:", Year,
+          "<br>Race:", Race,
+          "<br>Unemployment Rate:", percent(Unemployment_Rate, accuracy = 0.1)
+        )
+      )
+    ) +
+      geom_line(size = 1.3) +
+      geom_point(size = 2) +
+      scale_y_continuous(labels = percent_format()) +
+      labs(
+        title = "Unemployment Rate Trends by Race",
+        subtitle = "Comparing racial groups across time",
+        x = "Year",
+        y = "Unemployment Rate",
+        color = "Race"
+      ) +
+      theme_minimal(base_size = 14)
+    ggplotly(p, tooltip = "text") %>%
+      layout(
+        hovermode = "closest"
+      ) %>%
+      config(displayModeBar = FALSE)
+  })
+}
+
+shinyApp(ui = ui, server = server)
 ```
 
 ## Retirement
