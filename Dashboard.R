@@ -192,8 +192,13 @@ ui <- navbarPage(
                )
              ),
              mainPanel(
-               h3("Put your plots here"),
-               p("Add a summary of your code here explaining what this plot shows."),
+               h3("The Age Gap in Employment: How Young Workers Bore the Brunt"),
+               p("This line chart tracks unemployment across four age groups (16–19, 20–24, 25–54, 55+) 
+                 from 2011–2024. Teens (16–19) faced the highest rates, peaking near 30% in 2011 and remaining 
+                 above all other groups. Young adults (20–24) had the second-highest rates, generally declining 
+                 but spiking in 2020, likely due to COVID-19. Prime-age (25–54) and older workers (55+) had lower, 
+                 steadier unemployment between 4–10%, with only a notable 2020 increase. Overall, younger workers 
+                 are more vulnerable to labor market fluctuations, while older groups show greater stability."),
                plotlyOutput("agePlot")
              )
            )
