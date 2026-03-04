@@ -104,7 +104,7 @@ clean11b_data <- bind_rows(
 )
 ```
 
-<<<<<<< HEAD
+
 ```{r Shahlans Cleaning Code for 8}
 t8 <- read_excel(
   "Table_8_Data.xlsx",
@@ -220,6 +220,7 @@ clean8_data <- clean_table8(table8_data)
 ```
 
 
+
 ```{r Shahlans Graph Section}
 library(shiny)
 library(ggplot2)
@@ -228,18 +229,19 @@ library(plotly)
 library(ggthemes)
 library(scales)
 
+# Define colors
 myColors <- c(
   "#264653",  
   "#2A9D8F",  
   "#E9C46A", 
-  "#E76F51",
+  "#E76F51",  
   "#6D597A",
   "#f542b0"
 )
 
 # Prepare summarized data for plotting
 t8_unemp_age <- clean8_data %>%
-  filter(!Age %in% c("20+", "25+")) %>%   
+  filter(!Age %in% c("20+", "25+")) %>%
   mutate(
     Labor_Force = Total + Unemp,
     Unemployment_Rate = Unemp / Labor_Force
@@ -250,7 +252,7 @@ t8_unemp_age <- clean8_data %>%
     .groups = "drop"
   ) %>%
   ungroup() %>%
-  droplevels()   
+  droplevels()
 
 # Shiny UI
 ui <- fluidPage(
@@ -261,10 +263,9 @@ ui <- fluidPage(
       checkboxGroupInput(
         "age_select",
         "Select Age Groups:",
-        choices = levels(droplevels(t8_unemp_age$Age)),  
+        choices = levels(droplevels(t8_unemp_age$Age)),
         selected = levels(droplevels(t8_unemp_age$Age))
       ),
-      
       sliderInput(
         "year_range",
         "Select Year Range:",
@@ -274,7 +275,6 @@ ui <- fluidPage(
         step = 1,
         sep = ""
       ),
-      
       checkboxInput("show_points", "Show Points", value = TRUE)
     ),
     
@@ -298,17 +298,20 @@ server <- function(input, output) {
   
   output$unempPlot <- renderPlotly({
     
-    p <- ggplot(filtered_data(), aes(
-      x = Year,
-      y = Unemployment_Rate,
-      color = Age,
-      group = Age,
-      text = paste(
-        "Year:", Year,
-        "<br>Age:", Age,
-        "<br>Unemployment Rate:", percent(Unemployment_Rate, accuracy = 1)
+    p <- ggplot(
+      filtered_data(),
+      aes(
+        x = Year,
+        y = Unemployment_Rate,
+        color = Age,
+        group = Age,
+        text = paste(
+          "Year:", Year,
+          "<br>Age:", Age,
+          "<br>Unemployment Rate:", percent(Unemployment_Rate, accuracy = 1)
+        )
       )
-    )) +
+    ) +
       geom_line(linewidth = 1.2, alpha = 0.8) +
       scale_color_manual(values = myColors) +
       scale_y_continuous(labels = percent_format()) +
@@ -337,11 +340,12 @@ server <- function(input, output) {
         )
       ) %>%
       config(displayModeBar = FALSE)
-    
-  }) # end renderPlotly
-} # end server
+  })
+}
 
+# Run the Shiny App
 shinyApp(ui, server)
+
 ```
 
 ```{r Obydahs Graph section}
@@ -393,4 +397,6 @@ ggplot(retirement_data, aes(x = Year, y = Employment_Rate)) +
   ) +
   theme_minimal()
 ```
+
+
 
