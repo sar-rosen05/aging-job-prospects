@@ -575,7 +575,6 @@ output$retire_line <- plotly::renderPlotly({
         yanchor = "top"
       )
       margin = list(t = 80)  # add top space so title has room
-    )
   })
 
 output$retire_line <- renderPlotly({
