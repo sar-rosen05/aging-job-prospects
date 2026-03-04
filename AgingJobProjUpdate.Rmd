@@ -289,15 +289,12 @@ ui <- fluidPage(
         choices = levels(droplevels(t8_unemp_age$Age)),
         selected = levels(droplevels(t8_unemp_age$Age))
       ),
-<<<<<<< HEAD
-      
       selectInput(
         inputId = "top_n",
         label = "Number of Top Occupations:",
         choices = c(3, 5, 10, 15),
         selected = 5
-      )
-=======
+    ),
       sliderInput(
         "year_range",
         "Select Year Range:",
@@ -308,7 +305,6 @@ ui <- fluidPage(
         sep = ""
       ),
       checkboxInput("show_points", "Show Points", value = TRUE)
->>>>>>> a8e90fc406f1f326fe095cdcc9ee969b668b16a2
     ),
     
     mainPanel(
@@ -320,7 +316,6 @@ ui <- fluidPage(
 # Shiny Server
 server <- function(input, output) {
   
-<<<<<<< HEAD
   output$piePlot <- renderPlot({
     
     clean11b_data %>%
@@ -340,8 +335,7 @@ server <- function(input, output) {
           "Top", input$top_n,
           "Occupations by Employment,", input$year
         ),
-        fill = "Occupation"
-=======
+        fill = "Occupation",
   filtered_data <- reactive({
     t8_unemp_age %>%
       filter(
@@ -349,7 +343,9 @@ server <- function(input, output) {
         Year >= input$year_range[1],
         Year <= input$year_range[2]
       )
+  }))
   })
+}
   
   output$unempPlot <- renderPlotly({
     
@@ -376,7 +372,6 @@ server <- function(input, output) {
         x = NULL,
         y = NULL,
         color = "Age Group"
->>>>>>> a8e90fc406f1f326fe095cdcc9ee969b668b16a2
       ) +
       theme_fivethirtyeight() +
       theme(text = element_text(family = "Times New Roman"))
@@ -398,15 +393,8 @@ server <- function(input, output) {
       config(displayModeBar = FALSE)
   })
 }
-<<<<<<< HEAD
 
-shinyApp(ui = ui, server = server )
-```
-=======
->>>>>>> a8e90fc406f1f326fe095cdcc9ee969b668b16a2
-
-
-
+shinyApp(ui = ui, server = server ),
 ```
 
 ```{r Obydahs Graph section}
@@ -466,7 +454,7 @@ server <- function(input, output) {
   })
 }
 
-shinyApp(ui = ui, server = server )
+shinyApp (ui = ui, server = server )
 ```
 
 ```{r Dareens Graph Section}
@@ -516,7 +504,7 @@ shiny::fluidRow(
     shiny::textOutput("retire_interpretation"),
     shiny::helpText("Tip: Drag to zoom, double-click to reset. Hover for exact values.")
   )
-)
+),
 
 metric_data <- reactive({
   req(input$occ_ret)
@@ -545,7 +533,6 @@ metric_data <- reactive({
       )
     )
 })
-
 output$retire_line <- plotly::renderPlotly({
   d <- metric_data()
   req(nrow(d) > 0)
@@ -580,7 +567,7 @@ output$retire_line <- plotly::renderPlotly({
       hovermode = "closest",
       legend = list(orientation = "v")
       )
-})
+  })
 
 output$retire_line <- renderPlotly({
   d <- metric_data()
@@ -689,7 +676,7 @@ server <- function(input, output) {
   })
 }
 
-shinyApp(ui = ui, server = server)
+shinyApp (ui = ui, server = server)
 ```
 
 ## Retirement
@@ -708,8 +695,7 @@ retirement_data <- t8_tidy %>%
   group_by(Year) %>%
   summarise(
     Employment_Rate = mean(Employment_Rate, na.rm = TRUE)
-  )
-
+)
 # This graph shows how employment for people 55+ changes over time
 ggplot(retirement_data, aes(x = Year, y = Employment_Rate)) +
   geom_line(color = "#2A9D8F", linewidth = 1.2) +
@@ -722,7 +708,7 @@ ggplot(retirement_data, aes(x = Year, y = Employment_Rate)) +
     x = "Year",
     y = "Employment Rate"
   ) +
-  theme_minimal()
+theme_minimal()
 ```
 
 
