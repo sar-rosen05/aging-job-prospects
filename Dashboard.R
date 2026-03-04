@@ -201,26 +201,16 @@ ui <- navbarPage(
 
   # Industry Trends (Obydah)
 
-  tabPanel("# Industry Trends",
-           h3("Put your plots here"),
-           p("Add a summary of your code here."),
-           plotOutput("industryPlot")
-  ),
-  
   tabPanel(
-    "Occupation Distribution",
-    
+    "# Industry Trends",
     sidebarLayout(
-      
       sidebarPanel(
-        
         selectInput(
-          inputId = "year",
+          inputId = "industry_year",
           label = "Select Year:",
           choices = sort(unique(clean11b_data$year)),
           selected = max(clean11b_data$year)
         ),
-        
         selectInput(
           inputId = "top_n",
           label = "Number of Top Occupations:",
@@ -228,15 +218,13 @@ ui <- navbarPage(
           selected = 5
         )
       ),
-      
       mainPanel(
-        h3("Job Distribution by Occupation"),
-        p("This chart shows how employment is distributed across the top occupations for the selected year."),
-        plotOutput("piePlot", height = "450px")
+        h3("Occupational Employment Distribution"),
+        p("This pie chart shows how employment is distributed across the top occupations in a selected year."),
+        plotOutput("industryPlot", height = "450px")
       )
     )
-  )
-
+  ),
 
   # Structural Shifts (Dareen)
 
@@ -347,10 +335,10 @@ server <- function(input, output) {
   })
   
   # Other members' plots placeholders
-  output$piePlot <- renderPlot({
+  output$industryPlot <- renderPlot({
     
     clean11b_data %>%
-      dplyr::filter(year == input$year) %>%
+      dplyr::filter(year == input$industry_year) %>%
       dplyr::group_by(occupation) %>%
       dplyr::summarise(
         total_employment = sum(employment_thousands, na.rm = TRUE),
@@ -364,13 +352,12 @@ server <- function(input, output) {
       labs(
         title = paste(
           "Top", input$top_n,
-          "Occupations by Employment,", input$year
+          "Occupations by Employment,", input$industry_year
         ),
         fill = "Occupation"
       ) +
       theme_void()
   })
-}
   output$shiftPlot <- renderPlot({ })
   output$automationPlot <- renderPlot({ })
   output$unempPlot <- renderPlot({ })
