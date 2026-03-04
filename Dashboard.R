@@ -146,9 +146,9 @@ ui <- navbarPage(
            p("Add a summary of your code here and explain what the visualization is showing."),
            plotlyOutput("overviewPlot")
   ),
-  # ------------------------------
+
   # Age-Based Trends (Shahlan)
-  # ------------------------------
+ 
   tabPanel("# Age-Based Trends",
            sidebarLayout(
              sidebarPanel(
@@ -175,48 +175,122 @@ ui <- navbarPage(
              )
            )
   ),
-  # ------------------------------
+
   # Industry Trends (Obydah)
-  # ------------------------------
+
   tabPanel("# Industry Trends",
            h3("Put your plots here"),
            p("Add a summary of your code here."),
            plotOutput("industryPlot")
   ),
   
-  # ------------------------------
+
   # Structural Shifts (Dareen)
-  # ------------------------------
+
   tabPanel("# Structural Shifts",
            h3("Put your plots here"),
            p("Add a summary of your code here."),
            plotOutput("shiftPlot")
   ),
   
-  # ------------------------------
+ 
   # Automation Impact (Sarah)
-  # ------------------------------
+  
   tabPanel("# Automation Impact",
            h3("Put your plots here"),
            p("Add a summary of your code here."),
            plotOutput("automationPlot")
   ),
   
-  # ------------------------------
+ 
   # Unemployment Patterns (Sammy)
-  # ------------------------------
+  
   tabPanel("# Unemployment Patterns",
            h3("Put your plots here"),
            p("Add a summary of your code here."),
            plotOutput("unempPlot")
   ),
   
-  # ------------------------------
+  
   # Retirement Trends (Zuwidya)
-  # ------------------------------
+  
   tabPanel("# Retirement Trends",
            h3("Put your plots here"),
            p("Add a summary of your code here."),
            plotOutput("retirementPlot")
   )
 )
+
+
+# SERVER
+server <- function(input, output) {
+  
+  # Overview plot
+  output$overviewPlot <- renderPlotly({
+    p <- ggplot(t8_unemp_age,
+                aes(x = Year,
+                    y = Unemployment_Rate,
+                    color = Age,
+                    group = Age)) +
+      geom_line(linewidth = 1.3) +
+      scale_y_continuous(labels = percent_format()) +
+      labs(
+        title = "Overall Unemployment Trends by Age Group",
+        x = "Year",
+        y = "Unemployment Rate",
+        color = "Age Group"
+      ) +
+      theme_fivethirtyeight(base_size = 14)
+    
+    ggplotly(p)
+  })
+  
+  # Shahlan's plot 
+  output$agePlot <- renderPlotly({
+    
+    filtered_data <- t8_unemp_age %>%
+      filter(Age %in% input$age_select,
+             Year >= input$year_range[1],
+             Year <= input$year_range[2])
+    
+    p <- ggplot(
+      filtered_data,
+      aes(
+        x = Year,
+        y = Unemployment_Rate,
+        color = Age,
+        group = Age,
+        text = paste(
+          "Year:", Year,
+          "<br>Age:", Age,
+          "<br>Unemployment Rate:", percent(Unemployment_Rate, accuracy = 1)
+        )
+      )
+    ) +
+      geom_line(linewidth = 1.2, alpha = 0.8) +
+      geom_point(size = 2) +
+      scale_y_continuous(labels = percent_format()) +
+      labs(
+        title = "Unemployment Rate by Age Group (2011–2024)",
+        subtitle = "Comparing unemployment trends across age groups",
+        x = NULL,
+        y = NULL,
+        color = "Age Group"
+      ) +
+      theme_fivethirtyeight() +
+      theme(text = element_text(family = "Times New Roman"))
+    
+    ggplotly(p, tooltip = "text") %>%
+      layout(
+        xaxis = list(fixedrange = TRUE),
+        yaxis = list(fixedrange = TRUE),
+        hoverlabel = list(
+          font = list(family = "Times New Roman", size = 12, color = "black"),
+          bgcolor = "white",
+          bordercolor = "transparent"
+        )
+      ) %>%
+      config(displayModeBar = FALSE)
+  })
+  
+
