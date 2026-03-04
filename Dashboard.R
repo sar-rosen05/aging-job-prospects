@@ -205,15 +205,8 @@ ui <- navbarPage(
   ),
 
   # Industry Trends (Obydah)
-
-<<<<<<< HEAD
-  tabPanel(" Industry Trends",
-           h3("Put your plots here"),
-           p("Add a summary of your code here."),
-           plotOutput("industryPlot")
-=======
-  tabPanel(
-    "# Industry Trends",
+tabPanel(
+    " Industry Trends",
     sidebarLayout(
       sidebarPanel(
         selectInput(
@@ -235,7 +228,6 @@ ui <- navbarPage(
         plotOutput("industryPlot", height = "450px")
       )
     )
->>>>>>> 1e7cc10e7d5afa3300a99572ba638c59e68561ba
   ),
 
   # Structural Shifts (Dareen)
