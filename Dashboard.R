@@ -175,3 +175,48 @@ ui <- navbarPage(
              )
            )
   ),
+  # ------------------------------
+  # Industry Trends (Obydah)
+  # ------------------------------
+  tabPanel("# Industry Trends",
+           h3("Put your plots here"),
+           p("Add a summary of your code here."),
+           plotOutput("industryPlot")
+  ),
+  
+  # ------------------------------
+  # Structural Shifts (Dareen)
+  # ------------------------------
+  tabPanel("# Structural Shifts",
+           h3("Put your plots here"),
+           p("Add a summary of your code here."),
+           plotOutput("shiftPlot")
+  ),
+  
+  # ------------------------------
+  # Automation Impact (Sarah)
+  # ------------------------------
+  tabPanel("# Automation Impact",
+           h3("Put your plots here"),
+           p("Add a summary of your code here."),
+           plotOutput("automationPlot")
+  ),
+  
+  # ------------------------------
+  # Unemployment Patterns (Sammy)
+  # ------------------------------
+  tabPanel("# Unemployment Patterns",
+           h3("Put your plots here"),
+           p("Add a summary of your code here."),
+           plotOutput("unempPlot")
+  ),
+  
+  # ------------------------------
+  # Retirement Trends (Zuwidya)
+  # ------------------------------
+  tabPanel("# Retirement Trends",
+           h3("Put your plots here"),
+           p("Add a summary of your code here."),
+           plotOutput("retirementPlot")
+  )
+)
