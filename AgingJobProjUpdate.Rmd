@@ -187,11 +187,10 @@ ui <- fluidPage(
       ),
       
       selectInput(
-        inputId = "occupation",
-        label = "Select Occupations:",
-        choices = sort(unique(clean11b_data$occupation)),
-        selected = unique(clean11b_data$occupation)[1:6],
-        multiple = TRUE
+        inputId = "top_n",
+        label = "Number of Top Occupations:",
+        choices = c(3, 5, 10, 15),
+        selected = 5
       )
     ),
     
@@ -206,26 +205,29 @@ server <- function(input, output) {
   output$piePlot <- renderPlot({
     
     clean11b_data %>%
-      filter(
-        year == input$year,
-        occupation %in% input$occupation
-      ) %>%
-      group_by(occupation) %>%
-      summarise(
+      dplyr::filter(year == input$year) %>%
+      dplyr::group_by(occupation) %>%
+      dplyr::summarise(
         total_employment = sum(employment_thousands, na.rm = TRUE),
         .groups = "drop"
       ) %>%
-      ggplot(aes(x = "", y = total_employment, fill = occupation)) +
+      dplyr::arrange(dplyr::desc(total_employment)) %>%
+      dplyr::slice_head(n = as.numeric(input$top_n)) %>%
+      ggplot(aes(x = 1, y = total_employment, fill = occupation)) +
       geom_col(width = 1) +
       coord_polar(theta = "y") +
       labs(
-        title = paste("Job Distribution by Occupation,", input$year),
+        title = paste(
+          "Top", input$top_n,
+          "Occupations by Employment,", input$year
+        ),
         fill = "Occupation"
       ) +
       theme_void()
   })
 }
-shinyApp(ui = ui, server = server)
+
+shinyApp(ui = ui, server = server )
 ```
 
 
