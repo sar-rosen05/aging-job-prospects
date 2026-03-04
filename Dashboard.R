@@ -127,7 +127,30 @@ clean8_data <- clean_table8(table8_data)
 
 
 
+# CREATE SUMMARY DATA
 
+t8_unemp_age <- clean8_data %>%
+  mutate(
+    Labor_Force = Total + Unemp,
+    Unemployment_Rate = Unemp / Labor_Force
+  ) %>%
+  group_by(Year, Age) %>%
+  summarise(
+    Unemployment_Rate = mean(Unemployment_Rate, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+retirement_data <- clean8_data %>%
+  filter(Age == "55+") %>%
+  mutate(
+    Labor_Force = Total + Unemp,
+    Employment_Rate = Total / Labor_Force
+  ) %>%
+  group_by(Year) %>%
+  summarise(
+    Employment_Rate = mean(Employment_Rate, na.rm = TRUE),
+    .groups = "drop"
+  )
 
 
 
@@ -299,7 +322,7 @@ server <- function(input, output) {
   output$automationPlot <- renderPlot({ })
   output$unempPlot <- renderPlot({ })
   output$retirementPlot <- renderPlot({ })
-})
+}
 
 
 
