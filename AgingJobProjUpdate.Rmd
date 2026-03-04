@@ -123,7 +123,6 @@ year_min <- min(retire_metrics$year, na.rm = TRUE)
 year_max <- max(retire_metrics$year, na.rm = TRUE)
 ```
 
-<<<<<<< HEAD
 ```{r Shahlans Cleaning Code for 8}
 t8 <- read_excel(
   "Table_8_Data.xlsx",
@@ -237,7 +236,6 @@ filter(
 clean8_data <- clean_table8(table8_data)
 
 ```
-
 
 ```{r Shahlans Graph Section}
 library(shiny)
@@ -376,114 +374,129 @@ shinyApp(ui, server)
 This chart tracks how “near-retirement” employment changes over time for a selected occupation. Users can switch between counts and percentages for ages 55+ and 65+ to compare retirement pressure across jobs. The dashed extension is a simple linear projection to help visualize where recent trends may be heading (an exploratory forecast, not a guarantee).
 
 ```{r Sarahs Graphs Section}
-tabPanel(
-    "Retirement Projections",
-    sidebarLayout(
-      sidebarPanel(
-        selectizeInput(
-          "occ_ret",
-          "Choose an occupation:",
-          choices = occ_choices_ret,
-          selected = occ_choices_ret[1],
-          options = list(placeholder = "Type to search...", maxOptions = 5000)
-        ),
-
-        radioButtons(
-          "metric_ret",
-          "Metric:",
-          choices = c(
-            "Percent age 55+ (retirement pressure)" = "pct55",
-            "Percent age 65+ (near/at retirement)" = "pct65",
-            "Count age 55+ (thousands)" = "c55",
-            "Count age 65+ (thousands)" = "c65"
-          ),
-          selected = "pct55"
-        ),
-
-        sliderInput(
-          "year_ret",
-          "Year range:",
-          min = year_min, max = year_max,
-          value = c(year_min, year_max),
-          step = 1, sep = ""
-        ),
-
-        checkboxInput("show_proj", "Add simple projection (linear trend)", value = TRUE),
-        sliderInput("proj_years", "Projection years", min = 1, max = 10, value = 5)
+shiny::fluidRow(
+  shiny::column(
+    4,
+    shiny::selectizeInput(
+      "occ_ret",
+      "Choose an occupation:",
+      choices = occ_choices_ret,
+      selected = occ_choices_ret[1],
+      options = list(placeholder = "Type to search...", maxOptions = 5000)
+    ),
+    shiny::radioButtons(
+      "metric_ret",
+      "Metric:",
+      choices = c(
+        "Percent age 55+ (retirement pressure)" = "pct55",
+        "Percent age 65+ (near/at retirement)"  = "pct65",
+        "Count age 55+ (thousands)" = "c55",
+        "Count age 65+ (thousands)" = "c65"
       ),
+      selected = "pct55"
+    ),
+    shiny::sliderInput(
+      "year_ret",
+      "Year range:",
+      min = year_min, max = year_max,
+      value = c(year_min, year_max),
+      step = 1, sep = ""
+    ),
+    shiny::checkboxInput("show_proj", "Add simple projection (linear trend)", value = TRUE),
+    shiny::sliderInput("proj_years", "Projection years", min = 1, max = 10, value = 5)
+  ),
+  shiny::column(
+    8,
+    plotly::plotlyOutput("retire_line", height = "450px"),
+    shiny::tags$hr(),
+    shiny::textOutput("retire_interpretation"),
+    shiny::helpText("Tip: Drag to zoom, double-click to reset. Hover for exact values.")
+  )
+)
 
-      mainPanel(
-        plotlyOutput("retirePlot", height = "450px"),
-        helpText("Tip: Drag to zoom, double-click to reset. Hover for exact values.")
+metric_data <- reactive({
+  req(input$occ_ret)
+
+  retire_metrics %>%
+    filter(
+      occupation == input$occ_ret,
+      year >= input$year_ret[1],
+      year <= input$year_ret[2]
+    ) %>%
+    arrange(year) %>%
+    mutate(
+      value = dplyr::case_when(
+        input$metric_ret == "pct55" ~ pct55,
+        input$metric_ret == "pct65" ~ pct65,
+        input$metric_ret == "c55"   ~ c55,
+        input$metric_ret == "c65"   ~ c65,
+        TRUE ~ pct55
+      ),
+      metric_label = dplyr::case_when(
+        input$metric_ret == "pct55" ~ "% age 55+",
+        input$metric_ret == "pct65" ~ "% age 65+",
+        input$metric_ret == "c55"   ~ "Workers age 55+ (thousands)",
+        input$metric_ret == "c65"   ~ "Workers age 65+ (thousands)",
+        TRUE ~ "% age 55+"
       )
     )
-  )
+})
 
-server <- function(input, output) {
-  metric_data <- reactive({
-    d <- retire_metrics %>%
-      filter(
-        occupation == input$occ_ret,
-        year >= input$year_ret[1],
-        year <= input$year_ret[2]
-      ) %>%
-      mutate(
-        value = dplyr::case_when(
-          input$metric_ret == "pct55" ~ pct55,
-          input$metric_ret == "pct65" ~ pct65,
-          input$metric_ret == "c55" ~ c55,
-          input$metric_ret == "c65" ~ c65,
-          TRUE ~ pct55
-        ),
-        metric_label = dplyr::case_when(
-          input$metric_ret == "pct55" ~ "% age 55+",
-          input$metric_ret == "pct65" ~ "% age 65+",
-          input$metric_ret == "c55" ~ "Age 55+ (thousands)",
-          input$metric_ret == "c65" ~ "Age 65+ (thousands)",
-          TRUE ~ "% age 55+"
-        )
+output$retire_line <- plotly::renderPlotly({
+  d <- metric_data()
+  req(nrow(d) > 0)
+
+  p <- ggplot(d, aes(x = year, y = value)) +
+    geom_line() +
+    geom_point() +
+    labs(
+      title = paste("Retirement Trend:", input$occ_ret),
+      x = "Year",
+      y = unique(d$metric_label)
+    ) +
+    theme_minimal(base_size = 13)
+
+  if (isTRUE(input$show_proj) && nrow(d) >= 3 && all(is.finite(d$value))) {
+    fit <- lm(value ~ year, data = d)
+    last_year <- max(d$year, na.rm = TRUE)
+    future_years <- (last_year + 1):(last_year + input$proj_years)
+
+    proj <- tibble(
+      year = future_years,
+      value = predict(fit, newdata = tibble(year = future_years))
+    )
+
+    p <- p +
+      geom_line(data = proj, aes(year, value), linetype = "dashed") +
+      geom_point(data = proj, aes(year, value))
+  }
+
+  plotly::ggplotly(p, tooltip = c("x", "y")) %>% 
+    layout(
+      hovermode = "closest",
+      legend = list(orientation = "v")
       )
+})
 
-    d
-  })
+output$retire_line <- renderPlotly({
+  d <- metric_data()
 
-  output$retirePlot <- renderPlotly({
-    d <- metric_data()
+  p <- ggplot(d, aes(x = year, y = value)) +
+    geom_line() +
+    geom_point() +
+    labs(
+      title = paste("Retirement Trend:", input$occ),
+      x = "Year",
+      y = unique(d$metric_label)
+    ) +
+    theme_minimal()
 
-    p <- ggplot(d, aes(
-      x = year, y = value,
-      text = paste0("Year: ", year, "<br>Value: ", round(value, 2))
-    )) +
-      geom_line() +
-      geom_point() +
-      labs(
-        title = paste("Retirement Trend:", input$occ_ret),
-        x = "Year",
-        y = unique(d$metric_label)
-      ) +
-      theme_minimal(base_size = 13)
-
-    # Optional projection (simple linear trend)
-    if (isTRUE(input$show_proj) && nrow(d) >= 3) {
-      fit <- lm(value ~ year, data = d)
-      last_year <- max(d$year, na.rm = TRUE)
-      future_years <- (last_year + 1):(last_year + input$proj_years)
-
-      proj <- tibble(
-        year = future_years,
-        value = predict(fit, newdata = tibble(year = future_years))
-      )
-
-      p <- p +
-        geom_line(data = proj, aes(x = year, y = value), linetype = "dashed") +
-        geom_point(data = proj, aes(x = year, y = value))
-    }
-
-    ggplotly(p, tooltip = "text") %>% layout(hovermode = "closest")
-  })
-}
-
-shinyApp(ui, server)
+  ggplotly(p, tooltip = c("x", "y")) %>%
+    layout(
+      hovermode = "closest",
+      legend = list(orientation = "v")
+    )
+})
 ```
 
 ```{r Sammys Graph Section}
