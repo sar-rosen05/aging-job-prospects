@@ -352,6 +352,10 @@ shinyApp(ui, server)
 
 ```
 
+## Retirement Projections
+
+This interactive line chart visualizes how the share of workers approaching retirement age has changed across occupations from 2011 to 2024. Users can select an occupation and metric to explore trends in workers aged 55+ or 65+, helping reveal which fields may face upcoming retirements or workforce shortages. The visualization highlights long-term labor force aging patterns and helps users understand how retirement pressure varies across different occupations.
+
 ```{r Sarahs Graphs Section}
 
 ```
