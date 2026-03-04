@@ -1,0 +1,62 @@
+---
+title: "2011-2013"
+author: "Rishita Bonepalli"
+date: "2026-02-21"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(readxl)
+library(janitor)
+```
+
+# Assigning Excel Files
+```{r}
+data_2011 <- read_excel("cpsaat11b_2011.xlsx")
+data_2012 <- read_excel("cpsaat11b_2012.xlsx")
+data_2013 <- read_excel("cpsaat11b_2013.xlsx")
+```
+
+- Assigns 2011 11b data to data_2011 variable
+- Assigns 2012 11b data to data_2012 variable
+- Assigns 2013 11b data to data_2013 variable
+
+# Testing
+## Top 6 Rows
+head(data_2011)
+head(data_2012)
+head(data_2013)
+
+## Column Names
+colnames(data_2011)
+colnames(data_2012)
+colnames(data_2013)
+
+#Cleaning
+
+## Column Names and Adding Year
+```{r}
+data_2011 <- data_2011 %>%
+  clean_names()
+  mutate(year = 2011)
+data_2012 <- data_2012 %>%
+  clean_names()
+  mutate(year = 2012)
+data_2013 <- data_2013 %>%
+  clean_names()
+  mutate(year = 2013)
+```
+
+colnames(data_2011)
+colnames(data_2012)
+colnames(data_2013)
+
+# Putting Into 1 Dataset
+```{r}
+employment_raw <- bind_rows(data_2011, data_2012, data_2013)
+glimpse(employment_raw)
+``` 
+

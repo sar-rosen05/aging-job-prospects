@@ -1,22 +1,12 @@
----
-title: "JobAgeProject"
-author: "Obydah Jazaeri, Sarah Rosen"
+--title: "JobAgeProject"
+author: "Obydah Jazaeri"
 date: "2026-02-21"
 output: html_document
 runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
-<<<<<<< HEAD
 library(shiny)
-library(readxl)
-library(tidyverse)
-
-knitr::opts_chunk$set(echo = FALSE)
-
-jobdata <- read_excel("cpsa2024.xlsx")
-=======
-
 library(janitor)    
 library(readxl)
 library(dplyr)
@@ -27,14 +17,13 @@ knitr::opts_chunk$set(echo = TRUE)
 data2017 <- read_excel("cpsaat11b.xlsx")
 data2018 <- read_excel("data2018.xlsx")
 data2019 <- read_excel("data2019.xlsx")
->>>>>>> f9aaddcf96db12d53e5ed7ab45988ad945cc5f9a
 ```
 
 ```{r cleaning}
 clean_cps_year <- function(df, year) {
   
   df %>%
-    slice(-c(1:3)) %>%   # remove header junk
+    slice(-c(1:3)) %>%   
     rename(
       occupation = 1,
       median_age = 2,
@@ -64,66 +53,80 @@ clean_cps_year <- function(df, year) {
 
 ```
 
-<<<<<<< HEAD
-```{r tabsets, echo=FALSE}
-shinyAppDir(
-  system.file("examples/06_tabsets", package = "shiny"),
-  options = list(
-    width = "100%", height = 550
-  )
+```{r create-cps-clean}
+data2017_clean <- clean_cps_year(data2017, 2017)
+data2018_clean <- clean_cps_year(data2018, 2018)
+data2019_clean <- clean_cps_year(data2019, 2019)
+
+cps_clean <- bind_rows(
+  data2017_clean,
+  data2018_clean,
+  data2019_clean
 )
 ```
 
-## 2019 11b Data
-
-Represents employment by age group, given a drop-down menu for individual age groups.
-```{r import, echo=FALSE}
-df_2019 <- read_excel("cpsaat11b-2019.xlsx", skip = 4)
-=======
 
 
->>>>>>> f9aaddcf96db12d53e5ed7ab45988ad945cc5f9a
-
-head(df_2019)
-
-colnames(df_2019)
-
-colnames(df_2019)[1] <- "Occupation"
-
-colnames(df_2019) <- gsub("\\r\\n", " ", colnames(df_2019))
-
-colnames(df_2019)
-
-df_2019 <- df_2019[, -c(2, ncol(df_2019))]
-
-df_2019_tidy <- df_2019 %>%
-  pivot_longer(
-    cols = -Occupation, 
-    names_to = "age_group",
-    values_to = "employed"
-  ) %>%
-  mutate (
-    year = 2019,
-    employed = as.numeric(employed)
+```{r shiny graph }
+ui <- fluidPage(
+  
+  titlePanel("Job Distribution by Occupation"),
+  
+  sidebarLayout(
+    
+    sidebarPanel(
+      
+      selectInput(
+        inputId = "year",
+        label = "Select Year:",
+        choices = sort(unique(cps_clean$year)),
+        selected = max(cps_clean$year)
+      ),
+      
+      selectInput(
+        inputId = "occupation",
+        label = "Select Occupations:",
+        choices = sort(unique(cps_clean$occupation)),
+        selected = unique(cps_clean$occupation)[1:6],
+        multiple = TRUE
+      )
+    ),
+    
+    mainPanel(
+      plotOutput("piePlot")
+    )
   )
-glimpse(df_2019_tidy)
-```
-
-```{r, echo=FALSE}
-inputPanel(
-  selectInput("age", "Select Age Group:",
-              choices = unique(df_2019_tidy$age_group))
 )
 
-renderPlot({
-  df_2019_tidy %>%
-    filter(age_group == input$age) %>%
-    slice_max(employed, n = 10) %>%
-    ggplot(aes(x = reorder(Occupation, employed),
-               y = employed)) +
-    geom_col() +
-    coord_flip()
-})
+server <- function(input, output) {
+  
+  output$piePlot <- renderPlot({
+    
+    cps_clean %>%
+      filter(
+        year == input$year,
+        occupation %in% input$occupation
+      ) %>%
+      group_by(occupation) %>%
+      summarise(
+        total_employment = sum(employment_thousands, na.rm = TRUE),
+        .groups = "drop"
+      ) %>%
+      ggplot(aes(x = "", y = total_employment, fill = occupation)) +
+      geom_col(width = 1) +
+      coord_polar(theta = "y") +
+      labs(
+        title = paste("Job Distribution by Occupation,", input$year),
+        fill = "Occupation"
+      ) +
+      theme_void()
+  })
+}
+shinyApp(ui = ui, server = server)
+
 ```
+
+
+
 
 
