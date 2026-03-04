@@ -172,7 +172,7 @@ ui <- navbarPage(
 
   # Age-Based Trends (Shahlan)
  
-  tabPanel("# Age-Based Trends",
+  tabPanel(" Age-Based Trends",
            sidebarLayout(
              sidebarPanel(
                checkboxGroupInput(
@@ -206,7 +206,7 @@ ui <- navbarPage(
 
   # Industry Trends (Obydah)
 
-  tabPanel("# Industry Trends",
+  tabPanel(" Industry Trends",
            h3("Put your plots here"),
            p("Add a summary of your code here."),
            plotOutput("industryPlot")
@@ -224,7 +224,7 @@ ui <- navbarPage(
  
   # Automation Impact (Sarah)
   
-  tabPanel("# Automation Impact",
+  tabPanel(" Automation Impact",
            h3("Put your plots here"),
            p("Add a summary of your code here."),
            plotOutput("automationPlot")
@@ -233,7 +233,7 @@ ui <- navbarPage(
  
   # Unemployment Patterns (Sammy)
   
-  tabPanel("# Unemployment Patterns",
+  tabPanel(" Unemployment Patterns",
            h3("Put your plots here"),
            p("Add a summary of your code here."),
            plotOutput("unempPlot")
@@ -242,7 +242,7 @@ ui <- navbarPage(
   
   # Retirement Trends (Zuwidya)
   
-  tabPanel("# Retirement Trends",
+  tabPanel(" Retirement Trends",
            h3("Put your plots here"),
            p("Add a summary of your code here."),
            plotOutput("retirementPlot")
