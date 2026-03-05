@@ -580,7 +580,7 @@ output$retire_line <- plotly::renderPlotly({
 output$retire_line <- renderPlotly({
   d <- metric_data()
 
-  p <- ggplot(d, aes(x = year, y = value)) +
+  p <- ggplot(d, aes(x = Year, y = value)) +
     geom_line(color = "#2C7FB8", size = 1.2) +
     geom_point(color = "#2C7FB8", size = 2) +
     labs(
@@ -588,6 +588,7 @@ output$retire_line <- renderPlotly({
       x = "Year",
       y = unique(d$metric_label)
     ) +
+     scale_x_continuous(breaks = seq(min(d$Year), max(d$Year), by = 1)) +
     theme_minimal()
 
   ggplotly(p, tooltip = c("x", "y")) %>%
@@ -701,7 +702,6 @@ retirement_data <- t8_tidy %>%
   ) %>%
   group_by(Year) %>%
   summarise(
-<<<<<<< HEAD
     Employment_Rate = mean(Employment_Rate, na.rm = TRUE),
     .groups = "drop"
   )
@@ -771,7 +771,6 @@ tabPanel(
     )
   )
 )
-=======
     Employment_Rate = mean(Employment_Rate, na.rm = TRUE)
 )
 # This graph shows how employment for people 55+ changes over time
@@ -788,7 +787,6 @@ ggplot(retirement_data, aes(x = Year, y = Employment_Rate)) +
   ) +
 theme_minimal()
 ```
->>>>>>> cc7c59c64d05cae9a1ec81a91ace2587cd624343
 
 
 
