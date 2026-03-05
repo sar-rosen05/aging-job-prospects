@@ -17,6 +17,8 @@ library(tidyr)
 library(stringr) 
 library(ggplot2)
 library(plotly)
+library(dplyr)
+library(scales)
 knitr::opts_chunk$set(echo = TRUE)
 data2011 <- read_excel("11b_2011.xlsx")
 data2012 <- read_excel("11b_2012.xlsx")
@@ -35,7 +37,7 @@ data2024 <- read_excel("11b_2024.xlsx")
 table8_data <- read_excel("Table_8_Data.xlsx")
 ```
 
-```{r cleaning}
+```{r cleaning, include=FALSE}
 clean_cps_year <- function(df, year) {
   
   df %>%
@@ -69,7 +71,7 @@ clean_cps_year <- function(df, year) {
 
 ```
 
-```{r create-cps-clean}
+```{r create-cps-clean, include=FALSE}
 data2011_clean <- clean_cps_year(data2011, 2011)
 data2012_clean <- clean_cps_year(data2012, 2012)
 data2013_clean <- clean_cps_year(data2013, 2013)
@@ -125,7 +127,7 @@ year_max <- max(retire_metrics$year, na.rm = TRUE)
 ```
 
 
-```{r Shahlans Cleaning Code for 8}
+```{r Shahlans Cleaning Code for 8, include=FALSE}
 t8 <- read_excel(
   "Table_8_Data.xlsx",
   col_types = c("text","text","text","text","text","text","text","text")
@@ -242,7 +244,7 @@ clean8_data <- clean_table8(table8_data)
 
 
 
-```{r Shahlans Graph Section}
+```{r Shahlans Graph Section, echo=FALSE}
 library(shiny)
 library(ggplot2)
 library(dplyr)
@@ -287,15 +289,12 @@ ui <- fluidPage(
         choices = levels(droplevels(t8_unemp_age$Age)),
         selected = levels(droplevels(t8_unemp_age$Age))
       ),
-<<<<<<< HEAD
-      
       selectInput(
         inputId = "top_n",
         label = "Number of Top Occupations:",
         choices = c(3, 5, 10, 15),
         selected = 5
-      )
-=======
+    ),
       sliderInput(
         "year_range",
         "Select Year Range:",
@@ -306,7 +305,6 @@ ui <- fluidPage(
         sep = ""
       ),
       checkboxInput("show_points", "Show Points", value = TRUE)
->>>>>>> a8e90fc406f1f326fe095cdcc9ee969b668b16a2
     ),
     
     mainPanel(
@@ -318,7 +316,6 @@ ui <- fluidPage(
 # Shiny Server
 server <- function(input, output) {
   
-<<<<<<< HEAD
   output$piePlot <- renderPlot({
     
     clean11b_data %>%
@@ -338,8 +335,7 @@ server <- function(input, output) {
           "Top", input$top_n,
           "Occupations by Employment,", input$year
         ),
-        fill = "Occupation"
-=======
+        fill = "Occupation",
   filtered_data <- reactive({
     t8_unemp_age %>%
       filter(
@@ -347,7 +343,9 @@ server <- function(input, output) {
         Year >= input$year_range[1],
         Year <= input$year_range[2]
       )
+  }))
   })
+}
   
   output$unempPlot <- renderPlotly({
     
@@ -374,7 +372,6 @@ server <- function(input, output) {
         x = NULL,
         y = NULL,
         color = "Age Group"
->>>>>>> a8e90fc406f1f326fe095cdcc9ee969b668b16a2
       ) +
       theme_fivethirtyeight() +
       theme(text = element_text(family = "Times New Roman"))
@@ -395,14 +392,11 @@ server <- function(input, output) {
       ) %>%
       config(displayModeBar = FALSE)
   })
-}
-<<<<<<< HEAD
 
 shinyApp(ui = ui, server = server )
 ```
-=======
->>>>>>> a8e90fc406f1f326fe095cdcc9ee969b668b16a2
 
+<<<<<<< HEAD
 # Run the Shiny App
 shinyApp(ui, server)
 
@@ -410,6 +404,9 @@ shinyApp(ui, server)
 
 ```{r Obydahs Graph section}
 
+=======
+```{r Obydahs Graph section, echo=FALSE}
+>>>>>>> b52d6d9a53d954c0b7f4a855374279c081b579d6
 ui <- fluidPage(
   
   titlePanel("Job Distribution by Occupation"),
@@ -466,7 +463,7 @@ server <- function(input, output) {
   })
 }
 
-shinyApp(ui = ui, server = server )
+shinyApp (ui = ui, server = server )
 ```
 
 ```{r Dareens Graph Section}
@@ -477,7 +474,7 @@ shinyApp(ui = ui, server = server )
 
 This chart tracks how “near-retirement” employment changes over time for a selected occupation. Users can switch between counts and percentages for ages 55+ and 65+ to compare retirement pressure across jobs. The dashed extension is a simple linear projection to help visualize where recent trends may be heading (an exploratory forecast, not a guarantee).
 
-```{r Sarahs Graphs Section}
+```{r Sarahs Graphs Section, echo=FALSE}
 shiny::fluidRow(
   shiny::column(
     4,
@@ -545,14 +542,13 @@ metric_data <- reactive({
       )
     )
 })
-
 output$retire_line <- plotly::renderPlotly({
   d <- metric_data()
   req(nrow(d) > 0)
 
   p <- ggplot(d, aes(x = year, y = value)) +
-    geom_line() +
-    geom_point() +
+    geom_line(color = "#2C7FB8", size = 1.2) +
+    geom_point(color = "#2C7FB8", size = 2) +
     labs(
       title = paste("Retirement Trend:", input$occ_ret),
       x = "Year",
@@ -576,24 +572,19 @@ output$retire_line <- plotly::renderPlotly({
   }
 
   plotly::ggplotly(p, tooltip = c("x", "y")) %>% 
-    layout(
-      hovermode = "closest",
-      legend = list(orientation = "v")
-      )
-})
-
-output$retire_line <- renderPlotly({
-  d <- metric_data()
-
-  p <- ggplot(d, aes(x = year, y = value)) +
-    geom_line(color = "#2C7FB8", size = 1.2) +
-    geom_point(color = "#2C7FB8", size = 2) +
-    labs(
-      title = paste("Retirement Trend:", input$occ_ret),
-      x = "Year",
-      y = unique(d$metric_label)
-    ) +
-    theme_minimal()
+  plotly::config(displayModeBar = TRUE) %>%
+  plotly::layout(
+    hovermode = "closest",
+    legend = list(
+      orientation = "v",
+      bgcolor = "rgba(255,255,255,0.7)",
+      x = 1.05,
+      xanchor = "left",
+      y = 1,
+      yanchor = "top"
+    ),
+    margin = list(t = 80)
+  )
 
   ggplotly(p, tooltip = c("x", "y")) %>%
     layout(
@@ -607,42 +598,103 @@ output$retire_line <- renderPlotly({
 
 ```
 
-```{r Rishitas Graph Section}
 
+```{r Rishitas Graph Section, echo=FALSE}
+
+ui <- fluidPage(
+  titlePanel("Unemployment Rate by Race (2011–2023)"),
+  sidebarLayout(
+    sidebarPanel(
+      checkboxGroupInput(
+        "race_select",
+        "Select Race Groups:",
+        choices = unique(clean8_data$Race),
+        selected = unique(clean8_data$Race)
+      ),
+      sliderInput(
+        "year_range_race",
+        "Select Year Range:",
+        min = min(clean8_data$Year),
+        max = max(clean8_data$Year),
+        value = c(min(clean8_data$Year), max(clean8_data$Year)),
+        step = 1,
+        sep = ""
+      )
+    ),
+    mainPanel(
+      plotlyOutput("racePlot")
+    )
+  )
+)
+
+server <- function(input, output) {
+  race_data <- reactive({
+    clean8_data %>%
+      filter(
+        Race %in% input$race_select,
+        Year >= input$year_range_race[1],
+        Year <= input$year_range_race[2]
+      ) %>%
+      mutate(
+        Labor_Force = Total + Unemp,
+        Unemployment_Rate = Unemp / Labor_Force
+      ) %>%
+      group_by(Year, Race) %>%
+      summarise(
+        Unemployment_Rate = mean(Unemployment_Rate, na.rm = TRUE),
+        .groups = "drop"
+      )
+  })
+  
+  output$racePlot <- renderPlotly({
+    p <- ggplot(
+      race_data(),
+      aes(
+        x = Year,
+        y = Unemployment_Rate,
+        color = Race,
+        group = Race,
+        text = paste(
+          "Year:", Year,
+          "<br>Race:", Race,
+          "<br>Unemployment Rate:", percent(Unemployment_Rate, accuracy = 0.1)
+        )
+      )
+    ) +
+      geom_line(size = 1.3) +
+      geom_point(size = 2) +
+      scale_y_continuous(labels = percent_format()) +
+      labs(
+        title = "Unemployment Rate Trends by Race",
+        subtitle = "Comparing racial groups across time",
+        x = "Year",
+        y = "Unemployment Rate",
+        color = "Race"
+      ) +
+      theme_minimal(base_size = 14)
+    ggplotly(p, tooltip = "text") %>%
+      layout(
+        hovermode = "closest"
+      ) %>%
+      config(displayModeBar = FALSE)
+  })
+}
+
+shinyApp (ui = ui, server = server)
 ```
 
 ## Retirement
 
 This visualization focuses on workers age 55 and older to look at retirement-related trends. By tracking employment rates over time, we can see how participation in the workforce among older workers has changed from 2011 to 2024.
 
-```{r Zuwidyas graph section}
+```{r Zuwiyda Graph Section}
 
-# I am focusing on workers age 55+ retirement age
-retirement_data <- t8_tidy %>%
-  filter(Age == "55+") %>%
-  mutate(
-    Labor_Force = Total + Unemp,
-    Employment_Rate = Total / Labor_Force
-  ) %>%
-  group_by(Year) %>%
-  summarise(
-    Employment_Rate = mean(Employment_Rate, na.rm = TRUE)
-  )
-
-# This graph shows how employment for people 55+ changes over time
-ggplot(retirement_data, aes(x = Year, y = Employment_Rate)) +
-  geom_line(color = "#2A9D8F", linewidth = 1.2) +
-  geom_point(color = "#264653", size = 2) +
-  scale_y_continuous(labels = scales::percent_format()) +
-  scale_x_continuous(breaks = seq(2011, 2024, 1)) +
-  labs(
-    title = "Employment Rate for Workers Age 55+ (2011–2024)",
-    subtitle = "Looking at older workers to understand retirement trends",
-    x = "Year",
-    y = "Employment Rate"
-  ) +
-  theme_minimal()
 ```
 
 
 
+
+
+
+
+```
