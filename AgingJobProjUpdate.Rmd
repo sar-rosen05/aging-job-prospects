@@ -705,7 +705,6 @@ retirement_data <- t8_tidy %>%
     Employment_Rate = mean(Employment_Rate, na.rm = TRUE),
     .groups = "drop"
   )
-
 # Filter for slider
 retirement_filtered <- reactive({
   retirement_data %>%
@@ -772,7 +771,7 @@ tabPanel(
   )
 )
     Employment_Rate = mean(Employment_Rate, na.rm = TRUE)
-)
+
 # This graph shows how employment for people 55+ changes over time
 ggplot(retirement_data, aes(x = Year, y = Employment_Rate)) +
   geom_line(color = "#2A9D8F", linewidth = 1.2) +
