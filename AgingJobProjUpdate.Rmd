@@ -696,9 +696,8 @@ shinyApp(ui = ui, server = server)
 
 This visualization focuses on workers age 55 and older to look at retirement-related trends. By tracking employment rates over time, we can see how participation in the workforce among older workers has changed from 2011 to 2024.
 
-```{r Zuwidyas graph section}
-
-# I am focusing on workers age 55+ retirement age
+```{r Zuwiyda Graph Section}
+# Retirement data
 retirement_data <- t8_tidy %>%
   filter(Age == "55+") %>%
   mutate(
@@ -707,23 +706,80 @@ retirement_data <- t8_tidy %>%
   ) %>%
   group_by(Year) %>%
   summarise(
-    Employment_Rate = mean(Employment_Rate, na.rm = TRUE)
+    Employment_Rate = mean(Employment_Rate, na.rm = TRUE),
+    .groups = "drop"
   )
 
-# This graph shows how employment for people 55+ changes over time
-ggplot(retirement_data, aes(x = Year, y = Employment_Rate)) +
-  geom_line(color = "#2A9D8F", linewidth = 1.2) +
-  geom_point(color = "#264653", size = 2) +
-  scale_y_continuous(labels = scales::percent_format()) +
-  scale_x_continuous(breaks = seq(2011, 2024, 1)) +
-  labs(
-    title = "Employment Rate for Workers Age 55+ (2011–2024)",
-    subtitle = "Looking at older workers to understand retirement trends",
-    x = "Year",
-    y = "Employment Rate"
+# Filter for slider
+retirement_filtered <- reactive({
+  retirement_data %>%
+    filter(Year >= input$retire_year[1],
+           Year <= input$retire_year[2])
+})
+
+# Interactive plot
+output$retire_plot <- renderPlotly({
+
+  p <- ggplot(
+    retirement_filtered(),
+    aes(
+      x = Year,
+      y = Employment_Rate,
+      text = paste(
+        "Year:", Year,
+        "<br>Employment Rate:",
+        scales::percent(Employment_Rate, accuracy = 0.1)
+      )
+    )
   ) +
-  theme_minimal()
+    geom_line(color = "#2A9D8F", linewidth = 1.2) +
+    scale_y_continuous(labels = scales::percent_format()) +
+    labs(
+      title = "Employment Rate for Workers Age 55+ (2011–2024)",
+      subtitle = "Looking at older workers to understand retirement trends",
+      x = "Year",
+      y = "Employment Rate"
+    ) +
+    theme_minimal()
+
+  if (input$retire_points) {
+    p <- p + geom_point(color = "#264653", size = 2)
+  }
+
+  ggplotly(p, tooltip = "text") %>%
+    layout(
+      xaxis = list(fixedrange = TRUE),
+      yaxis = list(fixedrange = TRUE)
+    ) %>%
+    config(displayModeBar = FALSE)
+})
+
+tabPanel(
+  "Retirement (55+)",
+  sidebarLayout(
+    sidebarPanel(
+      sliderInput(
+        "retire_year",
+        "Select Year Range:",
+        min = min(retirement_data$Year),
+        max = max(retirement_data$Year),
+        value = c(min(retirement_data$Year), max(retirement_data$Year)),
+        step = 1,
+        sep = ""
+      ),
+      checkboxInput("retire_points", "Show Points", value = TRUE),
+      helpText("This chart looks at employment rate for workers age 55+ over time.")
+    ),
+    mainPanel(
+      plotlyOutput("retire_plot")
+    )
+  )
+)
+
+
+
+
+
+
+
 ```
-
-
-
