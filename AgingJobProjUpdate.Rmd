@@ -244,7 +244,7 @@ clean8_data <- clean_table8(table8_data)
 
 
 
-```{r Shahlans Graph Section, include=FALSE}
+```{r Shahlans Graph Section, echo=FALSE}
 library(shiny)
 library(ggplot2)
 library(dplyr)
@@ -396,7 +396,7 @@ server <- function(input, output) {
 shinyApp(ui = ui, server = server )
 ```
 
-```{r Obydahs Graph section, include=FALSE}
+```{r Obydahs Graph section, echo=FALSE}
 ui <- fluidPage(
   
   titlePanel("Job Distribution by Occupation"),
@@ -464,7 +464,7 @@ shinyApp (ui = ui, server = server )
 
 This chart tracks how “near-retirement” employment changes over time for a selected occupation. Users can switch between counts and percentages for ages 55+ and 65+ to compare retirement pressure across jobs. The dashed extension is a simple linear projection to help visualize where recent trends may be heading (an exploratory forecast, not a guarantee).
 
-```{r Sarahs Graphs Section, include=FALSE}
+```{r Sarahs Graphs Section, echo=FALSE}
 shiny::fluidRow(
   shiny::column(
     4,
@@ -603,7 +603,7 @@ output$retire_line <- renderPlotly({
 ```
 
 
-```{r Rishitas Graph Section, include=FALSE}
+```{r Rishitas Graph Section, echo=FALSE}
 
 ui <- fluidPage(
   titlePanel("Unemployment Rate by Race (2011–2023)"),
@@ -691,7 +691,7 @@ shinyApp (ui = ui, server = server)
 
 This visualization focuses on workers age 55 and older to look at retirement-related trends. By tracking employment rates over time, we can see how participation in the workforce among older workers has changed from 2011 to 2024.
 
-```{r Zuwidyas graph section, include=FALSE}
+```{r Zuwidyas graph section, echo=FALSE}
 
 # I am focusing on workers age 55+ retirement age
 retirement_data <- t8_tidy %>%
