@@ -466,7 +466,69 @@ server <- function(input, output) {
 shinyApp (ui = ui, server = server )
 ```
 
+
 ```{r Dareens Graph Section}
+
+  # Shiny UI
+ui <- fluidPage(
+  titlePanel("Entry Age Level Occupations by Year"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      selectInput(
+        "Select_AgeGroup",
+        "Select Age Group",
+        choices = unique(clean11b_data$age_group)
+        ), 
+      selectInput("Select_Year", 
+                  "Select Year", 
+                  choices = unique(clean11b_data$year)
+                  ),
+      ),
+    mainPanel(
+      plotlyOutput("Entry_Age_Group"), 
+      tableOutput("Top10_Occupations_Table")
+      )
+    )
+  )
+
+
+  #Shiny Server
+server <- function(input, output) {
+  output$Entry_Age_Group <- renderPlotly({ 
+    req(input$Select_AgeGroup, input$Select_Year) 
+    
+    p <- clean11b_data %>% 
+      filter(age_group == input$Select_AgeGroup, 
+             year == input$Select_Year) %>% 
+      slice_max(employment_thousands, n = 10) %>% 
+      ggplot(aes(x = reorder(occupation, employment_thousands), 
+                 y = employment_thousands, 
+                 fill = occupation)) + 
+      geom_col() + 
+      labs(title = "Top 10 Entry Age Level Occupations by Year", 
+           x = "Occupation",
+           y = "Total Employment") + 
+      coord_flip() + 
+      theme_minimal() +
+      theme(legend.position = "none")
+    
+    ggplotly(p) })
+  
+  output$Top10_Occupations_Table <-renderTable({
+  req(input$Select_AgeGroup, 
+      input$Select_Year)
+  
+  clean11b_data %>% 
+    filter(age_group == input$Select_AgeGroup, 
+           year== input$Select_Year) %>%
+    
+    slice_max(employment_thousands, n = 10) 
+  })
+}
+
+shinyApp(ui, server)
+
 
 ```
 
