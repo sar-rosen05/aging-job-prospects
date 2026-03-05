@@ -428,10 +428,7 @@ server <- function(input, output) {
       )
   })
   
-<<<<<<< HEAD
-=======
-  
->>>>>>> b52d6d9a53d954c0b7f4a855374279c081b579d6
+
   output$shiftPlot <- renderPlot({ })
   output$automationPlot <- renderPlot({ })
   output$unempPlot <- renderPlot({ })
