@@ -37,7 +37,7 @@ data2024 <- read_excel("11b_2024.xlsx")
 table8_data <- read_excel("Table_8_Data.xlsx")
 ```
 
-```{r cleaning}
+```{r cleaning, include=FALSE}
 clean_cps_year <- function(df, year) {
   
   df %>%
@@ -71,7 +71,7 @@ clean_cps_year <- function(df, year) {
 
 ```
 
-```{r create-cps-clean}
+```{r create-cps-clean, include=FALSE}
 data2011_clean <- clean_cps_year(data2011, 2011)
 data2012_clean <- clean_cps_year(data2012, 2012)
 data2013_clean <- clean_cps_year(data2013, 2013)
@@ -127,7 +127,7 @@ year_max <- max(retire_metrics$year, na.rm = TRUE)
 ```
 
 
-```{r Shahlans Cleaning Code for 8}
+```{r Shahlans Cleaning Code for 8, include=FALSE}
 t8 <- read_excel(
   "Table_8_Data.xlsx",
   col_types = c("text","text","text","text","text","text","text","text")
@@ -244,7 +244,7 @@ clean8_data <- clean_table8(table8_data)
 
 
 
-```{r Shahlans Graph Section}
+```{r Shahlans Graph Section, include=FALSE}
 library(shiny)
 library(ggplot2)
 library(dplyr)
@@ -396,7 +396,7 @@ server <- function(input, output) {
 shinyApp(ui = ui, server = server )
 ```
 
-```{r Obydahs Graph section}
+```{r Obydahs Graph section, include=FALSE}
 ui <- fluidPage(
   
   titlePanel("Job Distribution by Occupation"),
@@ -464,7 +464,7 @@ shinyApp (ui = ui, server = server )
 
 This chart tracks how “near-retirement” employment changes over time for a selected occupation. Users can switch between counts and percentages for ages 55+ and 65+ to compare retirement pressure across jobs. The dashed extension is a simple linear projection to help visualize where recent trends may be heading (an exploratory forecast, not a guarantee).
 
-```{r Sarahs Graphs Section}
+```{r Sarahs Graphs Section, include=FALSE}
 shiny::fluidRow(
   shiny::column(
     4,
@@ -603,7 +603,7 @@ output$retire_line <- renderPlotly({
 ```
 
 
-```{r Rishitas Graph Section}
+```{r Rishitas Graph Section, include=FALSE}
 
 ui <- fluidPage(
   titlePanel("Unemployment Rate by Race (2011–2023)"),
@@ -691,7 +691,7 @@ shinyApp (ui = ui, server = server)
 
 This visualization focuses on workers age 55 and older to look at retirement-related trends. By tracking employment rates over time, we can see how participation in the workforce among older workers has changed from 2011 to 2024.
 
-```{r Zuwidyas graph section}
+```{r Zuwidyas graph section, include=FALSE}
 
 # I am focusing on workers age 55+ retirement age
 retirement_data <- t8_tidy %>%
