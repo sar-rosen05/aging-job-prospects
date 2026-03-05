@@ -403,11 +403,13 @@ shinyApp(ui = ui, server = server )
 =======
 >>>>>>> a8e90fc406f1f326fe095cdcc9ee969b668b16a2
 
-
+# Run the Shiny App
+shinyApp(ui, server)
 
 ```
 
 ```{r Obydahs Graph section}
+
 ui <- fluidPage(
   
   titlePanel("Job Distribution by Occupation"),
