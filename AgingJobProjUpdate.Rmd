@@ -537,8 +537,8 @@ output$retire_line <- plotly::renderPlotly({
   req(nrow(d) > 0)
 
   p <- ggplot(d, aes(x = year, y = value)) +
-    geom_line(size = 1.2) +
-    geom_point(size = 2) +
+    geom_line(color = "#2C7FB8", size = 1.2) +
+    geom_point(color = "#2C7FB8", size = 2) +
     labs(
       title = paste("Retirement Trend:", input$occ_ret),
       x = "Year",
