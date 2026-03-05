@@ -354,8 +354,6 @@ server <- function(input, output) {
   
   # Other members' plots placeholders
   output$industryPlot <- renderPlotly({
-    
-    # Friendly generation labels
     age_map <- c(
       "16_to_19_years" = "Teenagers",
       "20_to_24_years" = "Young Adults",
@@ -366,7 +364,6 @@ server <- function(input, output) {
       "65_years_and_over" = "Retirees"
     )
     
-    # Translate selected age codes to readable names
     selected_generations <- age_map[input$industry_age]
     
     # Filter + summarize
@@ -383,7 +380,7 @@ server <- function(input, output) {
       arrange(desc(total_employment)) %>%
       slice_head(n = as.numeric(input$top_n))
     
-    # Handle empty selection safely
+    
     if (nrow(filtered_data) == 0) {
       return(plot_ly() %>% layout(title = "No data available for selection"))
     }
