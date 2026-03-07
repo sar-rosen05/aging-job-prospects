@@ -282,43 +282,25 @@ server <- function(input, output) {
              Year >= input$year_range[1],
              Year <= input$year_range[2])
     
-    # Highlight logic
+    # Determine linetype and size for each age group
     filtered_data <- filtered_data %>%
       mutate(
+        line_type = ifelse(input$highlight_age == "None", "solid",
+                           ifelse(Age == input$highlight_age, "solid", "dashed")),
         line_size = ifelse(input$highlight_age == "None", 1.2,
-                           ifelse(Age == input$highlight_age, 2, 1.2)),  # only highlighted line thicker
-        alpha_val = 0.8  # all lines same opacity, no blur
+                           ifelse(Age == input$highlight_age, 2, 1.2))
       )
     
-    p <- ggplot(
-      filtered_data,
-      aes(
-        x = Year,
-        y = Unemployment_Rate,
-        color = Age,
-        group = Age,
-        text = paste(
-          "Year:", Year,
-          "<br>Age:", Age,
-          "<br>Unemployment Rate:", percent(Unemployment_Rate, accuracy = 1)
-        ),
-        alpha = alpha_val,
-        linewidth = line_size
-      )
-    ) +
-      geom_line() +
+    p <- ggplot(filtered_data,
+                aes(x = Year, y = Unemployment_Rate, color = Age, group = Age,
+                    text = paste("Year:", Year,
+                                 "<br>Age:", Age,
+                                 "<br>Unemployment Rate:", percent(Unemployment_Rate, accuracy = 1)))) +
+      geom_line(aes(linetype = line_type, linewidth = line_size)) +
       geom_point(size = 2) +
-      # Only show COVID line if 2020 is in range
-      {if(input$year_range[1] <= 2020 & input$year_range[2] >= 2020)
-        geom_vline(xintercept = 2020, linetype = "dashed", color = "gray40")
-      } +
-      {if(input$year_range[1] <= 2020 & input$year_range[2] >= 2020)
-        annotate("text", x = 2020, y = max(filtered_data$Unemployment_Rate),
-                 label = "COVID-19 Shock", vjust = -0.5, size = 4)
-      } +
-      scale_y_continuous(labels = percent_format()) +
-      scale_alpha_identity() +
+      scale_linetype_identity() +
       scale_linewidth_identity() +
+      scale_y_continuous(labels = percent_format()) +
       labs(
         title = paste("Unemployment Rate by Age Group (", input$year_range[1], "-", input$year_range[2], ")", sep = ""),
         subtitle = ifelse(input$highlight_age == "None",
@@ -342,30 +324,6 @@ server <- function(input, output) {
         )
       ) %>%
       config(displayModeBar = FALSE)
-  })
-  
-  # Industry Trends
-  output$industryPlot <- renderPlot({
-    clean11b_data %>%
-      dplyr::filter(year == input$industry_year) %>%
-      dplyr::group_by(occupation) %>%
-      dplyr::summarise(
-        total_employment = sum(employment_thousands, na.rm = TRUE),
-        .groups = "drop"
-      ) %>%
-      dplyr::arrange(dplyr::desc(total_employment)) %>%
-      dplyr::slice_head(n = as.numeric(input$top_n)) %>%
-      ggplot(aes(x = 1, y = total_employment, fill = occupation)) +
-      geom_col(width = 1) +
-      coord_polar(theta = "y") +
-      labs(
-        title = paste(
-          "Top", input$top_n,
-          "Occupations by Employment,", input$industry_year
-        ),
-        fill = "Occupation"
-      ) +
-      theme_void()
   })
   
   # Other placeholders
