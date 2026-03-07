@@ -1,4 +1,3 @@
-
 # Occupational Employment Dashboard
 library(shiny)
 library(shinythemes)
@@ -126,9 +125,7 @@ clean_table8 <- function(df) {
 clean8_data <- clean_table8(table8_data)
 
 
-
 # CREATE SUMMARY DATA
-
 t8_unemp_age <- clean8_data %>%
   mutate(
     Labor_Force = Total + Unemp,
@@ -153,51 +150,50 @@ retirement_data <- clean8_data %>%
   )
 
 
-
 # UI
-
 ui <- navbarPage(
   
   title = "U.S. Occupational Employment Dashboard (2011–2024)",
   theme = shinytheme("flatly"),
   
-
-  # Overview of panels for reference
-  
+  # Overview
   tabPanel("# Overview",
            h2("Put your plots here"),
            p("Add a summary of your code here and explain what the visualization is showing."),
            plotlyOutput("overviewPlot")
   ),
-
-  # Age-Based Trends (Shahlan)
- 
+  
+  # Age-Based Trends
   tabPanel(" Age-Based Trends",
-           sidebarPanel(
-             checkboxGroupInput(
-               "age_select",
-               "Select Age Groups:",
-               choices = unique(t8_unemp_age$Age),
-               selected = unique(t8_unemp_age$Age)
+           sidebarLayout(
+             sidebarPanel(
+               checkboxGroupInput(
+                 "age_select",
+                 "Select Age Groups:",
+                 choices = unique(t8_unemp_age$Age),
+                 selected = unique(t8_unemp_age$Age)
+               ),
+               sliderInput(
+                 "year_range",
+                 "Select Year Range:",
+                 min = min(t8_unemp_age$Year),
+                 max = max(t8_unemp_age$Year),
+                 value = c(min(t8_unemp_age$Year), max(t8_unemp_age$Year)),
+                 step = 1,
+                 sep = ""
+               ),
+               selectInput(
+                 "highlight_age",
+                 "Highlight Age Group:",
+                 choices = c("None", unique(t8_unemp_age$Age)),
+                 selected = "None"
+               ),
+               checkboxInput(
+                 "auto_highlight",
+                 "Auto-highlight Age Group with Highest Unemployment",
+                 value = FALSE
+               )
              ),
-             
-             sliderInput(
-               "year_range",
-               "Select Year Range:",
-               min = min(t8_unemp_age$Year),
-               max = max(t8_unemp_age$Year),
-               value = c(min(t8_unemp_age$Year), max(t8_unemp_age$Year)),
-               step = 1,
-               sep = ""
-             ),
-             
-             selectInput(
-               "highlight_age",
-               "Highlight Age Group:",
-               choices = c("None", unique(t8_unemp_age$Age)),
-               selected = "None"
-             )
-           ),
              mainPanel(
                h3("The Age Gap in Employment: How Young Workers Bore the Brunt"),
                p("This line chart tracks unemployment across four age groups (16–19, 20–24, 25–54, 55+) 
@@ -210,9 +206,9 @@ ui <- navbarPage(
              )
            )
   ),
-
-  # Industry Trends (Obydah)
-tabPanel(
+  
+  # Industry Trends
+  tabPanel(
     " Industry Trends",
     sidebarLayout(
       sidebarPanel(
@@ -236,36 +232,29 @@ tabPanel(
       )
     )
   ),
-
-  # Structural Shifts (Dareen)
-
+  
+  # Structural Shifts
   tabPanel("# Structural Shifts",
            h3("Put your plots here"),
            p("Add a summary of your code here."),
            plotOutput("shiftPlot")
   ),
   
- 
-  # Automation Impact (Sarah)
-  
+  # Automation Impact
   tabPanel(" Automation Impact",
            h3("Put your plots here"),
            p("Add a summary of your code here."),
            plotOutput("automationPlot")
   ),
   
- 
-  # Unemployment Patterns (Sammy)
-  
+  # Unemployment Patterns
   tabPanel(" Unemployment Patterns",
            h3("Put your plots here"),
            p("Add a summary of your code here."),
            plotOutput("unempPlot")
   ),
   
-  
-  # Retirement Trends (Zuwidya)
-  
+  # Retirement Trends
   tabPanel(" Retirement Trends",
            h3("Put your plots here"),
            p("Add a summary of your code here."),
@@ -278,25 +267,53 @@ tabPanel(
 server <- function(input, output) {
   
   # Overview plot
-  filtered_data <- t8_unemp_age %>%
-    filter(Age %in% input$age_select,
-           Year >= input$year_range[1],
-           Year <= input$year_range[2]) %>%
-    mutate(
-      highlight = ifelse(Age == input$highlight_age, "yes", "no"),
-      line_size = ifelse(Age == input$highlight_age, 2, 1.1),
-      alpha_val = ifelse(input$highlight_age == "None", 0.8,
-                         ifelse(Age == input$highlight_age, 1, 0.3))
-    )
+  output$overviewPlot <- renderPlotly({
+    p <- ggplot(t8_unemp_age,
+                aes(x = Year,
+                    y = Unemployment_Rate,
+                    color = Age,
+                    group = Age)) +
+      geom_line(linewidth = 1.3) +
+      scale_y_continuous(labels = percent_format()) +
+      labs(
+        title = "Overall Unemployment Trends by Age Group",
+        x = "Year",
+        y = "Unemployment Rate",
+        color = "Age Group"
+      ) +
+      theme_fivethirtyeight(base_size = 14)
+    
+    ggplotly(p)
   })
   
-  # Shahlan's plot 
+  # Age-Based Trends plot
   output$agePlot <- renderPlotly({
     
     filtered_data <- t8_unemp_age %>%
       filter(Age %in% input$age_select,
              Year >= input$year_range[1],
              Year <= input$year_range[2])
+    
+    # Determine auto-highlight
+    if(input$auto_highlight){
+      max_age <- filtered_data %>%
+        group_by(Age) %>%
+        summarise(mean_unemp = mean(Unemployment_Rate, na.rm = TRUE)) %>%
+        arrange(desc(mean_unemp)) %>%
+        slice(1) %>%
+        pull(Age)
+      highlight <- max_age
+    } else {
+      highlight <- input$highlight_age
+    }
+    
+    filtered_data <- filtered_data %>%
+      mutate(
+        highlight_flag = ifelse(Age == highlight, "yes", "no"),
+        line_size = ifelse(Age == highlight, 2, 1.1),
+        alpha_val = ifelse(highlight == "None", 0.8,
+                           ifelse(Age == highlight, 1, 0.3))
+      )
     
     p <- ggplot(
       filtered_data,
@@ -309,15 +326,23 @@ server <- function(input, output) {
           "Year:", Year,
           "<br>Age:", Age,
           "<br>Unemployment Rate:", percent(Unemployment_Rate, accuracy = 1)
-        )
+        ),
+        alpha = alpha_val,
+        linewidth = line_size
       )
     ) +
-      geom_line(aes(alpha = alpha_val, linewidth = line_size)) +
+      geom_line() +
       geom_point(size = 2) +
+      geom_vline(xintercept = 2020, linetype = "dashed", color = "gray40") +
+      annotate("text", x = 2020, y = max(filtered_data$Unemployment_Rate),
+               label = "COVID-19 Shock", vjust = -0.5, size = 4) +
       scale_y_continuous(labels = percent_format()) +
+      scale_alpha_identity() +
+      scale_linewidth_identity() +
       labs(
-        title = "Unemployment Rate by Age Group (2011–2024)",
-        subtitle = "Comparing unemployment trends across age groups",
+        title = paste("Unemployment Rate by Age Group (", input$year_range[1], "-", input$year_range[2], ")", sep = ""),
+        subtitle = ifelse(highlight == "None", "Comparing unemployment trends across age groups",
+                          paste("Highlighting:", highlight)),
         x = NULL,
         y = NULL,
         color = "Age Group"
@@ -338,9 +363,8 @@ server <- function(input, output) {
       config(displayModeBar = FALSE)
   })
   
-  # Other members' plots placeholders
+  # Industry Trends
   output$industryPlot <- renderPlot({
-    
     clean11b_data %>%
       dplyr::filter(year == input$industry_year) %>%
       dplyr::group_by(occupation) %>%
@@ -362,17 +386,14 @@ server <- function(input, output) {
       ) +
       theme_void()
   })
+  
+  # Other placeholders
   output$shiftPlot <- renderPlot({ })
   output$automationPlot <- renderPlot({ })
   output$unempPlot <- renderPlot({ })
   output$retirementPlot <- renderPlot({ })
-  scale_alpha_identity()
-  scale_linewidth_identity()
+  
 }
-
-
-
 
 # RUN APP
 shinyApp(ui, server)
-
