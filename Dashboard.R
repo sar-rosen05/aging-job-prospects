@@ -32,7 +32,6 @@ table8_data <- read_excel("Table_8_Data.xlsx")
 
 # CLEAN CPS DATA FUNCTION
 clean_cps_year <- function(df, year) {
-  
   df %>%
     slice(-c(1:3)) %>%   
     rename(
@@ -86,7 +85,6 @@ clean11b_data <- bind_rows(
 
 # CLEAN TABLE 8 DATA FOR DASHBOARD
 clean_table8 <- function(df) {
-  
   df %>%
     pivot_longer(
       cols = c(FT_Total, PT_Total, Unemp_FT, Unemp_PT),
@@ -94,13 +92,11 @@ clean_table8 <- function(df) {
       names_sep = "_",
       values_to = "count"
     ) %>%
-    
     mutate(
       FT = if_else(measure == "FT" & time == "Total", count, NA_real_),
       PT = if_else(measure == "PT" & time == "Total", count, NA_real_),
       Unemp = if_else(measure == "Unemp", count, NA_real_)
     ) %>%
-    
     group_by(Year, Sex, Race, Age) %>%
     summarise(
       FT = sum(FT, na.rm = TRUE),
@@ -108,7 +104,6 @@ clean_table8 <- function(df) {
       Unemp = sum(Unemp, na.rm = TRUE),
       .groups = "drop"
     ) %>%
-    
     mutate(
       Total = FT + PT,
       Year = as.integer(Year),
@@ -118,7 +113,6 @@ clean_table8 <- function(df) {
         ordered = TRUE
       )
     ) %>%
-    
     filter(!is.na(Age))
 }
 
@@ -152,7 +146,6 @@ retirement_data <- clean8_data %>%
 
 # UI
 ui <- navbarPage(
-  
   title = "U.S. Occupational Employment Dashboard (2011–2024)",
   theme = shinytheme("flatly"),
   
@@ -185,13 +178,8 @@ ui <- navbarPage(
                selectInput(
                  "highlight_age",
                  "Highlight Age Group:",
-                 choices = c("None", unique(t8_unemp_age$Age)),
+                 choices = c("None", levels(t8_unemp_age$Age)),
                  selected = "None"
-               ),
-               checkboxInput(
-                 "auto_highlight",
-                 "Auto-highlight Age Group with Highest Unemployment",
-                 value = FALSE
                )
              ),
              mainPanel(
@@ -294,25 +282,12 @@ server <- function(input, output) {
              Year >= input$year_range[1],
              Year <= input$year_range[2])
     
-    # Determine auto-highlight
-    if(input$auto_highlight){
-      max_age <- filtered_data %>%
-        group_by(Age) %>%
-        summarise(mean_unemp = mean(Unemployment_Rate, na.rm = TRUE)) %>%
-        arrange(desc(mean_unemp)) %>%
-        slice(1) %>%
-        pull(Age)
-      highlight <- max_age
-    } else {
-      highlight <- input$highlight_age
-    }
-    
+    # Highlight logic
     filtered_data <- filtered_data %>%
       mutate(
-        highlight_flag = ifelse(Age == highlight, "yes", "no"),
-        line_size = ifelse(Age == highlight, 2, 1.1),
-        alpha_val = ifelse(highlight == "None", 0.8,
-                           ifelse(Age == highlight, 1, 0.3))
+        line_size = ifelse(input$highlight_age == "None", 1.2,
+                           ifelse(Age == input$highlight_age, 2, 1.2)),  # only highlighted line thicker
+        alpha_val = 0.8  # all lines same opacity, no blur
       )
     
     p <- ggplot(
@@ -333,16 +308,22 @@ server <- function(input, output) {
     ) +
       geom_line() +
       geom_point(size = 2) +
-      geom_vline(xintercept = 2020, linetype = "dashed", color = "gray40") +
-      annotate("text", x = 2020, y = max(filtered_data$Unemployment_Rate),
-               label = "COVID-19 Shock", vjust = -0.5, size = 4) +
+      # Only show COVID line if 2020 is in range
+      {if(input$year_range[1] <= 2020 & input$year_range[2] >= 2020)
+        geom_vline(xintercept = 2020, linetype = "dashed", color = "gray40")
+      } +
+      {if(input$year_range[1] <= 2020 & input$year_range[2] >= 2020)
+        annotate("text", x = 2020, y = max(filtered_data$Unemployment_Rate),
+                 label = "COVID-19 Shock", vjust = -0.5, size = 4)
+      } +
       scale_y_continuous(labels = percent_format()) +
       scale_alpha_identity() +
       scale_linewidth_identity() +
       labs(
         title = paste("Unemployment Rate by Age Group (", input$year_range[1], "-", input$year_range[2], ")", sep = ""),
-        subtitle = ifelse(highlight == "None", "Comparing unemployment trends across age groups",
-                          paste("Highlighting:", highlight)),
+        subtitle = ifelse(input$highlight_age == "None",
+                          "Comparing unemployment trends across age groups",
+                          paste("Highlighting:", input$highlight_age)),
         x = NULL,
         y = NULL,
         color = "Age Group"
