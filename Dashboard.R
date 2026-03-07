@@ -173,24 +173,31 @@ ui <- navbarPage(
   # Age-Based Trends (Shahlan)
  
   tabPanel(" Age-Based Trends",
-           sidebarLayout(
-             sidebarPanel(
-               checkboxGroupInput(
-                 "age_select",
-                 "Select Age Groups:",
-                 choices = unique(t8_unemp_age$Age),
-                 selected = unique(t8_unemp_age$Age)
-               ),
-               sliderInput(
-                 "year_range",
-                 "Select Year Range:",
-                 min = min(t8_unemp_age$Year),
-                 max = max(t8_unemp_age$Year),
-                 value = c(min(t8_unemp_age$Year), max(t8_unemp_age$Year)),
-                 step = 1,
-                 sep = ""
-               )
+           sidebarPanel(
+             checkboxGroupInput(
+               "age_select",
+               "Select Age Groups:",
+               choices = unique(t8_unemp_age$Age),
+               selected = unique(t8_unemp_age$Age)
              ),
+             
+             sliderInput(
+               "year_range",
+               "Select Year Range:",
+               min = min(t8_unemp_age$Year),
+               max = max(t8_unemp_age$Year),
+               value = c(min(t8_unemp_age$Year), max(t8_unemp_age$Year)),
+               step = 1,
+               sep = ""
+             ),
+             
+             selectInput(
+               "highlight_age",
+               "Highlight Age Group:",
+               choices = c("None", unique(t8_unemp_age$Age)),
+               selected = "None"
+             )
+           ),
              mainPanel(
                h3("The Age Gap in Employment: How Young Workers Bore the Brunt"),
                p("This line chart tracks unemployment across four age groups (16–19, 20–24, 25–54, 55+) 
