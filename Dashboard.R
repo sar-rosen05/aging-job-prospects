@@ -282,24 +282,22 @@ server <- function(input, output) {
              Year >= input$year_range[1],
              Year <= input$year_range[2])
     
-    # Determine linetype and size for each age group
+    # Set line type based on highlight selection
     filtered_data <- filtered_data %>%
       mutate(
         line_type = ifelse(input$highlight_age == "None", "solid",
-                           ifelse(Age == input$highlight_age, "solid", "dashed")),
-        line_size = ifelse(input$highlight_age == "None", 1.2,
-                           ifelse(Age == input$highlight_age, 2, 1.2))
+                           ifelse(Age == input$highlight_age, "solid", "dashed"))
       )
     
     p <- ggplot(filtered_data,
                 aes(x = Year, y = Unemployment_Rate, color = Age, group = Age,
                     text = paste("Year:", Year,
                                  "<br>Age:", Age,
-                                 "<br>Unemployment Rate:", percent(Unemployment_Rate, accuracy = 1)))) +
-      geom_line(aes(linetype = line_type, linewidth = line_size)) +
+                                 "<br>Unemployment Rate:", percent(Unemployment_Rate, accuracy = 1)),
+                    linetype = line_type)) +
+      geom_line(size = 1.2) +
       geom_point(size = 2) +
-      scale_linetype_identity() +
-      scale_linewidth_identity() +
+      scale_linetype_identity() +  # Use the linetype values directly
       scale_y_continuous(labels = percent_format()) +
       labs(
         title = paste("Unemployment Rate by Age Group (", input$year_range[1], "-", input$year_range[2], ")", sep = ""),
