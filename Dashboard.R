@@ -228,6 +228,23 @@ ui <- navbarPage(
           choices = sort(unique(clean11b_data$year)),
           selected = max(clean11b_data$year)
         ),
+        
+        selectInput(
+          inputId = "industry_age",
+          label = "Select Generation(s):",
+          choices = c(
+            "Teenagers (16–19)" = "16_to_19_years",
+            "Young Adults (20–24)" = "20_to_24_years",
+            "Adults (25–34)" = "25_to_34_years",
+            "Early Middle Age (35–44)" = "35_to_44_years",
+            "Middle Age (45–54)" = "45_to_54_years",
+            "Older (55–64)" = "55_to_64_years",
+            "Retirees (65+)" = "65_years_and_over"
+          ),
+          selected = c("16_to_19_years", "25_to_34_years"),
+          multiple = TRUE
+        ),
+        
         selectInput(
           inputId = "top_n",
           label = "Number of Top Occupations:",
@@ -235,10 +252,11 @@ ui <- navbarPage(
           selected = 5
         )
       ),
+      
       mainPanel(
         h3("Occupational Employment Distribution"),
-        p("This pie chart shows how employment is distributed across the top occupations in a selected year."),
-        plotOutput("industryPlot", height = "450px")
+        p("This pie chart shows how employment is distributed across the top occupations for selected generation(s) and year."),
+        plotlyOutput("industryPlot", height = "450px")  # <-- IMPORTANT CHANGE
       )
     )
   ),
@@ -261,11 +279,22 @@ ui <- navbarPage(
            plotOutput("unempPlot")
   ),
   
+
   tabPanel(" Retirement Trends",
            h3("Put your plots here"),
            p("Add a summary of your code here."),
            plotOutput("retirementPlot")
   )
+
+  
+   # Retirement Trends (Zuwidya)
+tabPanel(
+  " Retirement Trends",
+  h3("Employment Rate for Workers Age 55+ (2011–2024)"),
+  p("This chart shows the employment rate for workers age 55+ from 2011 to 2024. It stays high most years, but there is a noticeable dip around 2020 and then it rises again after. I used this to see how retirement-age workers’ employment changes over time and how big events can impact it."),
+  plotOutput("retirementPlot")
+)
+
 )
 
 
@@ -348,6 +377,7 @@ server <- function(input, output) {
       config(displayModeBar = FALSE)
   })
   
+
   output$trendNote <- renderUI({
     
     if(input$show_trend){
@@ -367,6 +397,84 @@ server <- function(input, output) {
   output$automationPlot <- renderPlot({ })
   output$unempPlot <- renderPlot({ })
   output$retirementPlot <- renderPlot({ })
+
+  # Zuwiyda plot
+  output$retirementPlot <- renderPlot({
+    ggplot(retirement_data, aes(x = Year, y = Employment_Rate)) +
+      geom_line(linewidth = 1.5, color = "#2C7FB8") +
+      geom_point(size = 3, color = "#2C7FB8") +
+      scale_y_continuous(labels = percent_format()) +
+      labs(
+        x = "Year",
+        y = "Employment Rate"
+      ) +
+      theme_minimal()
+  })
+  # Other members' plots placeholders
+  output$industryPlot <- renderPlotly({
+    age_map <- c(
+      "16_to_19_years" = "Teenagers",
+      "20_to_24_years" = "Young Adults",
+      "25_to_34_years" = "Adults",
+      "35_to_44_years" = "Early Middle Age",
+      "45_to_54_years" = "Middle Age",
+      "55_to_64_years" = "Older",
+      "65_years_and_over" = "Retirees"
+    )
+    
+    selected_generations <- age_map[input$industry_age]
+    
+    # Filter + summarize
+    filtered_data <- clean11b_data %>%
+      filter(
+        year == input$industry_year,
+        age_group %in% input$industry_age
+      ) %>%
+      group_by(occupation) %>%
+      summarise(
+        total_employment = sum(employment_thousands, na.rm = TRUE),
+        .groups = "drop"
+      ) %>%
+      arrange(desc(total_employment)) %>%
+      slice_head(n = as.numeric(input$top_n))
+    
+    
+    if (nrow(filtered_data) == 0) {
+      return(plot_ly() %>% layout(title = "No data available for selection"))
+    }
+    
+    # Build tooltip text
+    filtered_data$tooltip <- paste0(
+      "<b>Occupation:</b> ", filtered_data$occupation,
+      "<br><b>Employment:</b> ", scales::comma(filtered_data$total_employment), " (thousands)",
+      "<br><b>Generation(s):</b> ", paste(selected_generations, collapse = ", ")
+    )
+    
+    # Create pie chart
+    plot_ly(
+      data = filtered_data,
+      labels = ~occupation,
+      values = ~total_employment,
+      type = "pie",
+      textinfo = "percent",
+      hoverinfo = "text",
+      textposition = "inside",
+      hovertext = ~tooltip
+    ) %>%
+      layout(
+        title = paste(
+          "Top", input$top_n,
+          "Occupations by Employment (", input$industry_year, ")"
+        ),
+        showlegend = TRUE
+      )
+  })
+  
+
+  output$shiftPlot <- renderPlot({ })
+  output$automationPlot <- renderPlot({ })
+  output$unempPlot <- renderPlot({ })
+
   
 }
 
