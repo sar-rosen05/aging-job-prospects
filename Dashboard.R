@@ -149,14 +149,12 @@ ui <- navbarPage(
   title = "U.S. Occupational Employment Dashboard (2011–2024)",
   theme = shinytheme("flatly"),
   
-  # Overview
   tabPanel("# Overview",
            h2("Put your plots here"),
            p("Add a summary of your code here and explain what the visualization is showing."),
            plotlyOutput("overviewPlot")
   ),
   
-  # Age-Based Trends
   tabPanel(" Age-Based Trends",
            sidebarLayout(
              sidebarPanel(
@@ -180,6 +178,30 @@ ui <- navbarPage(
                  "Highlight Age Group:",
                  choices = c("None", levels(t8_unemp_age$Age)),
                  selected = "None"
+               ),
+               
+               checkboxInput(
+                 "show_points",
+                 "Show Data Points",
+                 value = TRUE
+               ),
+               
+               checkboxInput(
+                 "show_trend",
+                 "Show Trend Line",
+                 value = FALSE
+               ),
+               
+               selectInput(
+                 "color_palette",
+                 "Color Theme",
+                 choices = c(
+                   "Soft Pastel" = "Set2",
+                   "Bold Contrast" = "Set1",
+                   "Professional Muted" = "Dark2",
+                   "Extended Palette" = "Paired"
+                 ),
+                 selected = "Set2"
                )
              ),
              mainPanel(
@@ -190,12 +212,12 @@ ui <- navbarPage(
                  but spiking in 2020, likely due to COVID-19. Prime-age (25–54) and older workers (55+) had lower, 
                  steadier unemployment between 4–10%, with only a notable 2020 increase. Overall, younger workers 
                  are more vulnerable to labor market fluctuations, while older groups show greater stability."),
-               plotlyOutput("agePlot")
+               plotlyOutput("agePlot"),
+               uiOutput("trendNote")
              )
            )
   ),
   
-  # Industry Trends
   tabPanel(
     " Industry Trends",
     sidebarLayout(
@@ -221,28 +243,24 @@ ui <- navbarPage(
     )
   ),
   
-  # Structural Shifts
   tabPanel("# Structural Shifts",
            h3("Put your plots here"),
            p("Add a summary of your code here."),
            plotOutput("shiftPlot")
   ),
   
-  # Automation Impact
   tabPanel(" Automation Impact",
            h3("Put your plots here"),
            p("Add a summary of your code here."),
            plotOutput("automationPlot")
   ),
   
-  # Unemployment Patterns
   tabPanel(" Unemployment Patterns",
            h3("Put your plots here"),
            p("Add a summary of your code here."),
            plotOutput("unempPlot")
   ),
   
-  # Retirement Trends
   tabPanel(" Retirement Trends",
            h3("Put your plots here"),
            p("Add a summary of your code here."),
@@ -254,7 +272,6 @@ ui <- navbarPage(
 # SERVER
 server <- function(input, output) {
   
-  # Overview plot
   output$overviewPlot <- renderPlotly({
     p <- ggplot(t8_unemp_age,
                 aes(x = Year,
@@ -274,7 +291,6 @@ server <- function(input, output) {
     ggplotly(p)
   })
   
-  # Age-Based Trends plot
   output$agePlot <- renderPlotly({
     
     filtered_data <- t8_unemp_age %>%
@@ -294,7 +310,7 @@ server <- function(input, output) {
                                  "<br>Unemployment Rate:", percent(Unemployment_Rate, accuracy = 1))
                 )) +
       geom_line(size = 1.2) +
-      geom_point(size = 2) +
+      scale_color_brewer(palette = input$color_palette) +
       scale_linetype_identity() +
       scale_y_continuous(labels = percent_format()) +
       labs(
@@ -309,20 +325,44 @@ server <- function(input, output) {
       theme_fivethirtyeight() +
       theme(text = element_text(family = "Times New Roman"))
     
+    if (input$show_points) {
+      p <- p + geom_point(size = 2)
+    }
+    
+    if (input$show_trend) {
+      p <- p + geom_smooth(
+        method = "loess",
+        se = FALSE,
+        linetype = "dashed",
+        linewidth = 0.8,
+        alpha = 0.5
+      )
+    }
+    
     ggplotly(p, tooltip = "text") %>%
       layout(
+        hovermode = "x unified",
         xaxis = list(fixedrange = TRUE),
-        yaxis = list(fixedrange = TRUE),
-        hoverlabel = list(
-          font = list(family = "Times New Roman", size = 12, color = "black"),
-          bgcolor = "white",
-          bordercolor = "transparent"
-        )
+        yaxis = list(fixedrange = TRUE)
       ) %>%
       config(displayModeBar = FALSE)
   })
   
-  # Other placeholders
+  output$trendNote <- renderUI({
+    
+    if(input$show_trend){
+      
+      div(
+        style="margin-top:10px; font-size:13px; color:gray40;",
+        HTML("<b>Note:</b> The dashed trend lines use LOESS smoothing to estimate the underlying unemployment trajectory. 
+             Because the method smooths short-term shocks, the 2020 COVID-19 spike has less influence on the trend,
+             approximating the broader direction the labor market may have followed without the pandemic disruption.")
+      )
+      
+    }
+    
+  })
+  
   output$shiftPlot <- renderPlot({ })
   output$automationPlot <- renderPlot({ })
   output$unempPlot <- renderPlot({ })
@@ -330,5 +370,4 @@ server <- function(input, output) {
   
 }
 
-# RUN APP
 shinyApp(ui, server)
