@@ -278,23 +278,16 @@ tabPanel(
 server <- function(input, output) {
   
   # Overview plot
-  output$overviewPlot <- renderPlotly({
-    p <- ggplot(t8_unemp_age,
-                aes(x = Year,
-                    y = Unemployment_Rate,
-                    color = Age,
-                    group = Age)) +
-      geom_line(linewidth = 1.3) +
-      scale_y_continuous(labels = percent_format()) +
-      labs(
-        title = "Overall Unemployment Trends by Age Group",
-        x = "Year",
-        y = "Unemployment Rate",
-        color = "Age Group"
-      ) +
-      theme_fivethirtyeight(base_size = 14)
-    
-    ggplotly(p)
+  filtered_data <- t8_unemp_age %>%
+    filter(Age %in% input$age_select,
+           Year >= input$year_range[1],
+           Year <= input$year_range[2]) %>%
+    mutate(
+      highlight = ifelse(Age == input$highlight_age, "yes", "no"),
+      line_size = ifelse(Age == input$highlight_age, 2, 1.1),
+      alpha_val = ifelse(input$highlight_age == "None", 0.8,
+                         ifelse(Age == input$highlight_age, 1, 0.3))
+    )
   })
   
   # Shahlan's plot 
@@ -319,7 +312,7 @@ server <- function(input, output) {
         )
       )
     ) +
-      geom_line(linewidth = 1.2, alpha = 0.8) +
+      geom_line(aes(alpha = alpha_val, linewidth = line_size)) +
       geom_point(size = 2) +
       scale_y_continuous(labels = percent_format()) +
       labs(
@@ -373,7 +366,10 @@ server <- function(input, output) {
   output$automationPlot <- renderPlot({ })
   output$unempPlot <- renderPlot({ })
   output$retirementPlot <- renderPlot({ })
+  scale_alpha_identity()
+  scale_linewidth_identity()
 }
+
 
 
 
