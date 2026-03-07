@@ -279,22 +279,15 @@ ui <- navbarPage(
            plotOutput("unempPlot")
   ),
   
-
-  tabPanel(" Retirement Trends",
-           h3("Put your plots here"),
-           p("Add a summary of your code here."),
-           plotOutput("retirementPlot")
-  )
-
   
-   # Retirement Trends (Zuwidya)
-tabPanel(
-  " Retirement Trends",
-  h3("Employment Rate for Workers Age 55+ (2011–2024)"),
-  p("This chart shows the employment rate for workers age 55+ from 2011 to 2024. It stays high most years, but there is a noticeable dip around 2020 and then it rises again after. I used this to see how retirement-age workers’ employment changes over time and how big events can impact it."),
-  plotOutput("retirementPlot")
-)
-
+  # Retirement Trends (Zuwidya)
+  tabPanel(
+    " Retirement Trends",
+    h3("Employment Rate for Workers Age 55+ (2011–2024)"),
+    p("This chart shows the employment rate for workers age 55+ from 2011 to 2024. It stays high most years, but there is a noticeable dip around 2020 and then it rises again after. I used this to see how retirement-age workers’ employment changes over time and how big events can impact it."),
+    plotOutput("retirementPlot")
+  )
+  
 )
 
 
@@ -377,7 +370,7 @@ server <- function(input, output) {
       config(displayModeBar = FALSE)
   })
   
-
+  
   output$trendNote <- renderUI({
     
     if(input$show_trend){
@@ -397,7 +390,7 @@ server <- function(input, output) {
   output$automationPlot <- renderPlot({ })
   output$unempPlot <- renderPlot({ })
   output$retirementPlot <- renderPlot({ })
-
+  
   # Zuwiyda plot
   output$retirementPlot <- renderPlot({
     ggplot(retirement_data, aes(x = Year, y = Employment_Rate)) +
@@ -470,11 +463,11 @@ server <- function(input, output) {
       )
   })
   
-
+  
   output$shiftPlot <- renderPlot({ })
   output$automationPlot <- renderPlot({ })
   output$unempPlot <- renderPlot({ })
-
+  
   
 }
 
