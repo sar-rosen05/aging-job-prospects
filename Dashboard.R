@@ -10,7 +10,7 @@ library(ggthemes)
 library(readxl)
 library(writexl)
 library(janitor)
-
+library(RColorBrewer)
 
 # LOAD CPS DATA + TABLE 8
 data2011 <- read_excel("11b_2011.xlsx")
@@ -219,9 +219,10 @@ ui <- navbarPage(
   ),
   
   tabPanel(
-    " Industry Trends",
+    "Industry Trends",
     sidebarLayout(
       sidebarPanel(
+        
         selectInput(
           inputId = "industry_year",
           label = "Select Year:",
@@ -250,13 +251,26 @@ ui <- navbarPage(
           label = "Number of Top Occupations:",
           choices = c(3, 5, 10, 15),
           selected = 5
+        ),
+        
+        selectInput(
+          "color_palette",
+          "Color Theme",
+          choices = c(
+            "Soft Pastel" = "Set2",
+            "Bold Contrast" = "Set1",
+            "Professional Muted" = "Dark2",
+            "Extended Palette" = "Paired"
+          ),
+          selected = "Set2"
         )
+        
       ),
       
       mainPanel(
         h3("Occupational Employment Distribution"),
-        p("This pie chart shows how employment is distributed across the top occupations for selected generation(s) and year."),
-        plotlyOutput("industryPlot", height = "450px")  # <-- IMPORTANT CHANGE
+        p("This pie chart shows how employment is distributed across the top occupations."),
+        plotlyOutput("industryPlot", height = "450px")
       )
     )
   ),
@@ -405,6 +419,7 @@ server <- function(input, output) {
   })
   # Other members' plots placeholders
   output$industryPlot <- renderPlotly({
+    
     age_map <- c(
       "16_to_19_years" = "Teenagers",
       "20_to_24_years" = "Young Adults",
@@ -417,7 +432,7 @@ server <- function(input, output) {
     
     selected_generations <- age_map[input$industry_age]
     
-    # Filter + summarize
+    # Filter data
     filtered_data <- clean11b_data %>%
       filter(
         year == input$industry_year,
@@ -431,19 +446,25 @@ server <- function(input, output) {
       arrange(desc(total_employment)) %>%
       slice_head(n = as.numeric(input$top_n))
     
-    
+    # If nothing selected
     if (nrow(filtered_data) == 0) {
       return(plot_ly() %>% layout(title = "No data available for selection"))
     }
     
-    # Build tooltip text
+    # Create tooltip text
     filtered_data$tooltip <- paste0(
       "<b>Occupation:</b> ", filtered_data$occupation,
       "<br><b>Employment:</b> ", scales::comma(filtered_data$total_employment), " (thousands)",
       "<br><b>Generation(s):</b> ", paste(selected_generations, collapse = ", ")
     )
     
-    # Create pie chart
+    # Generate color palette
+    colors <- brewer.pal(
+      min(length(unique(filtered_data$occupation)), 12),
+      input$color_palette
+    )
+    
+    # Plot pie chart
     plot_ly(
       data = filtered_data,
       labels = ~occupation,
@@ -452,17 +473,17 @@ server <- function(input, output) {
       textinfo = "percent",
       hoverinfo = "text",
       textposition = "inside",
-      hovertext = ~tooltip
+      hovertext = ~tooltip,
+      marker = list(colors = colors)
     ) %>%
       layout(
         title = paste(
           "Top", input$top_n,
           "Occupations by Employment (", input$industry_year, ")"
         ),
-        showlegend = TRUE
+        legend = list(orientation = "v")
       )
   })
-  
   
   output$shiftPlot <- renderPlot({ })
   output$automationPlot <- renderPlot({ })
