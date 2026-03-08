@@ -151,7 +151,7 @@ ui <- navbarPage(
   
   tabPanel("# Overview",
            h2("About Section"),
-           p("Add a summary of your code here and explain what the visualization is showing."),
+           p("statistical analysis, methods, limitations + more go here"),
            plotlyOutput("overviewPlot")
   ),
   
@@ -293,8 +293,6 @@ ui <- navbarPage(
 
 # SERVER
 server <- function(input, output) {
-  
-
   
   output$agePlot <- renderPlotly({
     
