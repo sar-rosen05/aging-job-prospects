@@ -150,7 +150,7 @@ ui <- navbarPage(
   theme = shinytheme("flatly"),
   
   tabPanel("# Overview",
-           h2("Put your plots here"),
+           h2("About Section"),
            p("Add a summary of your code here and explain what the visualization is showing."),
            plotlyOutput("overviewPlot")
   ),
@@ -294,24 +294,7 @@ ui <- navbarPage(
 # SERVER
 server <- function(input, output) {
   
-  output$overviewPlot <- renderPlotly({
-    p <- ggplot(t8_unemp_age,
-                aes(x = Year,
-                    y = Unemployment_Rate,
-                    color = Age,
-                    group = Age)) +
-      geom_line(linewidth = 1.3) +
-      scale_y_continuous(labels = percent_format()) +
-      labs(
-        title = "Overall Unemployment Trends by Age Group",
-        x = "Year",
-        y = "Unemployment Rate",
-        color = "Age Group"
-      ) +
-      theme_fivethirtyeight(base_size = 14)
-    
-    ggplotly(p)
-  })
+
   
   output$agePlot <- renderPlotly({
     
