@@ -446,45 +446,55 @@ server <- function(input, output) {
       arrange(desc(total_employment)) %>%
       slice_head(n = as.numeric(input$top_n))
     
-    # If nothing selected
     if (nrow(filtered_data) == 0) {
       return(plot_ly() %>% layout(title = "No data available for selection"))
     }
     
-    # Create tooltip text
+    # Tooltip
     filtered_data$tooltip <- paste0(
       "<b>Occupation:</b> ", filtered_data$occupation,
       "<br><b>Employment:</b> ", scales::comma(filtered_data$total_employment), " (thousands)",
       "<br><b>Generation(s):</b> ", paste(selected_generations, collapse = ", ")
     )
     
-    # Generate color palette
+    # Color palette
     colors <- brewer.pal(
       min(length(unique(filtered_data$occupation)), 12),
       input$color_palette
     )
     
-    # Plot pie chart
     plot_ly(
       data = filtered_data,
       labels = ~occupation,
       values = ~total_employment,
       type = "pie",
       textinfo = "percent",
-      hoverinfo = "text",
       textposition = "inside",
+      hoverinfo = "text",
       hovertext = ~tooltip,
-      marker = list(colors = colors)
+      marker = list(colors = colors),
+      
+      # Makes the pie chart larger
+      domain = list(x = c(0,1), y = c(0.15,1))
+      
     ) %>%
       layout(
         title = paste(
           "Top", input$top_n,
           "Occupations by Employment (", input$industry_year, ")"
         ),
-        legend = list(orientation = "v")
+        
+        # Move legend to bottom
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.1
+        ),
+        
+        margin = list(t = 60, b = 80)
       )
   })
-  
   output$shiftPlot <- renderPlot({ })
   output$automationPlot <- renderPlot({ })
   output$unempPlot <- renderPlot({ })
