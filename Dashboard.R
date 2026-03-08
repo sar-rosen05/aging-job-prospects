@@ -149,7 +149,7 @@ ui <- navbarPage(
   title = "U.S. Occupational Employment Dashboard (2011–2024)",
   theme = shinytheme("flatly"),
   
-  tabPanel("# Overview",
+  tabPanel(" Overview",
            h2("About Section"),
            p("statistical analysis, methods, limitations + more go here"),
            plotlyOutput("overviewPlot")
@@ -261,7 +261,7 @@ ui <- navbarPage(
     )
   ),
   
-  tabPanel("# Structural Shifts",
+  tabPanel(" Structural Shifts",
            h3("Put your plots here"),
            p("Add a summary of your code here."),
            plotOutput("shiftPlot")
