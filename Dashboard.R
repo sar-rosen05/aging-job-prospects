@@ -54,7 +54,10 @@ clean_cps_year <- function(df, year) {
     ) %>%
     mutate(
       year = year,
-      employment_thousands = readr::parse_number(employment_thousands)
+      employment_thousands = employment_thousands %>%
+        na_if("—") %>%
+        na_if("-") %>%
+        readr::parse_number()
     )
 }
 
@@ -143,15 +146,32 @@ retirement_data <- clean8_data %>%
     .groups = "drop"
   )
 
+#Retirement Projections Setup
+retire_metrics <- clean11b_data %>%
+  group_by(occupation, year) %>%
+  summarise(
+    c55 = sum(employment_thousands[age_group == "55_to_64_years"], na.rm = TRUE),
+    c65 = sum(employment_thousands[age_group == "65_years_and_over"], na.rm = TRUE),
+    total_emp = sum(employment_thousands, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    pct55 = ifelse(total_emp > 0, c55 / total_emp, NA_real_),
+    pct65 = ifelse(total_emp > 0, c65 / total_emp, NA_real_)
+  )
+
+occ_choices_ret <- sort(unique(retire_metrics$occupation))
+year_min <- min(retire_metrics$year, na.rm = TRUE)
+year_max <- max(retire_metrics$year, na.rm = TRUE)
 
 # UI
 ui <- navbarPage(
   title = "U.S. Occupational Employment Dashboard (2011–2024)",
   theme = shinytheme("flatly"),
   
-  tabPanel("# Overview",
-           h2("Put your plots here"),
-           p("Add a summary of your code here and explain what the visualization is showing."),
+  tabPanel(" Overview",
+           h2("About Section"),
+           p("statistical analysis, methods, limitations + more go here"),
            plotlyOutput("overviewPlot")
   ),
   
@@ -275,7 +295,7 @@ ui <- navbarPage(
     )
   ),
   
-  tabPanel("# Structural Shifts",
+  tabPanel(" Structural Shifts",
            h3("Put your plots here"),
            p("Add a summary of your code here."),
            plotOutput("shiftPlot")
@@ -300,32 +320,56 @@ ui <- navbarPage(
     h3("Employment Rate for Workers Age 55+ (2011–2024)"),
     p("This chart shows the employment rate for workers age 55+ from 2011 to 2024. It stays high most years, but there is a noticeable dip around 2020 and then it rises again after. I used this to see how retirement-age workers’ employment changes over time and how big events can impact it."),
     plotOutput("retirementPlot")
-  )
+  ),
   
+  #Retirement Projections
+  tabPanel(
+    "Retirement Projections",
+    sidebarLayout(
+      sidebarPanel(
+        selectizeInput(
+          "occ_ret",
+          "Choose an occupation:",
+          choices = occ_choices_ret,
+          selected = occ_choices_ret[1],
+          options = list(placeholder = "Type to search...", maxOptions = 5000)
+        ),
+        radioButtons(
+          "metric_ret",
+          "Metric:",
+          choices = c(
+            "Percent age 55+ (retirement pressure)" = "pct55",
+            "Percent age 65+ (near/at retirement)"  = "pct65",
+            "Count age 55+ (thousands)" = "c55",
+            "Count age 65+ (thousands)" = "c65"
+          ),
+          selected = "pct55"
+        ),
+        sliderInput(
+          "year_ret",
+          "Year range:",
+          min = year_min, max = year_max,
+          value = c(year_min, year_max),
+          step = 1, sep = ""
+        ),
+        checkboxInput("show_proj", "Add simple projection (linear trend)", value = TRUE),
+        sliderInput("proj_years", "Projection years", min = 1, max = 10, value = 5)
+      ),
+      mainPanel(
+        h3("Retirement Projections"),
+        p("This chart tracks how near-retirement employment changes over time for a selected occupation. Users can switch between counts and percentages for ages 55+ and 65+ to compare retirement pressure across jobs. The dashed extension is a simple linear projection to help visualize where recent trends may be heading."),
+        plotlyOutput("retire_line", height = "450px"),
+        tags$hr(),
+        textOutput("retire_interpretation"),
+        helpText("Tip: Drag to zoom, double-click to reset. Hover for exact values.")
+      )
+    )
+  )
 )
 
 
 # SERVER
 server <- function(input, output) {
-  
-  output$overviewPlot <- renderPlotly({
-    p <- ggplot(t8_unemp_age,
-                aes(x = Year,
-                    y = Unemployment_Rate,
-                    color = Age,
-                    group = Age)) +
-      geom_line(linewidth = 1.3) +
-      scale_y_continuous(labels = percent_format()) +
-      labs(
-        title = "Overall Unemployment Trends by Age Group",
-        x = "Year",
-        y = "Unemployment Rate",
-        color = "Age Group"
-      ) +
-      theme_fivethirtyeight(base_size = 14)
-    
-    ggplotly(p)
-  })
   
   output$agePlot <- renderPlotly({
     
@@ -345,7 +389,7 @@ server <- function(input, output) {
                                  "<br>Age:", Age,
                                  "<br>Unemployment Rate:", percent(Unemployment_Rate, accuracy = 1))
                 )) +
-      geom_line(size = 1.2) +
+      geom_line(size = 1.2, alpha = ifelse(input$show_trend, 0.35, 1)) +
       scale_color_brewer(palette = input$color_palette) +
       scale_linetype_identity() +
       scale_y_continuous(labels = percent_format()) +
@@ -362,7 +406,7 @@ server <- function(input, output) {
       theme(text = element_text(family = "Times New Roman"))
     
     if (input$show_points) {
-      p <- p + geom_point(size = 2)
+      p <- p + geom_point(size = 2, alpha = ifelse(input$show_trend, 0.4, 1))
     }
     
     if (input$show_trend) {
@@ -370,8 +414,8 @@ server <- function(input, output) {
         method = "loess",
         se = FALSE,
         linetype = "dashed",
-        linewidth = 0.8,
-        alpha = 0.5
+        linewidth = 1.1,
+        alpha = 1
       )
     }
     
@@ -387,23 +431,18 @@ server <- function(input, output) {
   
   output$trendNote <- renderUI({
     
-    if(input$show_trend){
+    if (input$show_trend) {
       
       div(
         style="margin-top:10px; font-size:13px; color:gray40;",
         HTML("<b>Note:</b> The dashed trend lines use LOESS smoothing to estimate the underlying unemployment trajectory. 
-             Because the method smooths short-term shocks, the 2020 COVID-19 spike has less influence on the trend,
-             approximating the broader direction the labor market may have followed without the pandemic disruption.")
+           Because the method smooths short-term shocks, the 2020 COVID-19 spike has less influence on the trend,
+           approximating the broader direction the labor market may have followed without the pandemic disruption.")
       )
       
     }
     
   })
-  
-  output$shiftPlot <- renderPlot({ })
-  output$automationPlot <- renderPlot({ })
-  output$unempPlot <- renderPlot({ })
-  output$retirementPlot <- renderPlot({ })
   
   # Zuwiyda plot
   output$retirementPlot <- renderPlot({
@@ -495,10 +534,87 @@ server <- function(input, output) {
         margin = list(t = 60, b = 80)
       )
   })
+
   output$shiftPlot <- renderPlot({ })
   output$automationPlot <- renderPlot({ })
   output$unempPlot <- renderPlot({ })
   
+
+
+#Sarah's Code -- Retirement Projections
+  metric_data <- reactive({
+    req(input$occ_ret)
+    
+    retire_metrics %>%
+      filter(
+        occupation == input$occ_ret,
+        year >= input$year_ret[1],
+        year <= input$year_ret[2]
+      ) %>%
+      arrange(year) %>%
+      mutate(
+        value = dplyr::case_when(
+          input$metric_ret == "pct55" ~ pct55,
+          input$metric_ret == "pct65" ~ pct65,
+          input$metric_ret == "c55"   ~ c55,
+          input$metric_ret == "c65"   ~ c65,
+          TRUE ~ pct55
+        ),
+        metric_label = dplyr::case_when(
+          input$metric_ret == "pct55" ~ "% age 55+",
+          input$metric_ret == "pct65" ~ "% age 65+",
+          input$metric_ret == "c55"   ~ "Workers age 55+ (thousands)",
+          input$metric_ret == "c65"   ~ "Workers age 65+ (thousands)",
+          TRUE ~ "% age 55+"
+        )
+      )
+  })
+  
+  output$retire_line <- plotly::renderPlotly({
+    d <- metric_data()
+    req(nrow(d) > 0)
+    
+    p <- ggplot(d, aes(x = year, y = value)) +
+      geom_line(color = "#2C7FB8", size = 1.2) +
+      geom_point(color = "#2C7FB8", size = 2) +
+      labs(
+        title = paste("Retirement Trend:", input$occ_ret),
+        x = "Year",
+        y = unique(d$metric_label)
+      ) +
+      theme_minimal(base_size = 13)
+    
+    if (isTRUE(input$show_proj) && nrow(d) >= 3 && all(is.finite(d$value))) {
+      fit <- lm(value ~ year, data = d)
+      last_year <- max(d$year, na.rm = TRUE)
+      future_years <- (last_year + 1):(last_year + input$proj_years)
+      
+      proj <- tibble(
+        year = future_years,
+        value = predict(fit, newdata = tibble(year = future_years))
+      )
+      
+      p <- p +
+        geom_line(data = proj, aes(x = year, y = value), linetype = "dashed") +
+        geom_point(data = proj, aes(x = year, y = value))
+    }
+    
+    plotly::ggplotly(p, tooltip = c("x", "y")) %>%
+      plotly::config(displayModeBar = TRUE) %>%
+      plotly::layout(
+        hovermode = "closest",
+        legend = list(
+          orientation = "v",
+          bgcolor = "rgba(255,255,255,0.7)",
+          x = 1.05,
+          xanchor = "left",
+          y = 1,
+          yanchor = "top"
+        ),
+        margin = list(t = 80)
+      )
+  })
+
   
 }
 

@@ -396,10 +396,10 @@ server <- function(input, output) {
 shinyApp(ui = ui, server = server )
 ```
 
-<<<<<<< HEAD
 # Run the Shiny App
 shinyApp(ui, server)
 
+<<<<<<< HEAD
 ```
 
 
@@ -407,6 +407,9 @@ shinyApp(ui, server)
 =======
 ```{r Obydahs Graph section, echo=FALSE}
 
+=======
+```{r Obydahs Graph section, echo=FALSE}
+>>>>>>> 70dfcf191f66000ce52d600a512cda30af5d5484
 ui <- fluidPage(
   
   titlePanel("Job Distribution by Occupation"),
@@ -467,7 +470,7 @@ shinyApp (ui = ui, server = server )
 ```
 ```
 
-```{r Dareens Graph Section}
+```{r Dareens Graph Section, echo=FALSE}
 
   # Shiny UI
 ui <- fluidPage(
