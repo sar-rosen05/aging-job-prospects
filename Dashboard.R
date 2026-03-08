@@ -375,7 +375,7 @@ server <- function(input, output) {
                                  "<br>Age:", Age,
                                  "<br>Unemployment Rate:", percent(Unemployment_Rate, accuracy = 1))
                 )) +
-      geom_line(size = 1.2) +
+      geom_line(size = 1.2, alpha = ifelse(input$show_trend, 0.35, 1)) +
       scale_color_brewer(palette = input$color_palette) +
       scale_linetype_identity() +
       scale_y_continuous(labels = percent_format()) +
@@ -392,16 +392,16 @@ server <- function(input, output) {
       theme(text = element_text(family = "Times New Roman"))
     
     if (input$show_points) {
-      p <- p + geom_point(size = 2)
+      p <- p + geom_point(size = 2, alpha = ifelse(input$show_trend, 0.4, 1))
     }
     
     if (input$show_trend) {
       p <- p + geom_smooth(
         method = "loess",
         se = FALSE,
-        linetype = "dashed",
-        linewidth = 0.8,
-        alpha = 0.5
+        linetype = "dashed",   # dashed trend line
+        linewidth = 1.1,
+        alpha = 1
       )
     }
     
@@ -413,27 +413,6 @@ server <- function(input, output) {
       ) %>%
       config(displayModeBar = FALSE)
   })
-  
-  
-  output$trendNote <- renderUI({
-    
-    if(input$show_trend){
-      
-      div(
-        style="margin-top:10px; font-size:13px; color:gray40;",
-        HTML("<b>Note:</b> The dashed trend lines use LOESS smoothing to estimate the underlying unemployment trajectory. 
-             Because the method smooths short-term shocks, the 2020 COVID-19 spike has less influence on the trend,
-             approximating the broader direction the labor market may have followed without the pandemic disruption.")
-      )
-      
-    }
-    
-  })
-  
-  output$shiftPlot <- renderPlot({ })
-  output$automationPlot <- renderPlot({ })
-  output$unempPlot <- renderPlot({ })
-  output$retirementPlot <- renderPlot({ })
   
   # Zuwiyda plot
   output$retirementPlot <- renderPlot({
