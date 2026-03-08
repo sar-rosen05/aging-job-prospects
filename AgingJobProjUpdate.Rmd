@@ -402,11 +402,11 @@ shinyApp(ui, server)
 
 ```
 
-```{r Obydahs Graph section}
+
 
 =======
 ```{r Obydahs Graph section, echo=FALSE}
->>>>>>> b52d6d9a53d954c0b7f4a855374279c081b579d6
+
 ui <- fluidPage(
   
   titlePanel("Job Distribution by Occupation"),
@@ -465,7 +465,7 @@ server <- function(input, output) {
 
 shinyApp (ui = ui, server = server )
 ```
-
+```
 
 ```{r Dareens Graph Section}
 
