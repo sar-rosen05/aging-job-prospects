@@ -399,7 +399,7 @@ server <- function(input, output) {
       p <- p + geom_smooth(
         method = "loess",
         se = FALSE,
-        linetype = "dashed",   # dashed trend line
+        linetype = "dashed",
         linewidth = 1.1,
         alpha = 1
       )
@@ -412,6 +412,22 @@ server <- function(input, output) {
         yaxis = list(fixedrange = TRUE)
       ) %>%
       config(displayModeBar = FALSE)
+  })
+  
+  
+  output$trendNote <- renderUI({
+    
+    if (input$show_trend) {
+      
+      div(
+        style="margin-top:10px; font-size:13px; color:gray40;",
+        HTML("<b>Note:</b> The dashed trend lines use LOESS smoothing to estimate the underlying unemployment trajectory. 
+           Because the method smooths short-term shocks, the 2020 COVID-19 spike has less influence on the trend,
+           approximating the broader direction the labor market may have followed without the pandemic disruption.")
+      )
+      
+    }
+    
   })
   
   # Zuwiyda plot
