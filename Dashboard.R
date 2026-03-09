@@ -319,7 +319,7 @@ ui <- navbarPage(
     " Retirement Trends",
     h3("Employment Rate for Workers Age 55+ (2011–2024)"),
     p("This chart shows the employment rate for workers age 55+ from 2011 to 2024. It stays high most years, but there is a noticeable dip around 2020 and then it rises again after. I used this to see how retirement-age workers’ employment changes over time and how big events can impact it."),
-    plotOutput("retirementPlot")
+    plotlyOutput("retirementPlot")
   ),
   
   #Retirement Projections
@@ -445,8 +445,18 @@ server <- function(input, output) {
   })
   
   # Zuwiyda plot
-  output$retirementPlot <- renderPlot({
-    ggplot(retirement_data, aes(x = Year, y = Employment_Rate)) +
+  output$retirementPlot <- renderPlotly({
+    p <- ggplot(
+      retirement_data,
+      aes(
+        x = Year,
+        y = Employment_Rate,
+        text = paste0(
+          "Year: ", Year,
+          "<br>Employment Rate: ", percent(Employment_Rate, accuracy = 0.1)
+        )
+      )
+    ) +
       geom_line(linewidth = 1.5, color = "#2C7FB8") +
       geom_point(size = 3, color = "#2C7FB8") +
       scale_y_continuous(labels = percent_format()) +
@@ -455,6 +465,9 @@ server <- function(input, output) {
         y = "Employment Rate"
       ) +
       theme_minimal()
+    
+    ggplotly(p, tooltip = "text") %>%
+      config(displayModeBar = FALSE)
   })
   # Other members' plots placeholders
   output$industryPlot <- renderPlotly({
