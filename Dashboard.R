@@ -361,8 +361,8 @@ ui <- navbarPage(
   tabPanel(
     " Retirement Trends",
     h3("Employment Rate for Workers Age 55+ (2011–2024)"),
-    p("This chart shows the employment rate for workers age 55+ from 2011 to 2024. It stays high most years, but there is a noticeable dip around 2020 and then it rises again after. I used this to see how retirement-age workers’ employment changes over time and how big events can impact it."),
-    plotOutput("retirementPlot")
+    p("This interactive visualization tracks the employment rate of workers age 55+ from 2011 to 2024. The trend shows steady growth leading up to 2019, followed by a noticeable drop in 2020 during the COVID-19 economic shock. However, employment levels recover quickly in the following years, indicating strong re-entry or delayed retirement among older workers. Overall, the pattern suggests that while older workers are not immune to large economic disruptions, their employment participation remains relatively stable over time."),
+    plotlyOutput("retirementPlot")
   ),
   
   #Retirement Projections
@@ -488,16 +488,52 @@ server <- function(input, output) {
   })
   
   # Zuwiyda plot
-  output$retirementPlot <- renderPlot({
-    ggplot(retirement_data, aes(x = Year, y = Employment_Rate)) +
+  output$retirementPlot <- renderPlotly({
+    
+    p <- ggplot(
+      retirement_data,
+      aes(
+        x = Year,
+        y = Employment_Rate,
+        text = paste0(
+          "Year: ", Year,
+          "<br>Employment Rate: ", percent(Employment_Rate, accuracy = 0.1)
+        )
+      )
+    ) +
       geom_line(linewidth = 1.5, color = "#2C7FB8") +
-      geom_point(size = 3, color = "#2C7FB8") +
-      scale_y_continuous(labels = percent_format()) +
+      geom_point(
+        aes(color = ifelse(Year == 2020, "COVID Shock (2020)", "Other Years")),
+        size = 3
+      ) +
+      scale_color_manual(
+        values = c("COVID Shock (2020)" = "#D94801",
+                   "Other Years" = "#2C7FB8"),
+        guide = "none"
+      ) +
+      scale_y_continuous(
+        labels = percent_format(),
+        limits = c(0.90, 0.98)
+      ) +
       labs(
         x = "Year",
         y = "Employment Rate"
       ) +
-      theme_minimal()
+      theme_minimal(base_size = 14)
+    
+    ggplotly(p, tooltip = "text") %>%
+      layout(
+        hovermode = "x unified",
+        shapes = list(
+          list(
+            type = "line",
+            x0 = 2020, x1 = 2020,
+            y0 = 0.90, y1 = 0.98,
+            line = list(dash = "dot", width = 1)
+          )
+        )
+      ) %>%
+      config(displayModeBar = TRUE)
   })
 #Obydahs Plot (Occuptation/Industry trends)
   output$industryPlot <- renderPlotly({
