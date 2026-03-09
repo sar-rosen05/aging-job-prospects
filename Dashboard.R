@@ -336,7 +336,28 @@ ui <- navbarPage(
              )
            )
   ),
-  
+  tabPanel("Occupation Shifts by Age (25+)",
+           sidebarLayout(
+             sidebarPanel(
+               selectInput("samuel_occupation", "Select Occupation:",
+                           choices = sort(unique(all_11b$Occupation)),
+                           selected = "Management, professional, and related occupations"),
+               sliderInput("samuel_year_range", "Year Range:",
+                           min = 2011, max = 2024,
+                           value = c(2011, 2024),
+                           step = 1, sep = ""),
+               selectInput("samuel_chart_type", "Chart Type:",
+                           choices = c("Grouped Bar" = "bar", "Line Trend" = "line"))
+             ),
+             mainPanel(
+               h3("How Occupation Distribution Shifts Across Age Groups Over Time"),
+               p("This chart shows how workers aged 25+ are distributed across occupations from 2011 to 2024."),
+               plotlyOutput("samuel_occ_chart", height = "400px"),
+               br(),
+               plotlyOutput("samuel_share_chart", height = "300px")
+             )
+           )
+  ),
   tabPanel(" Automation Impact",
            h3("Put your plots here"),
            p("Add a summary of your code here."),
@@ -745,7 +766,71 @@ server <- function(input, output) {
       )
   })
 
+  # Samuel - Occupation Shifts by Age (25+)
+  output$samuel_occ_chart <- renderPlotly({
+    df <- all_11b %>%
+      filter(
+        Occupation == input$samuel_occupation,
+        Year >= input$samuel_year_range[1],
+        Year <= input$samuel_year_range[2]
+      ) %>%
+      select(Year, Age_25_34, Age_35_44, Age_45_54, Age_55_64, Age_65plus) %>%
+      pivot_longer(-Year, names_to = "Age_Group", values_to = "Workers") %>%
+      mutate(
+        Age_Label = factor(Age_Group,
+                           levels = c("Age_25_34","Age_35_44","Age_45_54",
+                                      "Age_55_64","Age_65plus"),
+                           labels = c("25-34","35-44","45-54","55-64","65+")),
+        Workers = replace_na(Workers, 0)
+      )
+    
+    if (input$samuel_chart_type == "bar") {
+      plot_ly(df, x = ~factor(Year), y = ~Workers, color = ~Age_Label,
+              type = "bar",
+              text = ~paste0(Age_Label, ": ", scales::comma(Workers), "k"),
+              hoverinfo = "text") %>%
+        layout(barmode = "group",
+               xaxis = list(title = "Year"),
+               yaxis = list(title = "Workers (thousands)"))
+    } else {
+      plot_ly(df, x = ~Year, y = ~Workers, color = ~Age_Label,
+              type = "scatter", mode = "lines+markers",
+              text = ~paste0(Age_Label, ": ", scales::comma(Workers), "k"),
+              hoverinfo = "text") %>%
+        layout(xaxis = list(title = "Year"),
+               yaxis = list(title = "Workers (thousands)"))
+    }
+  })
   
+  output$samuel_share_chart <- renderPlotly({
+    df <- all_11b %>%
+      filter(
+        Occupation == input$samuel_occupation,
+        Year >= input$samuel_year_range[1],
+        Year <= input$samuel_year_range[2]
+      ) %>%
+      select(Year, Age_25_34, Age_35_44, Age_45_54, Age_55_64, Age_65plus) %>%
+      pivot_longer(-Year, names_to = "Age_Group", values_to = "Workers") %>%
+      mutate(
+        Age_Label = factor(Age_Group,
+                           levels = c("Age_25_34","Age_35_44","Age_45_54",
+                                      "Age_55_64","Age_65plus"),
+                           labels = c("25-34","35-44","45-54","55-64","65+")),
+        Workers = replace_na(Workers, 0)
+      ) %>%
+      group_by(Year) %>%
+      mutate(Share = round(Workers / sum(Workers, na.rm = TRUE) * 100, 1)) %>%
+      ungroup()
+    
+    plot_ly(df, x = ~factor(Year), y = ~Share, color = ~Age_Label,
+            type = "bar",
+            text = ~paste0(Age_Label, ": ", Share, "%"),
+            hoverinfo = "text") %>%
+      layout(barmode = "stack",
+             xaxis = list(title = "Year"),
+             yaxis = list(title = "Share (%)", range = c(0, 100)),
+             title = "Age Group Share of Occupation Over Time")
+  })  
 }
 
 shinyApp(ui, server)
