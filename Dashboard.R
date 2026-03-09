@@ -201,6 +201,12 @@ ui <- navbarPage(
                categories and does not account for differences in education, occupation, region, or industry that may 
                also influence unemployment outcomes."),
              
+             p("Limitations: Several limitations should be considered when interpreting the results. The LOESS trend 
+               line smooths short-term fluctuations, which may reduce the visibility of sudden economic shocks such 
+               as the 2020 COVID-19 unemployment spike. Additionally, the analysis aggregates workers into broad age 
+               categories and does not account for differences in education, occupation, region, or industry that may 
+               also influence unemployment outcomes."),
+             
              tags$li(
                strong("2. Industry and Occupation Trends"),
                p(" The objective for this graph was not only to see which occupation sector was most
