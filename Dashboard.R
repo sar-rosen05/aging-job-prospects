@@ -177,7 +177,7 @@ ui <- navbarPage(
     within the job market between 2011–2024. Our goal was for each graph to analyze
     a different factor so that together they tell a story about how employment
     patterns have changed or remained consistent over time."),
-           
+           p("Link to our Github repository and full challenge :https://github.com/UWB-Adv-Data-Vis-2026-Wi-A/aging-job-prospects-group-3/tree/main"),
            p("Below is the objective and user guide for each of the seven graphs included in the dashboard:"),
            
            tags$ul(
@@ -186,12 +186,12 @@ ui <- navbarPage(
              tags$li(
                strong("2. Industry and Occupation Trends"),
                p(" The objective for this graph was not only to see which occupation sector was most
-         common for each age group but also how it varied from as people grew up and how it 
-         changed as they years went on. The graph allows for user interactivity with color pallet
-         depending on the persons prefrence. Also for more data centered changes such as the year,
-         Selected Generation, the amount of top occupations shown (3, 5,10, 15), and a tool tip 
-         in order to see the percentage and count for each occupation sectore. For best understanding
-         and data visualization it's best to start with one age group, and 5 sectors analyze that and then
+         common for each age group but also how it varied as people grew up and how it 
+         changed as the years went on. The graph allows for user interactivity such as changing the color pallet
+         depending on the persons prefrence. Also for more data centered changes users can change factors such as the year,
+         selected generation, the amount of top occupations shown (3, 5,10, 15), and a tool tip 
+         in order to see the percentage and count for each occupation sector. For best understanding
+         and data visualization it's best to start with one age group, and 5 sectors and then analyze, after,
          either change the year or age group in order to compare and see how the counts increased or occupations
          changed completly. ")
              ),
