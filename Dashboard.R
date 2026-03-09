@@ -175,7 +175,7 @@ ui <- navbarPage(
            plotlyOutput("overviewPlot")
   ),
   
-  tabPanel(" Age-Based Trends",
+  tabPanel(" Age-Based Unemployment Trends",
            sidebarLayout(
              sidebarPanel(
                checkboxGroupInput(
@@ -295,10 +295,46 @@ ui <- navbarPage(
     )
   ),
   
-  tabPanel(" Structural Shifts",
-           h3("Put your plots here"),
-           p("Add a summary of your code here."),
-           plotOutput("shiftPlot")
+  # Entry Age Occupation (Dareen)
+  tabPanel("Entry Level Occupations",
+           sidebarLayout(
+             sidebarPanel(
+               selectInput("Select_FirstYear", 
+                           "Select First Year", 
+                           choices = unique(clean11b_data$year),
+                           selected = "2011"
+               ),
+               selectInput("Select_SecondYear", 
+                           "Select Second Year", 
+                           choices = unique(clean11b_data$year),
+                           selected = "2024"
+               ), 
+               selectInput("Highlight_Occupation",
+                           "Select/Type Occupation to Highlight", 
+                           choices = c("None", unique(clean11b_data$occupation)), 
+                           selected = "None"
+               ),
+               radioButtons("Select_TopOccupations", 
+                            "Select Top N Occupations",
+                            choices = c(3, 5, 10, 20, 30), 
+                            selected = 3
+               )
+               
+             ),
+             
+             mainPanel(
+               h3("Entry Level Occupations Over Time"),
+               p("This dashboard explores the most common occupations for workers ages 20–24 and compares how these entry-level jobs have changed across different years."),
+               tabsetPanel(
+                 tabPanel("Graph", plotlyOutput("Entry_Age_Occupation_Map1")),
+                 tabPanel("Table", tableOutput("Top_Occupations_Table1"))
+               ),
+               tabsetPanel(
+                 tabPanel("Graph", plotlyOutput("Entry_Age_Occupation_Map2")),
+                 tabPanel("Table", tableOutput("Top_Occupations_Table2") )
+               )
+             )
+           )
   ),
   
   tabPanel(" Automation Impact",
@@ -571,6 +607,100 @@ server <- function(input, output) {
       )
   })
 
+  
+  
+  ############################################################################### 
+  # Dareen's Plot (Entry Level Occupation Graphs & Tables)
+  
+  # Function to prepare data 
+  get_top_occupation <- function(selected_year){ 
+    
+    data <- clean11b_data %>% 
+      filter(age_group == "20_to_24_years", 
+             year == selected_year) %>%
+      slice_max(employment_thousands,
+                n = as.numeric(input$Select_TopOccupations))
+    
+    data %>%
+      mutate(highlight = ifelse(occupation == input$Highlight_Occupation, 
+                                "Selected", 
+                                "Other")
+      )
+  }
+  
+  #Function to Create Plots 
+  make_plot <- function(data, selected_year){
+    p <- data %>%
+      ggplot(aes(x = reorder(occupation, employment_thousands),
+                 y = employment_thousands,
+                 fill = if(input$Highlight_Occupation == "None"){
+                   occupation
+                 } else {
+                   highlight
+                 }, 
+                 text = paste(
+                   "Occupation:", occupation, 
+                   "<br> Total Employment:", employment_thousands, "(thousands)",
+                   "<br> Year", year)
+                 
+      )
+      ) +
+      
+      geom_col(width = 0.7) +
+      labs(title = paste0(" Top ", input$Select_TopOccupations, " Entry Level Occupations ", "(",selected_year,")"),
+           x = "Occupation",
+           y = "Total Employment") +
+      coord_flip() +
+      theme_minimal() +
+      theme(legend.position = "none") +
+      theme(plot.title = element_text(
+        face = "bold.italic",
+        size = 16
+      ))
+    
+    
+    # If User Selected an Occupation Highlight it with red and others as gray 
+    if(input$Highlight_Occupation != "None"){
+      p <- p + scale_fill_manual(values = c(
+        "Selected" = "red", 
+        "Other" = "gray"))
+    }
+    
+    ggplotly(p, tooltip = "text")
+  }
+  
+  # Graph 1
+  output$Entry_Age_Occupation_Map1 <- renderPlotly({ 
+    data <- get_top_occupation(input$Select_FirstYear) 
+    
+    make_plot(data, input$Select_FirstYear)
+  })
+  
+  # Graph 2
+  output$Entry_Age_Occupation_Map2 <- renderPlotly({
+    data <- get_top_occupation(input$Select_SecondYear)
+    
+    make_plot(data, input$Select_SecondYear)
+  })
+  
+  # Table 1
+  output$Top_Occupations_Table1 <- renderTable({
+    clean11b_data %>%
+      filter(age_group == "20_to_24_years",
+             year == input$Select_FirstYear) %>%
+      slice_max(employment_thousands, n = as.numeric(input$Select_TopOccupations))
+  })
+  
+  # Table 2
+  output$Top_Occupations_Table2 <- renderTable({
+    clean11b_data %>%
+      filter(age_group == "20_to_24_years", 
+             year == input$Select_SecondYear) %>%
+      slice_max(employment_thousands, n = as.numeric(input$Select_TopOccupations))
+  })
+  
+  ############################################################################
+  
   output$shiftPlot <- renderPlot({ })
   output$automationPlot <- renderPlot({ })
   output$unempPlot <- renderPlot({ })
