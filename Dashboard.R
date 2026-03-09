@@ -439,7 +439,7 @@ ui <- navbarPage(
            plotOutput("automationPlot")
   ),
   
-  tabPanel(" Unemployment Patterns",
+  tabPanel(" Unemployment by Race",
            h3("Put your plots here"),
            p("Add a summary of your code here."),
            plotOutput("unempPlot")
