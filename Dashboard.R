@@ -253,7 +253,15 @@ ui <- navbarPage(
              
              tags$li(strong("6. Retirement Trends")),
              
-             tags$li(strong("7. Retirement Projections"))
+             tags$li(strong("7. Retirement Projections")),
+             strong("Objective and User Guide:"),
+             p("This visualization explores retirement trends across U.S. occupations by examining the share and number of workers nearing retirement age. Users can select a specific occupation and metric to view how the percentage or count of workers aged 55+ or 65+ has changed over time. The year range slider allows users to focus on specific periods within the dataset. An optional projection feature extends the trend line several years into the future to provide a simple estimate of how retirement pressure may evolve if current patterns continue. Hovering over the line reveals the exact values for each year."),
+            
+             strong("Methods:"),
+             p("The visualization uses occupational workforce data from 2011–2024 to calculate the percentage and count of workers aged 55+ and 65+. Users can filter by occupation and adjust the year range to focus on specific periods. When the projection option is enabled, a simple linear regression model is fit to the historical data to estimate future values for a selected number of years. These projected values are displayed as a dashed extension of the historical trend line, allowing users to visually compare past patterns with potential future trajectories."),
+             
+             strong("Limitations:"),
+             p("The projections shown in this visualization are based on a simple linear model and should be interpreted as illustrative rather than predictive. The model assumes that past trends will continue at a similar rate and does not account for external factors such as economic shifts, policy changes, automation, workforce migration, or changes in labor participation. Additionally, the data aggregates workers within occupations and does not capture variation across regions, industries, or education levels that may influence retirement behavior.")
            ),
            
          
