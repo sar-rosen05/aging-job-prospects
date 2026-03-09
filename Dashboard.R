@@ -195,12 +195,75 @@ ui <- navbarPage(
   title = "U.S. Occupational Employment Dashboard (2011–2024)",
   theme = shinytheme("flatly"),
   
-  tabPanel(" Overview",
-           h2("About Section"),
-           p("statistical analysis, methods, limitations + more go here"),
+  tabPanel("Overview",
+           
+           h2("How do factors like age, race, gender, and time affect employment?"),
+           
+           p("We were challenged to create a dashboard analyzing and visualizing trends
+    within the job market between 2011–2024. Our goal was for each graph to analyze
+    a different factor so that together they tell a story about how employment
+    patterns have changed or remained consistent over time."),
+           p("Link to our Github repository and full challenge :https://github.com/UWB-Adv-Data-Vis-2026-Wi-A/aging-job-prospects-group-3/tree/main"),
+           p("Below is the objective and user guide for each of the seven graphs included in the dashboard:"),
+           
+           tags$ul(
+             tags$li(strong("1. Age-Based Unemployment")),
+             strong("Objective and User Guide:"),
+             p("This visualization compares unemployment rates across four age groups (16–19, 20–24, 25–54, 
+             and 55+) in the United States from 2011 to 2024. The goal is to highlight how unemployment varies across stages 
+               of the workforce and how different age groups respond to economic changes. Age groups can be selected or 
+               removed to compare specific populations. The year range slider allows users to focus on particular time 
+               periods within the dataset. The highlight feature emphasizes one age group while dimming the others to 
+               make comparisons easier. Users can also toggle data points and a smoothed trend line to reveal additional 
+               details about the data. Lastly, users can hover over the lines to see the exact unemployment rate for each 
+               year and age group.
+               "),
+             strong("Methods:"),
+             p("The unemployment rate is calculated as the number of unemployed individuals divided by the total 
+               labor force (employed plus unemployed) for each age group and year. An optional LOESS smoothing trend line 
+               can be displayed to estimate the broader trajectory of unemployment over time by fitting localized regressions 
+               across the time series.
+               "),
+             
+             strong("Limitations:"),
+             p("Several limitations should be considered when interpreting the results. The LOESS trend 
+               line smooths short-term fluctuations, which may reduce the visibility of sudden economic shocks such 
+               as the 2020 COVID-19 unemployment spike. Additionally, the analysis aggregates workers into broad age 
+               categories and does not account for differences in education, occupation, region, or industry that may 
+               also influence unemployment outcomes."),
+             
+             tags$li(
+               strong("2. Industry and Occupation Trends"),
+               p(" The objective for this graph was not only to see which occupation sector was most
+         common for each age group but also how it varied as people grew up and how it 
+         changed as the years went on. The graph allows for user interactivity such as changing the color pallet
+         depending on the persons prefrence. Also for more data centered changes users can change factors such as the year,
+         selected generation, the amount of top occupations shown (3, 5,10, 15), and a tool tip 
+         in order to see the percentage and count for each occupation sector. For best understanding
+         and data visualization it's best to start with one age group, and 5 sectors and then analyze, after,
+         either change the year or age group in order to compare and see how the counts increased or occupations
+         changed completly. ")
+             ),
+             
+             tags$li(strong("3. Entry Level Occupation Trends")),
+             
+             tags$li(strong("4. Automation Impact")),
+             
+             tags$li(strong("5. Unemployment Patterns")),
+             
+             tags$li(strong("6. Retirement Trends")),
+             
+             tags$li(strong("7. Retirement Projections"))
+           ),
+           
+         
+           
            plotlyOutput("overviewPlot")
   ),
-  
+      
+      
+      
+   
   tabPanel(" Age-Based Unemployment Trends",
            sidebarLayout(
              sidebarPanel(
@@ -263,7 +326,7 @@ ui <- navbarPage(
              )
            )
   ),
-  
+#Occupation and Industry Trends set up (Obydah)
   tabPanel(
     "Industry Trends",
     sidebarLayout(
@@ -315,7 +378,14 @@ ui <- navbarPage(
       
       mainPanel(
         h3("Occupational Employment Distribution"),
-        p("This pie chart shows how employment is distributed across the top occupations."),
+        p("This pie chart shows how employment is distributed across the top occupations depending on selected age groups and year.
+          One consist pattern over the years is that teenagers (16-19) a less percantage
+          and aren't as commonly in higher level jobs. Most are in service or low level occupations, such as cashiers.
+          This is pattern in consisten with older ages such as Adults to Early Middle age having a higher
+          percentage in professional occupations such as management and sales. Number of employment also has 
+          a gradual decrease as age increases. Overall this graph shows that over time with growth and 
+          experince many people move into higher level jobs and as they start hitting 55-65+ they begin to retire
+          and this has been a trend for the past 13 years."),
         plotlyOutput("industryPlot", height = "450px")
       )
     )
@@ -578,7 +648,7 @@ server <- function(input, output) {
       ) %>%
       config(displayModeBar = TRUE)
   })
-  # Other members' plots placeholders
+#Obydahs Plot (Occuptation/Industry trends)
   output$industryPlot <- renderPlotly({
     
     age_map <- c(
@@ -593,7 +663,7 @@ server <- function(input, output) {
     
     selected_generations <- age_map[input$industry_age]
     
-    # Filter data
+  
     filtered_data <- clean11b_data %>%
       filter(
         year == input$industry_year,
@@ -611,7 +681,7 @@ server <- function(input, output) {
       return(plot_ly() %>% layout(title = "No data available for selection"))
     }
     
-    # Tooltip
+    
     filtered_data$tooltip <- paste0(
       "<b>Occupation:</b> ", filtered_data$occupation,
       "<br><b>Employment:</b> ", scales::comma(filtered_data$total_employment), " (thousands)",
@@ -645,7 +715,7 @@ server <- function(input, output) {
           "Occupations by Employment (", input$industry_year, ")"
         ),
         
-        # Move legend to bottom
+       
         legend = list(
           orientation = "h",
           x = 0.5,
