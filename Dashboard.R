@@ -555,11 +555,8 @@ server <- function(input, output) {
         y = NULL,
         color = "Age Group"
       ) +
-      theme_fivethirtyeight(base_size = 12, base_family = "Times New Roman") +
-      theme(
-        plot.background = element_rect(fill = "white", color = NA),
-        panel.background = element_rect(fill = "white", color = NA)
-      )
+      theme_fivethirtyeight() +
+      theme(text = element_text(family = "Times New Roman"))
     
     if (input$show_points) {
       p <- p + geom_point(size = 2, alpha = ifelse(input$show_trend, 0.4, 1))
@@ -868,15 +865,24 @@ server <- function(input, output) {
     d <- metric_data()
     req(nrow(d) > 0)
     
+    colors <- brewer.pal(
+      min(length(unique(d$occupation)), 12),
+      input$color_palette
+    )
+    
     p <- ggplot(d, aes(x = year, y = value)) +
-      geom_line(color = "#2C7FB8", size = 1.2) +
-      geom_point(color = "#2C7FB8", size = 2) +
+      geom_line(color = colors[1], size = 1.2) +
+      geom_point(color = colors[1], size = 2) +
       labs(
         title = paste("Retirement Trend:", input$occ_ret),
         x = "Year",
         y = unique(d$metric_label)
       ) +
-      theme_minimal(base_size = 13)
+      theme_minimal(base_size = 13, base_family = "Times New Roman") +
+      theme(
+        plot.title = element_text(face = "bold")
+      )
+    
     
     if (isTRUE(input$show_proj) && nrow(d) >= 3 && all(is.finite(d$value))) {
       fit <- lm(value ~ year, data = d)
@@ -889,8 +895,10 @@ server <- function(input, output) {
       )
       
       p <- p +
-        geom_line(data = proj, aes(x = year, y = value), linetype = "dashed") +
-        geom_point(data = proj, aes(x = year, y = value))
+        geom_line(data = proj, aes(x = year, y = value),
+                  linetype = "dashed", color = colors[1]) +
+        geom_point(data = proj, aes(x = year, y = value),
+                   color = colors[1])
     }
     
     plotly::ggplotly(p, tooltip = c("x", "y")) %>%
