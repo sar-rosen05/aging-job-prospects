@@ -197,11 +197,7 @@ ui <- navbarPage(
                labor force (employed plus unemployed) for each age group and year. An optional LOESS smoothing trend line 
                can be displayed to estimate the broader trajectory of unemployment over time by fitting localized regressions 
                across the time series.
-               Limitations: Several limitations should be considered when interpreting the results. The LOESS trend 
-               line smooths short-term fluctuations, which may reduce the visibility of sudden economic shocks such 
-               as the 2020 COVID-19 unemployment spike. Additionally, the analysis aggregates workers into broad age 
-               categories and does not account for differences in education, occupation, region, or industry that may 
-               also influence unemployment outcomes."),
+               "),
              
              strong("Limitations:"),
              p("Several limitations should be considered when interpreting the results. The LOESS trend 
