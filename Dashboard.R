@@ -338,6 +338,9 @@ server <- function(input, output) {
       config(displayModeBar = FALSE)
   })
   
+
+  
+  
   # Other members' plots placeholders
   output$industryPlot <- renderPlot({
     
