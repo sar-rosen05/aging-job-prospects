@@ -470,7 +470,7 @@ shinyApp (ui = ui, server = server )
 ```
 
 
-```{r Dareens Graph Section, echo = False}
+```{r Dareens Graph Section, echo = FALSE}
 
   # Shiny UI
 
