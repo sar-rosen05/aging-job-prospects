@@ -616,7 +616,10 @@ server <- function(input, output) {
            y = "Total Employment") +
       coord_flip() +
       theme_minimal() +
-      theme(legend.position = "none")
+      theme(legend.position = "none") +
+      theme(plot.title = element_text(
+        face = "bold.italic"
+      ))
     
     
     # If User Selected an Occupation Highlight it with red and others as gray 
