@@ -555,8 +555,11 @@ server <- function(input, output) {
         y = NULL,
         color = "Age Group"
       ) +
-      theme_fivethirtyeight() +
-      theme(text = element_text(family = "Times New Roman"))
+      theme_fivethirtyeight(base_size = 12, base_family = "Times New Roman") +
+      theme(
+        plot.background = element_rect(fill = "white", color = NA),
+        panel.background = element_rect(fill = "white", color = NA)
+      )
     
     if (input$show_points) {
       p <- p + geom_point(size = 2, alpha = ifelse(input$show_trend, 0.4, 1))
