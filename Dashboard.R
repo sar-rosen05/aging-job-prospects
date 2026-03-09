@@ -896,9 +896,9 @@ server <- function(input, output) {
       
       p <- p +
         geom_line(data = proj, aes(x = year, y = value),
-                  linetype = "dashed", color = colors[1]) +
+                  linetype = "dashed", color = colors[2]) +
         geom_point(data = proj, aes(x = year, y = value),
-                   color = colors[1])
+                   color = colors[2])
     }
     
     plotly::ggplotly(p, tooltip = c("x", "y")) %>%
