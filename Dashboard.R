@@ -610,7 +610,7 @@ server <- function(input, output) {
       )
       ) +
       
-      geom_col() +
+      geom_col(width = 0.7) +
       labs(title = paste("Top", input$Select_TopOccupations, "Entry Age Occupations", "(",selected_year,")"),
            x = "Occupation",
            y = "Total Employment") +
@@ -618,7 +618,8 @@ server <- function(input, output) {
       theme_minimal() +
       theme(legend.position = "none") +
       theme(plot.title = element_text(
-        face = "bold.italic"
+        face = "bold.italic",
+        size = 16
       ))
     
     
