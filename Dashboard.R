@@ -145,7 +145,33 @@ retirement_data <- clean8_data %>%
     Employment_Rate = mean(Employment_Rate, na.rm = TRUE),
     .groups = "drop"
   )
-
+#Retirement 
+retirement_trend_data <- clean11b_data %>%
+  group_by(year) %>%
+  summarise(
+    age55_64 = sum(employment_thousands[age_group == "55_to_64_years"], na.rm = TRUE),
+    age65_plus = sum(employment_thousands[age_group == "65_years_and_over"], na.rm = TRUE),
+    total_emp = sum(employment_thousands, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    pct_55_64 = age55_64 / total_emp,
+    pct_65_plus = age65_plus / total_emp
+  ) %>%
+  select(year, pct_55_64, pct_65_plus) %>%
+  pivot_longer(
+    cols = c(pct_55_64, pct_65_plus),
+    names_to = "group",
+    values_to = "share"
+  ) %>%
+  mutate(
+    group = recode(
+      group,
+      "pct_55_64" = "Age 55–64",
+      "pct_65_plus" = "Age 65+"
+    )
+  )
+ 
 #Retirement Projections Setup
 retire_metrics <- clean11b_data %>%
   group_by(occupation, year) %>%
@@ -352,10 +378,31 @@ ui <- navbarPage(
   
   # Retirement Trends (Zuwidya)
   tabPanel(
-    " Retirement Trends",
-    h3("Employment Rate for Workers Age 55+ (2011–2024)"),
-    p("This interactive visualization tracks the employment rate of workers age 55+ from 2011 to 2024. The trend shows steady growth leading up to 2019, followed by a noticeable drop in 2020 during the COVID-19 economic shock. However, employment levels recover quickly in the following years, indicating strong re-entry or delayed retirement among older workers. Overall, the pattern suggests that while older workers are not immune to large economic disruptions, their employment participation remains relatively stable over time."),
-    plotlyOutput("retirementPlot")
+    "Retirement Trends",
+    sidebarLayout(
+      sidebarPanel(
+        sliderInput(
+          "retire_year",
+          "Select Year Range:",
+          min = min(retirement_trend_data$year),
+          max = max(retirement_trend_data$year),
+          value = c(min(retirement_trend_data$year), max(retirement_trend_data$year)),
+          step = 1,
+          sep = ""
+        ),
+        checkboxGroupInput(
+          "retire_groups",
+          "Select Group:",
+          choices = c("Age 55–64", "Age 65+"),
+          selected = c("Age 55–64", "Age 65+")
+        )
+      ),
+      mainPanel(
+        h3("Retirement Trends Among Older Workers (2011–2024)"),
+        p("This interactive chart tracks the share of total employment made up by older workers ages 55–64 and 65+ from 2011 to 2024. Unlike a general employment-rate chart, this focuses more directly on retirement-related patterns by showing how much of the workforce is made up of people nearing retirement or working past traditional retirement age. The trend helps show whether older workers are remaining in the labor force longer over time."),
+        plotlyOutput("retirementPlot")
+      )
+    )
   ),
   
   #Retirement Projections
@@ -483,48 +530,51 @@ server <- function(input, output) {
   # Zuwiyda plot
   output$retirementPlot <- renderPlotly({
     
-    p <- ggplot(
-      retirement_data,
-      aes(
-        x = Year,
-        y = Employment_Rate,
-        text = paste0(
-          "Year: ", Year,
-          "<br>Employment Rate: ", percent(Employment_Rate, accuracy = 0.1)
+    filtered_data <- retirement_trend_data %>%
+      filter(
+        year >= input$retire_year[1],
+        year <= input$retire_year[2],
+        group %in% input$retire_groups
+      ) %>%
+      mutate(
+        tooltip = paste0(
+          "<b>Year:</b> ", year,
+          "<br><b>Group:</b> ", group,
+          "<br><b>Share of Employment:</b> ", percent(share, accuracy = 0.1)
         )
       )
+    
+    p <- ggplot(
+      filtered_data,
+      aes(
+        x = year,
+        y = share,
+        color = group,
+        group = group,
+        text = tooltip
+      )
     ) +
-      geom_line(linewidth = 1.5, color = "#2C7FB8") +
-      geom_point(
-        aes(color = ifelse(Year == 2020, "COVID Shock (2020)", "Other Years")),
-        size = 3
-      ) +
-      scale_color_manual(
-        values = c("COVID Shock (2020)" = "#D94801",
-                   "Other Years" = "#2C7FB8"),
-        guide = "none"
-      ) +
-      scale_y_continuous(
-        labels = percent_format(),
-        limits = c(0.90, 0.98)
-      ) +
+      geom_line(linewidth = 1.4) +
+      geom_point(size = 3) +
+      scale_y_continuous(labels = percent_format()) +
+      scale_color_manual(values = c("Age 55–64" = "#2C7FB8", "Age 65+" = "#D95F0E")) +
       labs(
+        title = "Share of Employment Among Older Workers",
+        subtitle = "Tracking workers nearing retirement and working past age 65",
         x = "Year",
-        y = "Employment Rate"
+        y = "Share of Total Employment",
+        color = "Group"
       ) +
-      theme_minimal(base_size = 14)
+      theme_minimal(base_size = 14) +
+      theme(
+        plot.title = element_text(face = "bold"),
+        plot.subtitle = element_text(color = "gray40")
+      )
     
     ggplotly(p, tooltip = "text") %>%
       layout(
         hovermode = "x unified",
-        shapes = list(
-          list(
-            type = "line",
-            x0 = 2020, x1 = 2020,
-            y0 = 0.90, y1 = 0.98,
-            line = list(dash = "dot", width = 1)
-          )
-        )
+        margin = list(t = 80)
       ) %>%
       config(displayModeBar = TRUE)
   })
