@@ -249,7 +249,7 @@ ui <- navbarPage(
              
              tags$li(strong("4. Automation Impact")),
              
-             tags$li(strong("5. Unemployment Patterns")),
+             tags$li(strong("5. Unemployment by Race")),
              
              tags$li(strong("6. Retirement Trends")),
              
@@ -581,16 +581,13 @@ server <- function(input, output) {
       config(displayModeBar = FALSE)
   })
   
-<<<<<<< HEAD
 
   
   
   # Other members' plots placeholders
-  output$industryPlot <- renderPlot({
-=======
+
   
   output$trendNote <- renderUI({
->>>>>>> d64f3bdab3b68b004fed5a8de47338e9c768dc59
     
     if (input$show_trend) {
       
