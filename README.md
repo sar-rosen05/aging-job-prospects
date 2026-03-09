@@ -4,7 +4,9 @@ trends or patterns within the job market between 2011-2024. We were tasked to ea
 make a graph relating to how factors such as race, gender, and age all play
 a role in employment as well as how they change over the years. This challenge
 also required that we use Github in order to track changes and collaborate with our
-group effectively using commits and pusing/pulling updates. 
+group effectively using commits and pusing/pulling updates.This is why our team decided 
+to answer the question How do factors like age, race, gender, and time affect 
+employment?
 
 #Team Members
 Dareen Jonathan Padilla, Rishita Bonepalli,
