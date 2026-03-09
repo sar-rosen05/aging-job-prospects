@@ -182,7 +182,8 @@ ui <- navbarPage(
            
            tags$ul(
              tags$li(strong("1. Age-Based Unemployment")),
-             p("User Guide: This visualization compares unemployment rates across four age groups (16–19, 20–24, 25–54, 
+             strong("User Guide:"),
+             p("This visualization compares unemployment rates across four age groups (16–19, 20–24, 25–54, 
              and 55+) in the United States from 2011 to 2024. The goal is to highlight how unemployment varies across stages 
                of the workforce and how different age groups respond to economic changes. Age groups can be selected or 
                removed to compare specific populations. The year range slider allows users to focus on particular time 
@@ -191,7 +192,8 @@ ui <- navbarPage(
                details about the data. Lastly, users can hover over the lines to see the exact unemployment rate for each 
                year and age group.
                "),
-             p("Methods: The unemployment rate is calculated as the number of unemployed individuals divided by the total 
+             strong("Methods:"),
+             p("The unemployment rate is calculated as the number of unemployed individuals divided by the total 
                labor force (employed plus unemployed) for each age group and year. An optional LOESS smoothing trend line 
                can be displayed to estimate the broader trajectory of unemployment over time by fitting localized regressions 
                across the time series.
@@ -201,7 +203,8 @@ ui <- navbarPage(
                categories and does not account for differences in education, occupation, region, or industry that may 
                also influence unemployment outcomes."),
              
-             p("Limitations: Several limitations should be considered when interpreting the results. The LOESS trend 
+             strong("Limitations:"),
+             p("Several limitations should be considered when interpreting the results. The LOESS trend 
                line smooths short-term fluctuations, which may reduce the visibility of sudden economic shocks such 
                as the 2020 COVID-19 unemployment spike. Additionally, the analysis aggregates workers into broad age 
                categories and does not account for differences in education, occupation, region, or industry that may 
