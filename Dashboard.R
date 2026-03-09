@@ -169,12 +169,52 @@ ui <- navbarPage(
   title = "U.S. Occupational Employment Dashboard (2011–2024)",
   theme = shinytheme("flatly"),
   
-  tabPanel(" Overview",
-           h2("About Section"),
-           p("statistical analysis, methods, limitations + more go here"),
+  tabPanel("Overview",
+           
+           h2("How do factors like age, race, gender, and time affect employment?"),
+           
+           p("We were challenged to create a dashboard analyzing and visualizing trends
+    within the job market between 2011–2024. Our goal was for each graph to analyze
+    a different factor so that together they tell a story about how employment
+    patterns have changed or remained consistent over time."),
+           
+           p("Below is the objective and user guide for each of the seven graphs included in the dashboard:"),
+           
+           tags$ul(
+             tags$li(strong("1. Age-Based Unemployment")),
+             
+             tags$li(
+               strong("2. Industry and Occupation Trends"),
+               p(" The objective for this graph was not only to see which occupation sector was most
+         common for each age group but also how it varied from as people grew up and how it 
+         changed as they years went on. The graph allows for user interactivity with color pallet
+         depending on the persons prefrence. Also for more data centered changes such as the year,
+         Selected Generation, the amount of top occupations shown (3, 5,10, 15), and a tool tip 
+         in order to see the percentage and count for each occupation sectore. For best understanding
+         and data visualization it's best to start with one age group, and 5 sectors analyze that and then
+         either change the year or age group in order to compare and see how the counts increased or occupations
+         changed completly. ")
+             ),
+             
+             tags$li(strong("3. Entry Level Occupation Trends")),
+             
+             tags$li(strong("4. Automation Impact")),
+             
+             tags$li(strong("5. Unemployment Patterns")),
+             
+             tags$li(strong("6. Retirement Trends")),
+             
+             tags$li(strong("7. Retirement Projections"))
+           ),
+           
+         
+           
            plotlyOutput("overviewPlot")
   ),
-  
+      
+      
+      
+   
   tabPanel(" Age-Based Unemployment Trends",
            sidebarLayout(
              sidebarPanel(
