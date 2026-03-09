@@ -237,7 +237,7 @@ ui <- navbarPage(
              )
            )
   ),
-  
+#Occupation and Industry Trends set up (Obydah)
   tabPanel(
     "Industry Trends",
     sidebarLayout(
@@ -289,7 +289,14 @@ ui <- navbarPage(
       
       mainPanel(
         h3("Occupational Employment Distribution"),
-        p("This pie chart shows how employment is distributed across the top occupations."),
+        p("This pie chart shows how employment is distributed across the top occupations depending on selected age groups and year.
+          One consist pattern over the years is that teenagers (16-19) a less percantage
+          and aren't as commonly in higher level jobs. Most are in service or low level occupations, such as cashiers.
+          This is pattern in consisten with older ages such as Adults to Early Middle age having a higher
+          percentage in professional occupations such as management and sales. Number of employment also has 
+          a gradual decrease as age increases. Overall this graph shows that over time with growth and 
+          experince many people move into higher level jobs and as they start hitting 55-65+ they begin to retire
+          and this has been a trend for the past 13 years."),
         plotlyOutput("industryPlot", height = "450px")
       )
     )
@@ -492,7 +499,7 @@ server <- function(input, output) {
       ) +
       theme_minimal()
   })
-  # Other members' plots placeholders
+#Obydahs Plot (Occuptation/Industry trends)
   output$industryPlot <- renderPlotly({
     
     age_map <- c(
@@ -507,7 +514,7 @@ server <- function(input, output) {
     
     selected_generations <- age_map[input$industry_age]
     
-    # Filter data
+  
     filtered_data <- clean11b_data %>%
       filter(
         year == input$industry_year,
@@ -525,7 +532,7 @@ server <- function(input, output) {
       return(plot_ly() %>% layout(title = "No data available for selection"))
     }
     
-    # Tooltip
+    
     filtered_data$tooltip <- paste0(
       "<b>Occupation:</b> ", filtered_data$occupation,
       "<br><b>Employment:</b> ", scales::comma(filtered_data$total_employment), " (thousands)",
@@ -559,7 +566,7 @@ server <- function(input, output) {
           "Occupations by Employment (", input$industry_year, ")"
         ),
         
-        # Move legend to bottom
+       
         legend = list(
           orientation = "h",
           x = 0.5,
