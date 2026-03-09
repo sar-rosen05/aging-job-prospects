@@ -433,7 +433,7 @@ ui <- navbarPage(
            )
   ),
   
-  tabPanel(" Automation Impact",
+  tabPanel(" Workforce Breakdown",
            h3("Put your plots here"),
            p("Add a summary of your code here."),
            plotOutput("automationPlot")
