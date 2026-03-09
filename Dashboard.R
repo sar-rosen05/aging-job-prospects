@@ -182,6 +182,14 @@ ui <- navbarPage(
            
            tags$ul(
              tags$li(strong("1. Age-Based Unemployment")),
+             p("This visualization compares unemployment rates across four age groups (16–19, 20–24, 25–54, and 55+) 
+               in the United States from 2011 to 2024. The goal is to highlight how unemployment varies across stages 
+               of the workforce and how different age groups respond to economic changes. Age groups can be selected or 
+               removed to compare specific populations. The year range slider allows users to focus on particular time 
+               periods within the dataset. The highlight feature emphasizes one age group while dimming the others to 
+               make comparisons easier. Users can also toggle data points and a smoothed trend line to reveal additional 
+               details about the data. Lastly, users can hover over the lines to see the exact unemployment rate for each 
+               year and age group."),
              
              tags$li(
                strong("2. Industry and Occupation Trends"),
