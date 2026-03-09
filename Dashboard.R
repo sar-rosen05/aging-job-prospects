@@ -175,7 +175,7 @@ ui <- navbarPage(
            plotlyOutput("overviewPlot")
   ),
   
-  tabPanel(" Age-Based Trends",
+  tabPanel(" Age-Based Unemployment Trends",
            sidebarLayout(
              sidebarPanel(
                checkboxGroupInput(
