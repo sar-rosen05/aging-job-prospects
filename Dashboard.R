@@ -296,7 +296,7 @@ ui <- navbarPage(
   ),
   
   # Entry Age Occupation (Dareen)
-  tabPanel("Entry Age Occupation",
+  tabPanel("Entry Level Occupations",
            sidebarLayout(
              sidebarPanel(
                selectInput("Select_FirstYear", 
@@ -323,8 +323,8 @@ ui <- navbarPage(
              ),
              
              mainPanel(
-               h3("Put your plots here"),
-               p("Add a summary of your code here."),
+               h3("Entry Level Occupations Over Time"),
+               p("This dashboard explores the most common occupations for workers ages 20–24 and compares how these entry-level jobs have changed across different years."),
                tabsetPanel(
                  tabPanel("Graph", plotlyOutput("Entry_Age_Occupation_Map1")),
                  tabPanel("Table", tableOutput("Top_Occupations_Table1"))
@@ -574,7 +574,7 @@ server <- function(input, output) {
   
   
   ############################################################################### 
-  # Dareen's Plot (Entry Age Occupation Graphs & Tables)
+  # Dareen's Plot (Entry Level Occupation Graphs & Tables)
   
   # Function to prepare data 
   get_top_occupation <- function(selected_year){ 
@@ -611,7 +611,7 @@ server <- function(input, output) {
       ) +
       
       geom_col(width = 0.7) +
-      labs(title = paste("Top", input$Select_TopOccupations, "Entry Age Occupations", "(",selected_year,")"),
+      labs(title = paste0(" Top ", input$Select_TopOccupations, " Entry Level Occupations ", "(",selected_year,")"),
            x = "Occupation",
            y = "Total Employment") +
       coord_flip() +
