@@ -829,7 +829,8 @@ server <- function(input, output) {
       theme_minimal() +
       theme(legend.position = "none") +
       theme(plot.title = element_text(
-        face = "bold.italic",
+        family = "Times New Roman",
+        face = "bold",
         size = 16
       ))
     
