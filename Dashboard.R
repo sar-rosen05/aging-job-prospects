@@ -693,6 +693,7 @@ server <- function(input, output) {
   
   
   # Zuwiyda plot
+  
   output$retirementPlot <- renderPlotly({
     
     filtered_data <- retirement_trend_data %>%
@@ -709,11 +710,17 @@ server <- function(input, output) {
         )
       )
     
+    # Brewer palette
+    colors <- brewer.pal(
+      min(length(unique(filtered_data$group)), 12),
+      input$color_palette
+    )
+    
     p <- ggplot(
       filtered_data,
       aes(
-           x = year,
-           y = share,
+        x = year,
+        y = share,
         color = group,
         group = group,
         text = tooltip
@@ -722,21 +729,24 @@ server <- function(input, output) {
       geom_line(linewidth = 1.4) +
       geom_point(size = 3) +
       scale_y_continuous(labels = percent_format()) +
-      scale_color_manual(values = c("Age 55–64" = "pink", "Age 65+" = "purple")) +
+      scale_color_manual(values = colors) +
       labs(
         title = "Share of Employment Among Older Workers",
         color = "Group"
       ) +
-      theme_minimal(base_size = 14) +
+      theme_minimal(base_size = 14, base_family = "Times New Roman") +
       theme(
-        plot.title = element_text(face = "bold"),
-        plot.subtitle = element_text(color = "gray40")
+        plot.title = element_text(face = "bold", family = "Times New Roman"),
+        legend.title = element_text(face = "bold", family = "Times New Roman"),
+        axis.title = element_text(face = "bold", family = "Times New Roman"),
+        axis.text = element_text(family = "Times New Roman")
       )
     
     ggplotly(p, tooltip = "text") %>%
       layout(
         hovermode = "x unified",
-        margin = list(t = 80)
+        margin = list(t = 80),
+        font = list(family = "Times New Roman")
       ) %>%
       config(displayModeBar = TRUE)
   })
