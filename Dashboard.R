@@ -1019,7 +1019,7 @@ output$samuel_occ_chart <- renderPlotly({
             hoverinfo = "text") %>%
       layout(barmode = "group", font = list(family = "Times New Roman"),
              xaxis = list(title = ""),
-             yaxis = list(title = ""),
+             yaxis = list(title = "Workers (thousands)"),
              title = list(text = "Workers by Age Group Over Time",
                           font = list(family = "Times New Roman")))
   } else {
@@ -1029,7 +1029,7 @@ output$samuel_occ_chart <- renderPlotly({
             hoverinfo = "text") %>%
       layout(font = list(family = "Times New Roman"),
              xaxis = list(title = ""),
-             yaxis = list(title = ""),
+             yaxis = list(title = "Share (%)"),
              title = list(text = "Workers by Age Group Over Time",
                           font = list(family = "Times New Roman")))
   }
@@ -1054,7 +1054,7 @@ output$samuel_share_chart <- renderPlotly({
           text = ~paste0(Age_Label, ": ", Share, "%"), hoverinfo = "text") %>%
     layout(barmode = "stack", font = list(family = "Times New Roman"),
            xaxis = list(title = ""),
-           yaxis = list(title = ""),
+           yaxis = list(title = "Share (%)"),
            title = list(text = "Age Group Share of Occupation Over Time",
                         font = list(family = "Times New Roman")))
 }) 
@@ -1076,7 +1076,7 @@ output$samuel_status_chart <- renderPlotly({
           hoverinfo = "text") %>%
     layout(barmode = "group", font = list(family = "Times New Roman"),
            xaxis = list(title = ""),
-           yaxis = list(title = ""),
+           yaxis = list(title = "Workers (thousands)"),
            title = list(text = "Full-Time vs Part-Time vs Unemployed (Ages 25+)",
                         font = list(family = "Times New Roman")))
 })
