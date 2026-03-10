@@ -234,6 +234,7 @@ ui <- navbarPage(
              
              tags$li(
                strong("2. Industry and Occupation Trends"),
+               strong("Objective and User Guide:"),
                p(" The objective for this graph was not only to see which occupation sector was most
          common for each age group but also how it varied as people grew up and how it 
          changed as the years went on. The graph allows for user interactivity such as changing the color pallet
@@ -244,6 +245,20 @@ ui <- navbarPage(
          either change the year or age group in order to compare and see how the counts increased or occupations
          changed completly. ")
              ),
+             
+             strong("Methods:"),
+             p("In order to find the employment total for the selected age range and year, employment counts 
+             were summed up and grouped by age to calculate the total for that category. The code then ranks occupation
+             by the employment size and displays the top # of occupations picked by the user."),
+             
+             strong("Limitations:"),
+             p("This graph does contain several limitations, the first being retirement. 
+               I note that employment decreases as age increases; however, since this graph only
+               looks at occupation, users aren't able to see how many of those people retired. The chart
+               also focuses on the top occupations, meaning that some patterns may be missing in employment trends/distribution.
+               Lastly, the graph focuses on broad occupation not the wages, hours, or companies worked at meaning conditions
+               and levels of the job are vague within the specific analysis
+."),
              
              tags$li(strong("3. Entry Level Occupation Trends")),
              
@@ -905,90 +920,8 @@ server <- function(input, output) {
         margin = list(t = 80)
       )
   })
-
+}
   # Rishita's Plot (Unemployement Rate by Race (2011-2023))
   
-  ui <- fluidPage(
-    titlePanel("Unemployment Rate by Race (2011–2023)"),
-    sidebarLayout(
-      sidebarPanel(
-        checkboxGroupInput(
-          "race_select",
-          "Select Race Groups:",
-          choices = unique(clean8_data$Race),
-          selected = unique(clean8_data$Race)
-        ),
-        sliderInput(
-          "year_range_race",
-          "Select Year Range:",
-          min = min(clean8_data$Year),
-          max = max(clean8_data$Year),
-          value = c(min(clean8_data$Year), max(clean8_data$Year)),
-          step = 1,
-          sep = ""
-        )
-      ),
-      mainPanel(
-        plotlyOutput("racePlot")
-      )
-    )
-  )
-  
-  server <- function(input, output) {
-    race_data <- reactive({
-      clean8_data %>%
-        filter(
-          Race %in% input$race_select,
-          Year >= input$year_range_race[1],
-          Year <= input$year_range_race[2]
-        ) %>%
-        mutate(
-          Labor_Force = Total + Unemp,
-          Unemployment_Rate = Unemp / Labor_Force
-        ) %>%
-        group_by(Year, Race) %>%
-        summarise(
-          Unemployment_Rate = mean(Unemployment_Rate, na.rm = TRUE),
-          .groups = "drop"
-        )
-    })
-    
-    output$racePlot <- renderPlotly({
-      p <- ggplot(
-        race_data(),
-        aes(
-          x = Year,
-          y = Unemployment_Rate,
-          color = Race,
-          group = Race,
-          text = paste(
-            "Year:", Year,
-            "<br>Race:", Race,
-            "<br>Unemployment Rate:", percent(Unemployment_Rate, accuracy = 0.1)
-          )
-        )
-      ) +
-        geom_line(size = 1.3) +
-        geom_point(size = 2) +
-        scale_y_continuous(labels = percent_format()) +
-        labs(
-          title = "Unemployment Rate Trends by Race",
-          subtitle = "Comparing racial groups across time",
-          x = "Year",
-          y = "Unemployment Rate",
-          color = "Race"
-        ) +
-        theme_minimal(base_size = 14)
-      ggplotly(p, tooltip = "text") %>%
-        layout(
-          hovermode = "closest"
-        ) %>%
-        config(displayModeBar = FALSE)
-    })
-  }
-  
-  shinyApp (ui = ui, server = server)
-  
-}
 
 shinyApp(ui, server)
