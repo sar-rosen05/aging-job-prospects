@@ -473,8 +473,9 @@ ui <- navbarPage(
                ),
                tabsetPanel(
                  tabPanel("Graph", plotlyOutput("Entry_Age_Occupation_Map2")),
-                 tabPanel("Table", tableOutput("Top_Occupations_Table2") )
-               )
+                 tabPanel("Table", tableOutput("Top_Occupations_Table2"))
+               ),
+               helpText("Tip: Drag to zoom, double-click to reset. Hover for exact values.")
              )
            )
   ),
