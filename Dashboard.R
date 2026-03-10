@@ -285,7 +285,12 @@ ui <- navbarPage(
                Finally, the visualization shows total employment counts rather than percentages or growth rates, which does not account for changes in the overall workforce size over time."), 
              
              tags$li(strong("4. Workforce Breakdown")),
-             
+             strong("Objective and User Guide:"),
+             p("This visualization explores how the distribution of workers aged 25 and older shifts across occupations over time from 2011 to 2024. The goal is to highlight how different age groups dominate or fade within specific occupations as the workforce ages. Users can select an occupation from the dropdown menu, adjust the year range slider, filter by sex and race, and toggle between grouped bar and line chart views. The dashboard displays three interactive charts: raw worker counts by age group, each age group's share of the occupation, and a breakdown of full-time, part-time, and unemployed workers for ages 25–54 and 55+. Hovering over any bar or point reveals exact values, and users can click legend items to show or hide specific age groups."),
+             strong("Methods:"),
+             p("The dataset was filtered based on user-selected inputs including occupation, year range, sex, and race to produce dynamic visualizations. Employment counts were pulled from cleaned CPS data and grouped by age category and year to show workforce composition over time. For the share chart, each age group's employment was divided by the total employment for that year and occupation to calculate a percentage. The full-time, part-time, and unemployed breakdown was summarized by aggregating worker counts across the 25–54 and 55+ age groups for each status category. All three charts were built using Plotly in R, enabling interactive zooming, hovering, and filtering directly in the dashboard."),
+             strong("Limitations:"),
+              p("This visualization relies on broad age categories, which may obscure finer differences in employment patterns within each group. The dataset aggregates workers across all industries within a selected occupation, meaning sector-specific trends may not be visible. Filtering by race and sex applies only to the third chart, not the first two, which may cause inconsistency when comparing across tabs. Additionally, employment figures are reported in thousands and rounded, so small fluctuations may not be fully captured. Finally, the data only extends to 2024, so emerging workforce trends beyond that point are not reflected in the visualization."),
              tags$li(strong("5. Unemployment by Race")),
              
              tags$li(strong("6. Retirement Trends")),
