@@ -268,7 +268,15 @@ ui <- navbarPage(
              
              tags$li(strong("6. Retirement Trends")),
              
-             tags$li(strong("7. Retirement Projections"))
+             tags$li(strong("7. Retirement Projections")),
+             strong("Objective and User Guide:"),
+             p("This visualization explores retirement trends across U.S. occupations by examining the share and number of workers nearing retirement age. Users can select a specific occupation and metric to view how the percentage or count of workers aged 55+ or 65+ has changed over time. The year range slider allows users to focus on specific periods within the dataset. An optional projection feature extends the trend line several years into the future to provide a simple estimate of how retirement pressure may evolve if current patterns continue. Hovering over the line reveals the exact values for each year."),
+            
+             strong("Methods:"),
+             p("The visualization uses occupational workforce data from 2011–2024 to calculate the percentage and count of workers aged 55+ and 65+. Users can filter by occupation and adjust the year range to focus on specific periods. When the projection option is enabled, a simple linear regression model is fit to the historical data to estimate future values for a selected number of years. These projected values are displayed as a dashed extension of the historical trend line, allowing users to visually compare past patterns with potential future trajectories."),
+             
+             strong("Limitations:"),
+             p("The projections shown in this visualization are based on a simple linear model and should be interpreted as illustrative rather than predictive. The model assumes that past trends will continue at a similar rate and does not account for external factors such as economic shifts, policy changes, automation, workforce migration, or changes in labor participation. Additionally, the data aggregates workers within occupations and does not capture variation across regions, industries, or education levels that may influence retirement behavior.")
            ),
            
          
@@ -448,7 +456,7 @@ ui <- navbarPage(
            )
   ),
   
-  tabPanel(" Automation Impact",
+  tabPanel(" Workforce Breakdown",
            h3("Put your plots here"),
            p("Add a summary of your code here."),
            plotOutput("automationPlot")
@@ -880,15 +888,24 @@ server <- function(input, output) {
     d <- metric_data()
     req(nrow(d) > 0)
     
+    colors <- brewer.pal(
+      min(length(unique(d$occupation)), 12),
+      input$color_palette
+    )
+    
     p <- ggplot(d, aes(x = year, y = value)) +
-      geom_line(color = "#2C7FB8", size = 1.2) +
-      geom_point(color = "#2C7FB8", size = 2) +
+      geom_line(color = colors[1], size = 1.2) +
+      geom_point(color = colors[1], size = 2) +
       labs(
         title = paste("Retirement Trend:", input$occ_ret),
-        x = "Year",
+        x = NULL,
         y = unique(d$metric_label)
       ) +
-      theme_minimal(base_size = 13)
+      theme_minimal(base_size = 13, base_family = "Times New Roman") +
+      theme(
+        plot.title = element_text(face = "bold")
+      )
+    
     
     if (isTRUE(input$show_proj) && nrow(d) >= 3 && all(is.finite(d$value))) {
       fit <- lm(value ~ year, data = d)
@@ -901,8 +918,10 @@ server <- function(input, output) {
       )
       
       p <- p +
-        geom_line(data = proj, aes(x = year, y = value), linetype = "dashed") +
-        geom_point(data = proj, aes(x = year, y = value))
+        geom_line(data = proj, aes(x = year, y = value),
+                  linetype = "dashed", color = colors[2]) +
+        geom_point(data = proj, aes(x = year, y = value),
+                   color = colors[2])
     }
     
     plotly::ggplotly(p, tooltip = c("x", "y")) %>%
