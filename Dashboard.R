@@ -676,6 +676,7 @@ server <- function(input, output) {
       ) %>%
       config(displayModeBar = TRUE)
   })
+  
 #Obydahs Plot (Occuptation/Industry trends)
   output$industryPlot <- renderPlotly({
     
@@ -716,7 +717,7 @@ server <- function(input, output) {
       "<br><b>Generation(s):</b> ", paste(selected_generations, collapse = ", ")
     )
     
-    # Color palette
+    
     colors <- brewer.pal(
       min(length(unique(filtered_data$occupation)), 12),
       input$color_palette
@@ -741,8 +742,8 @@ server <- function(input, output) {
         title = paste(
           "Top", input$top_n,
           "Occupations by Employment (", input$industry_year, ")"
-        ),
-        
+        ), 
+          font = list(family = "Times New Roman"),
        
         legend = list(
           orientation = "h",
