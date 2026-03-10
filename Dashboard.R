@@ -145,7 +145,33 @@ retirement_data <- clean8_data %>%
     Employment_Rate = mean(Employment_Rate, na.rm = TRUE),
     .groups = "drop"
   )
-
+#Retirement 
+retirement_trend_data <- clean11b_data %>%
+  group_by(year) %>%
+  summarise(
+    age55_64 = sum(employment_thousands[age_group == "55_to_64_years"], na.rm = TRUE),
+    age65_plus = sum(employment_thousands[age_group == "65_years_and_over"], na.rm = TRUE),
+    total_emp = sum(employment_thousands, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    pct_55_64 = age55_64 / total_emp,
+    pct_65_plus = age65_plus / total_emp
+  ) %>%
+  select(year, pct_55_64, pct_65_plus) %>%
+  pivot_longer(
+    cols = c(pct_55_64, pct_65_plus),
+    names_to = "group",
+    values_to = "share"
+  ) %>%
+  mutate(
+    group = recode(
+      group,
+      "pct_55_64" = "Age 55–64",
+      "pct_65_plus" = "Age 65+"
+    )
+  )
+ 
 #Retirement Projections Setup
 retire_metrics <- clean11b_data %>%
   group_by(occupation, year) %>%
@@ -169,12 +195,98 @@ ui <- navbarPage(
   title = "U.S. Occupational Employment Dashboard (2011–2024)",
   theme = shinytheme("flatly"),
   
-  tabPanel(" Overview",
-           h2("About Section"),
-           p("statistical analysis, methods, limitations + more go here"),
+  tabPanel("Overview",
+           
+           h2("How do factors like age, race, gender, and time affect employment?"),
+           
+           p("We were challenged to create a dashboard analyzing and visualizing trends
+    within the job market between 2011–2024. Our goal was for each graph to analyze
+    a different factor so that together they tell a story about how employment
+    patterns have changed or remained consistent over time."),
+           p("Link to our Github repository and full challenge :https://github.com/UWB-Adv-Data-Vis-2026-Wi-A/aging-job-prospects-group-3/tree/main"),
+           p("Below is the objective and user guide for each of the seven graphs included in the dashboard:"),
+           
+           tags$ul(
+             tags$li(strong("1. Age-Based Unemployment")),
+             strong("Objective and User Guide:"),
+             p("This visualization compares unemployment rates across four age groups (16–19, 20–24, 25–54, 
+             and 55+) in the United States from 2011 to 2024. The goal is to highlight how unemployment varies across stages 
+               of the workforce and how different age groups respond to economic changes. Age groups can be selected or 
+               removed to compare specific populations. The year range slider allows users to focus on particular time 
+               periods within the dataset. The highlight feature emphasizes one age group while dimming the others to 
+               make comparisons easier. Users can also toggle data points and a smoothed trend line to reveal additional 
+               details about the data. Lastly, users can hover over the lines to see the exact unemployment rate for each 
+               year and age group.
+               "),
+             strong("Methods:"),
+             p("The unemployment rate is calculated as the number of unemployed individuals divided by the total 
+               labor force (employed plus unemployed) for each age group and year. An optional LOESS smoothing trend line 
+               can be displayed to estimate the broader trajectory of unemployment over time by fitting localized regressions 
+               across the time series.
+               "),
+             
+             strong("Limitations:"),
+             p("Several limitations should be considered when interpreting the results. The LOESS trend 
+               line smooths short-term fluctuations, which may reduce the visibility of sudden economic shocks such 
+               as the 2020 COVID-19 unemployment spike. Additionally, the analysis aggregates workers into broad age 
+               categories and does not account for differences in education, occupation, region, or industry that may 
+               also influence unemployment outcomes."),
+             
+             tags$li(
+               strong("2. Industry and Occupation Trends"),
+               strong("Objective and User Guide:"),
+               p(" The objective for this graph was not only to see which occupation sector was most
+         common for each age group but also how it varied as people grew up and how it 
+         changed as the years went on. The graph allows for user interactivity such as changing the color pallet
+         depending on the persons prefrence. Also for more data centered changes users can change factors such as the year,
+         selected generation, the amount of top occupations shown (3, 5,10, 15), and a tool tip 
+         in order to see the percentage and count for each occupation sector. For best understanding
+         and data visualization it's best to start with one age group, and 5 sectors and then analyze, after,
+         either change the year or age group in order to compare and see how the counts increased or occupations
+         changed completly. ")
+             ),
+             
+             strong("Methods:"),
+             p("In order to find the employment total for the selected age range and year, employment counts 
+             were summed up and grouped by age to calculate the total for that category. The code then ranks occupation
+             by the employment size and displays the top # of occupations picked by the user."),
+             
+             strong("Limitations:"),
+             p("This graph does contain several limitations, the first being retirement. 
+               I note that employment decreases as age increases; however, since this graph only
+               looks at occupation, users aren't able to see how many of those people retired. The chart
+               also focuses on the top occupations, meaning that some patterns may be missing in employment trends/distribution.
+               Lastly, the graph focuses on broad occupation not the wages, hours, or companies worked at meaning conditions
+               and levels of the job are vague within the specific analysis
+."),
+             
+             tags$li(strong("3. Entry Level Occupation Trends")),
+             
+             tags$li(strong("4. Automation Impact")),
+             
+             tags$li(strong("5. Unemployment by Race")),
+             
+             tags$li(strong("6. Retirement Trends")),
+             
+             tags$li(strong("7. Retirement Projections")),
+             strong("Objective and User Guide:"),
+             p("This visualization explores retirement trends across U.S. occupations by examining the share and number of workers nearing retirement age. Users can select a specific occupation and metric to view how the percentage or count of workers aged 55+ or 65+ has changed over time. The year range slider allows users to focus on specific periods within the dataset. An optional projection feature extends the trend line several years into the future to provide a simple estimate of how retirement pressure may evolve if current patterns continue. Hovering over the line reveals the exact values for each year."),
+            
+             strong("Methods:"),
+             p("The visualization uses occupational workforce data from 2011–2024 to calculate the percentage and count of workers aged 55+ and 65+. Users can filter by occupation and adjust the year range to focus on specific periods. When the projection option is enabled, a simple linear regression model is fit to the historical data to estimate future values for a selected number of years. These projected values are displayed as a dashed extension of the historical trend line, allowing users to visually compare past patterns with potential future trajectories."),
+             
+             strong("Limitations:"),
+             p("The projections shown in this visualization are based on a simple linear model and should be interpreted as illustrative rather than predictive. The model assumes that past trends will continue at a similar rate and does not account for external factors such as economic shifts, policy changes, automation, workforce migration, or changes in labor participation. Additionally, the data aggregates workers within occupations and does not capture variation across regions, industries, or education levels that may influence retirement behavior.")
+           ),
+           
+         
+           
            plotlyOutput("overviewPlot")
   ),
-  
+      
+      
+      
+   
   tabPanel(" Age-Based Unemployment Trends",
            sidebarLayout(
              sidebarPanel(
@@ -237,7 +349,7 @@ ui <- navbarPage(
              )
            )
   ),
-  
+#Occupation and Industry Trends set up (Obydah)
   tabPanel(
     "Industry Trends",
     sidebarLayout(
@@ -289,7 +401,14 @@ ui <- navbarPage(
       
       mainPanel(
         h3("Occupational Employment Distribution"),
-        p("This pie chart shows how employment is distributed across the top occupations."),
+        p("This pie chart shows how employment is distributed across the top occupations depending on selected age groups and year.
+          One consist pattern over the years is that teenagers (16-19) a less percantage
+          and aren't as commonly in higher level jobs. Most are in service or low level occupations, such as cashiers.
+          This is pattern in consisten with older ages such as Adults to Early Middle age having a higher
+          percentage in professional occupations such as management and sales. Number of employment also has 
+          a gradual decrease as age increases. Overall this graph shows that over time with growth and 
+          experince many people move into higher level jobs and as they start hitting 55-65+ they begin to retire
+          and this has been a trend for the past 13 years."),
         plotlyOutput("industryPlot", height = "450px")
       )
     )
@@ -336,35 +455,14 @@ ui <- navbarPage(
              )
            )
   ),
-  tabPanel("Occupation Shifts by Age (25+)",
-           sidebarLayout(
-             sidebarPanel(
-               selectInput("samuel_occupation", "Select Occupation:",
-                           choices = sort(unique(all_11b$Occupation)),
-                           selected = "Management, professional, and related occupations"),
-               sliderInput("samuel_year_range", "Year Range:",
-                           min = 2011, max = 2024,
-                           value = c(2011, 2024),
-                           step = 1, sep = ""),
-               selectInput("samuel_chart_type", "Chart Type:",
-                           choices = c("Grouped Bar" = "bar", "Line Trend" = "line"))
-             ),
-             mainPanel(
-               h3("How Occupation Distribution Shifts Across Age Groups Over Time"),
-               p("This chart shows how workers aged 25+ are distributed across occupations from 2011 to 2024."),
-               plotlyOutput("samuel_occ_chart", height = "400px"),
-               br(),
-               plotlyOutput("samuel_share_chart", height = "300px")
-             )
-           )
-  ),
-  tabPanel(" Automation Impact",
+  
+  tabPanel(" Workforce Breakdown",
            h3("Put your plots here"),
            p("Add a summary of your code here."),
            plotOutput("automationPlot")
   ),
   
-  tabPanel(" Unemployment Patterns",
+  tabPanel(" Unemployment by Race",
            h3("Put your plots here"),
            p("Add a summary of your code here."),
            plotOutput("unempPlot")
@@ -373,10 +471,31 @@ ui <- navbarPage(
   
   # Retirement Trends (Zuwidya)
   tabPanel(
-    " Retirement Trends",
-    h3("Employment Rate for Workers Age 55+ (2011–2024)"),
-    p("This chart shows the employment rate for workers age 55+ from 2011 to 2024. It stays high most years, but there is a noticeable dip around 2020 and then it rises again after. I used this to see how retirement-age workers’ employment changes over time and how big events can impact it."),
-    plotOutput("retirementPlot")
+    "Retirement Trends",
+    sidebarLayout(
+      sidebarPanel(
+        sliderInput(
+          "retire_year",
+          "Select Year Range:",
+          min = min(retirement_trend_data$year),
+          max = max(retirement_trend_data$year),
+          value = c(min(retirement_trend_data$year), max(retirement_trend_data$year)),
+          step = 1,
+          sep = ""
+        ),
+        checkboxGroupInput(
+          "retire_groups",
+          "Select Group:",
+          choices = c("Age 55–64", "Age 65+"),
+          selected = c("Age 55–64", "Age 65+")
+        )
+      ),
+      mainPanel(
+        h3("Retirement Trends Among Older Workers (2011–2024)"),
+        p("This interactive chart tracks the share of total employment made up by older workers ages 55–64 and 65+ from 2011 to 2024. Unlike a general employment-rate chart, this focuses more directly on retirement-related patterns by showing how much of the workforce is made up of people nearing retirement or working past traditional retirement age. The trend helps show whether older workers are remaining in the labor force longer over time."),
+        plotlyOutput("retirementPlot")
+      )
+    )
   ),
   
   #Retirement Projections
@@ -485,6 +604,11 @@ server <- function(input, output) {
       config(displayModeBar = FALSE)
   })
   
+
+  
+  
+  # Other members' plots placeholders
+
   
   output$trendNote <- renderUI({
     
@@ -502,18 +626,58 @@ server <- function(input, output) {
   })
   
   # Zuwiyda plot
-  output$retirementPlot <- renderPlot({
-    ggplot(retirement_data, aes(x = Year, y = Employment_Rate)) +
-      geom_line(linewidth = 1.5, color = "#2C7FB8") +
-      geom_point(size = 3, color = "#2C7FB8") +
+  output$retirementPlot <- renderPlotly({
+    
+    filtered_data <- retirement_trend_data %>%
+      filter(
+        year >= input$retire_year[1],
+        year <= input$retire_year[2],
+        group %in% input$retire_groups
+      ) %>%
+      mutate(
+        tooltip = paste0(
+          "<b>Year:</b> ", year,
+          "<br><b>Group:</b> ", group,
+          "<br><b>Share of Employment:</b> ", percent(share, accuracy = 0.1)
+        )
+      )
+    
+    p <- ggplot(
+      filtered_data,
+      aes(
+        x = year,
+        y = share,
+        color = group,
+        group = group,
+        text = tooltip
+      )
+    ) +
+      geom_line(linewidth = 1.4) +
+      geom_point(size = 3) +
       scale_y_continuous(labels = percent_format()) +
+      scale_color_manual(values = c("Age 55–64" = "#2C7FB8", "Age 65+" = "#D95F0E")) +
       labs(
+        title = "Share of Employment Among Older Workers",
+        subtitle = "Tracking workers nearing retirement and working past age 65",
         x = "Year",
-        y = "Employment Rate"
+        y = "Share of Total Employment",
+        color = "Group"
       ) +
-      theme_minimal()
+      theme_minimal(base_size = 14) +
+      theme(
+        plot.title = element_text(face = "bold"),
+        plot.subtitle = element_text(color = "gray40")
+      )
+    
+    ggplotly(p, tooltip = "text") %>%
+      layout(
+        hovermode = "x unified",
+        margin = list(t = 80)
+      ) %>%
+      config(displayModeBar = TRUE)
   })
-  # Other members' plots placeholders
+  
+#Obydahs Plot (Occuptation/Industry trends)
   output$industryPlot <- renderPlotly({
     
     age_map <- c(
@@ -528,7 +692,7 @@ server <- function(input, output) {
     
     selected_generations <- age_map[input$industry_age]
     
-    # Filter data
+  
     filtered_data <- clean11b_data %>%
       filter(
         year == input$industry_year,
@@ -546,14 +710,14 @@ server <- function(input, output) {
       return(plot_ly() %>% layout(title = "No data available for selection"))
     }
     
-    # Tooltip
+    
     filtered_data$tooltip <- paste0(
       "<b>Occupation:</b> ", filtered_data$occupation,
       "<br><b>Employment:</b> ", scales::comma(filtered_data$total_employment), " (thousands)",
       "<br><b>Generation(s):</b> ", paste(selected_generations, collapse = ", ")
     )
     
-    # Color palette
+    
     colors <- brewer.pal(
       min(length(unique(filtered_data$occupation)), 12),
       input$color_palette
@@ -578,9 +742,9 @@ server <- function(input, output) {
         title = paste(
           "Top", input$top_n,
           "Occupations by Employment (", input$industry_year, ")"
-        ),
-        
-        # Move legend to bottom
+        ), 
+          font = list(family = "Times New Roman"),
+       
         legend = list(
           orientation = "h",
           x = 0.5,
@@ -725,15 +889,24 @@ server <- function(input, output) {
     d <- metric_data()
     req(nrow(d) > 0)
     
+    colors <- brewer.pal(
+      min(length(unique(d$occupation)), 12),
+      input$color_palette
+    )
+    
     p <- ggplot(d, aes(x = year, y = value)) +
-      geom_line(color = "#2C7FB8", size = 1.2) +
-      geom_point(color = "#2C7FB8", size = 2) +
+      geom_line(color = colors[1], size = 1.2) +
+      geom_point(color = colors[1], size = 2) +
       labs(
         title = paste("Retirement Trend:", input$occ_ret),
-        x = "Year",
+        x = NULL,
         y = unique(d$metric_label)
       ) +
-      theme_minimal(base_size = 13)
+      theme_minimal(base_size = 13, base_family = "Times New Roman") +
+      theme(
+        plot.title = element_text(face = "bold")
+      )
+    
     
     if (isTRUE(input$show_proj) && nrow(d) >= 3 && all(is.finite(d$value))) {
       fit <- lm(value ~ year, data = d)
@@ -746,8 +919,10 @@ server <- function(input, output) {
       )
       
       p <- p +
-        geom_line(data = proj, aes(x = year, y = value), linetype = "dashed") +
-        geom_point(data = proj, aes(x = year, y = value))
+        geom_line(data = proj, aes(x = year, y = value),
+                  linetype = "dashed", color = colors[2]) +
+        geom_point(data = proj, aes(x = year, y = value),
+                   color = colors[2])
     }
     
     plotly::ggplotly(p, tooltip = c("x", "y")) %>%
@@ -765,72 +940,8 @@ server <- function(input, output) {
         margin = list(t = 80)
       )
   })
-
-  # Samuel - Occupation Shifts by Age (25+)
-  output$samuel_occ_chart <- renderPlotly({
-    df <- all_11b %>%
-      filter(
-        Occupation == input$samuel_occupation,
-        Year >= input$samuel_year_range[1],
-        Year <= input$samuel_year_range[2]
-      ) %>%
-      select(Year, Age_25_34, Age_35_44, Age_45_54, Age_55_64, Age_65plus) %>%
-      pivot_longer(-Year, names_to = "Age_Group", values_to = "Workers") %>%
-      mutate(
-        Age_Label = factor(Age_Group,
-                           levels = c("Age_25_34","Age_35_44","Age_45_54",
-                                      "Age_55_64","Age_65plus"),
-                           labels = c("25-34","35-44","45-54","55-64","65+")),
-        Workers = replace_na(Workers, 0)
-      )
-    
-    if (input$samuel_chart_type == "bar") {
-      plot_ly(df, x = ~factor(Year), y = ~Workers, color = ~Age_Label,
-              type = "bar",
-              text = ~paste0(Age_Label, ": ", scales::comma(Workers), "k"),
-              hoverinfo = "text") %>%
-        layout(barmode = "group",
-               xaxis = list(title = "Year"),
-               yaxis = list(title = "Workers (thousands)"))
-    } else {
-      plot_ly(df, x = ~Year, y = ~Workers, color = ~Age_Label,
-              type = "scatter", mode = "lines+markers",
-              text = ~paste0(Age_Label, ": ", scales::comma(Workers), "k"),
-              hoverinfo = "text") %>%
-        layout(xaxis = list(title = "Year"),
-               yaxis = list(title = "Workers (thousands)"))
-    }
-  })
-  
-  output$samuel_share_chart <- renderPlotly({
-    df <- all_11b %>%
-      filter(
-        Occupation == input$samuel_occupation,
-        Year >= input$samuel_year_range[1],
-        Year <= input$samuel_year_range[2]
-      ) %>%
-      select(Year, Age_25_34, Age_35_44, Age_45_54, Age_55_64, Age_65plus) %>%
-      pivot_longer(-Year, names_to = "Age_Group", values_to = "Workers") %>%
-      mutate(
-        Age_Label = factor(Age_Group,
-                           levels = c("Age_25_34","Age_35_44","Age_45_54",
-                                      "Age_55_64","Age_65plus"),
-                           labels = c("25-34","35-44","45-54","55-64","65+")),
-        Workers = replace_na(Workers, 0)
-      ) %>%
-      group_by(Year) %>%
-      mutate(Share = round(Workers / sum(Workers, na.rm = TRUE) * 100, 1)) %>%
-      ungroup()
-    
-    plot_ly(df, x = ~factor(Year), y = ~Share, color = ~Age_Label,
-            type = "bar",
-            text = ~paste0(Age_Label, ": ", Share, "%"),
-            hoverinfo = "text") %>%
-      layout(barmode = "stack",
-             xaxis = list(title = "Year"),
-             yaxis = list(title = "Share (%)", range = c(0, 100)),
-             title = "Age Group Share of Occupation Over Time")
-  })  
 }
+  # Rishita's Plot (Unemployement Rate by Race (2011-2023))
+  
 
 shinyApp(ui, server)
