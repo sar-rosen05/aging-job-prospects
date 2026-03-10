@@ -289,6 +289,12 @@ ui <- navbarPage(
              tags$li(strong("5. Unemployment by Race")),
              
              tags$li(strong("6. Retirement Trends")),
+             strong("Objective and User Guide:"),
+             p("This visualization explores retirement-related workforce trends by showing how the share of total employment made up by older workers has changed from 2011 to 2024. The chart focuses on workers ages 55–64 and 65+ to better show patterns connected to nearing retirement and working past traditional retirement age. Users can interact with the graph by adjusting the year range and selecting which age group they want to display. This makes it easier to compare whether workers closer to retirement age or workers past age 65 are making up a larger share of the labor force over time. For the best understanding, users can begin with both groups selected to compare the two trends together, then isolate one group at a time to focus on changes across specific years."),
+             strong("Methods:"),
+             p("To create this visualization, the cleaned occupational employment dataset was grouped by year and age group. Employment counts for workers ages 55–64 and 65+ were summed for each year, then divided by the total employment count for that same year to calculate each group’s share of total employment. The data was then reshaped into a long format so both age groups could be displayed as separate lines on the same interactive chart. Plotly was used to allow hovering and easier comparison of exact values across years."),
+             strong("Limitations:"),
+             p("One limitation of this visualization is that it does not directly measure retirement itself, since remaining in or leaving the labor force can happen for many reasons besides retirement. The graph shows the share of employment made up by older workers, but it cannot explain why those shares increase or decrease. It also does not capture differences in retirement patterns by region, income, education, health, or occupation type. In addition, because the data is aggregated at a broad level, it may hide more detailed patterns within smaller industries or demographic groups."),
              
              tags$li(strong("7. Retirement Projections")),
              strong("Objective and User Guide:"),
@@ -671,8 +677,8 @@ server <- function(input, output) {
     p <- ggplot(
       filtered_data,
       aes(
-        x = year,
-        y = share,
+           x = year,
+           y = share,
         color = group,
         group = group,
         text = tooltip
@@ -681,12 +687,9 @@ server <- function(input, output) {
       geom_line(linewidth = 1.4) +
       geom_point(size = 3) +
       scale_y_continuous(labels = percent_format()) +
-      scale_color_manual(values = c("Age 55–64" = "#2C7FB8", "Age 65+" = "#D95F0E")) +
+      scale_color_manual(values = c("Age 55–64" = "pink", "Age 65+" = "purple")) +
       labs(
         title = "Share of Employment Among Older Workers",
-        subtitle = "Tracking workers nearing retirement and working past age 65",
-        x = "Year",
-        y = "Share of Total Employment",
         color = "Group"
       ) +
       theme_minimal(base_size = 14) +
