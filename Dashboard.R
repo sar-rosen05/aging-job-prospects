@@ -285,7 +285,7 @@ ui <- navbarPage(
              The data is then visualized using interactive bar charts created with ggplot2 and plotly, allowing users to compare the top occupations between two selected years. 
              Additionally, users can highlight a specific occupation, which is displayed in red while the remaining occupations appear in gray."), 
              
-             tags$li(strong("4. Automation Impact")),
+             tags$li(strong("4. Workforce Breakdown")),
              
              tags$li(strong("5. Unemployment by Race")),
              
