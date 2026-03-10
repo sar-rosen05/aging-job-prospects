@@ -526,11 +526,39 @@ tabPanel(" Workforce Breakdown",
            )
          )
 ),
-  tabPanel(" Unemployment by Race",
-           h3("Put your plots here"),
-           p("Add a summary of your code here."),
-           plotOutput("unempPlot")
-  ),
+tabPanel(" Unemployment by Race",
+         
+         sidebarLayout(
+           sidebarPanel(
+             checkboxGroupInput(
+               "race_select",
+               "Select Race Groups:",
+               choices = unique(clean8_data$Race),
+               selected = unique(clean8_data$Race)
+             ),
+             
+             sliderInput(
+               "year_range_race",
+               "Select Year Range:",
+               min = min(clean8_data$Year),
+               max = max(clean8_data$Year),
+               value = c(min(clean8_data$Year), max(clean8_data$Year)),
+               step = 1,
+               sep = ""
+             )
+           ),
+           
+           mainPanel(
+             h3("Unemployment Rate Trends by Race"),
+             p("This visualization compares unemployment rates across racial groups in the United States from 2011 to 2023. 
+               The unemployment rate is calculated as unemployed individuals divided by the total labor force 
+               (employed plus unemployed). Users can select specific racial groups and adjust the year range 
+               to explore how unemployment patterns change across time."),
+             
+             plotlyOutput("racePlot")
+           )
+         )
+),
   
   
   # Retirement Trends (Zuwidya)
