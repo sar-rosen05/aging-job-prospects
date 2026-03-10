@@ -1053,6 +1053,61 @@ server <- function(input, output) {
   
   # Rishita's Plot (Unemployement Rate by Race (2011-2023))
   
+  race_data <- reactive({
+    clean8_data %>%
+      filter(
+        Race %in% input$race_select,
+        Year >= input$year_range_race[1],
+        Year <= input$year_range_race[2]
+      ) %>%
+      mutate(
+        Labor_Force = Total + Unemp,
+        Unemployment_Rate = Unemp / Labor_Force
+      ) %>%
+      group_by(Year, Race) %>%
+      summarise(
+        Unemployment_Rate = mean(Unemployment_Rate, na.rm = TRUE),
+        .groups = "drop"
+      )
+  })
+  
+  output$racePlot <- renderPlotly({
+    
+    p <- ggplot(
+      race_data(),
+      aes(
+        x = Year,
+        y = Unemployment_Rate,
+        color = Race,
+        group = Race,
+        text = paste(
+          "Year:", Year,
+          "<br>Race:", Race,
+          "<br>Unemployment Rate:",
+          percent(Unemployment_Rate, accuracy = 0.1)
+        )
+      )
+    ) +
+      geom_line(size = 1.3) +
+      geom_point(size = 2) +
+      scale_y_continuous(labels = percent_format()) +
+      labs(
+        title = "Unemployment Rate Trends by Race",
+        subtitle = "Comparing racial groups across time",
+        x = "Year",
+        y = "Unemployment Rate",
+        color = "Race"
+      ) +
+      theme_minimal(base_size = 14) +
+      theme(
+        text = element_text(family = "Times New Roman")
+      )
+    
+    ggplotly(p, tooltip = "text") %>%
+      layout(hovermode = "closest") %>%
+      config(displayModeBar = FALSE)
+  })
+  
 # Samuel - Workforce Breakdown
 output$samuel_occ_chart <- renderPlotly({
   df <- clean11b_data %>%
