@@ -476,7 +476,7 @@ ui <- navbarPage(
              
              mainPanel(
                h3("Entry Level Occupations Over Time"),
-               p("This dashboard explores the most common occupations for workers ages 20–24 and compares how these entry-level jobs have changed across different years."),
+               p("This tab explores the most common occupations for workers ages 20–24 and compares how these entry-level jobs have changed across different years."),
                tabsetPanel(
                  tabPanel("Graph", plotlyOutput("Entry_Age_Occupation_Map1")),
                  tabPanel("Table", tableOutput("Top_Occupations_Table1"))
