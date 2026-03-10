@@ -203,7 +203,12 @@ ui <- navbarPage(
     within the job market between 2011–2024. Our goal was for each graph to analyze
     a different factor so that together they tell a story about how employment
     patterns have changed or remained consistent over time."),
-           p("Link to our Github repository and full challenge :https://github.com/UWB-Adv-Data-Vis-2026-Wi-A/aging-job-prospects-group-3/tree/main"),
+           p(
+             "Link to our Github repository and full challenge: ",
+             a("View on GitHub",
+               href = "https://github.com/UWB-Adv-Data-Vis-2026-Wi-A/aging-job-prospects-group-3/tree/main",
+               target = "_blank")
+           ),
            p("Below is the objective and user guide for each of the seven graphs included in the dashboard:"),
            
            tags$ul(
