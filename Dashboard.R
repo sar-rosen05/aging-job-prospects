@@ -279,11 +279,10 @@ ui <- navbarPage(
              which is displayed in red while the remaining occupations appear in gray."), 
              
              strong("Limitations:"),
-             p("To identify the most common occupations for workers ages 20–24, the cleaned dataset was first filtered to include only individuals within the 20–24 age group 
-             and a user-selected year. The filtered data was then processed using the slice_max() function to select the top occupations based on total employment (in thousands). 
-             The number of occupations displayed is determined by the user through an input control that allows them to select how many occupations to display on the graph. 
-             The data is then visualized using interactive bar charts created with ggplot2 and plotly, allowing users to compare the top occupations between two selected years. 
-             Additionally, users can highlight a specific occupation, which is displayed in red while the remaining occupations appear in gray."), 
+             p("One limitation of this visualization is that it only focuses on workers ages 20–24, which may not represent all individuals entering the workforce after college. 
+               Additionally, the dashboard displays only the top occupations based on employment size, meaning smaller occupations may not appear depending on the number selected by the user. 
+               The dashboard also compares only two years at a time, which helps with direct comparison but may limit the ability to see long-term trends. 
+               Finally, the visualization shows total employment counts rather than percentages or growth rates, which does not account for changes in the overall workforce size over time."), 
              
              tags$li(strong("4. Workforce Breakdown")),
              
