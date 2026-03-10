@@ -232,8 +232,7 @@ ui <- navbarPage(
                categories and does not account for differences in education, occupation, region, or industry that may 
                also influence unemployment outcomes."),
              
-             tags$li(
-               strong("2. Industry and Occupation Trends"),
+             tags$li(strong("2. Industry and Occupation Trends")),
                strong("Objective and User Guide:"),
                p(" The objective for this graph was not only to see which occupation sector was most
          common for each age group but also how it varied as people grew up and how it 
@@ -243,8 +242,8 @@ ui <- navbarPage(
          in order to see the percentage and count for each occupation sector. For best understanding
          and data visualization it's best to start with one age group, and 5 sectors and then analyze, after,
          either change the year or age group in order to compare and see how the counts increased or occupations
-         changed completly. ")
-             ),
+         changed completly. "),
+             
              
              strong("Methods:"),
              p("In order to find the employment total for the selected age range and year, employment counts 
