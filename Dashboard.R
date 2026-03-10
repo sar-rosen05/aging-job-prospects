@@ -233,7 +233,7 @@ ui <- navbarPage(
                also influence unemployment outcomes."),
              
              tags$li(
-               strong("2. Industry and Occupation Trends"),
+              tags$li(strong("2. Industry and Occupation Trends")),
                strong("Objective and User Guide:"),
                p(" The objective for this graph was not only to see which occupation sector was most
          common for each age group but also how it varied as people grew up and how it 
@@ -565,7 +565,11 @@ server <- function(input, output) {
                                  "<br>Age:", Age,
                                  "<br>Unemployment Rate:", percent(Unemployment_Rate, accuracy = 1))
                 )) +
+      # main lines
       geom_line(size = 1.2, alpha = ifelse(input$show_trend, 0.35, 1)) +
+      # 0% baseline
+      geom_hline(yintercept = 0, color = "gray70", linetype = "solid", linewidth = 0.1) +
+      # color & linetype scales
       scale_color_brewer(palette = input$color_palette) +
       scale_linetype_identity() +
       scale_y_continuous(labels = percent_format()) +
@@ -579,12 +583,16 @@ server <- function(input, output) {
         color = "Age Group"
       ) +
       theme_fivethirtyeight() +
-      theme(text = element_text(family = "Times New Roman"))
+      theme(
+        text = element_text(family = "Times New Roman")
+      )
     
+    # optional points
     if (input$show_points) {
       p <- p + geom_point(size = 2, alpha = ifelse(input$show_trend, 0.4, 1))
     }
     
+    # optional LOESS trend
     if (input$show_trend) {
       p <- p + geom_smooth(
         method = "loess",
@@ -595,35 +603,30 @@ server <- function(input, output) {
       )
     }
     
+    # convert to plotly and force white background
     ggplotly(p, tooltip = "text") %>%
       layout(
         hovermode = "x unified",
         xaxis = list(fixedrange = TRUE),
-        yaxis = list(fixedrange = TRUE)
+        yaxis = list(fixedrange = TRUE),
+        plot_bgcolor = "white",
+        paper_bgcolor = "white"
       ) %>%
       config(displayModeBar = FALSE)
   })
   
-
-  
-  
-  # Other members' plots placeholders
-
-  
+  # trend note
   output$trendNote <- renderUI({
-    
     if (input$show_trend) {
-      
       div(
         style="margin-top:10px; font-size:13px; color:gray40;",
         HTML("<b>Note:</b> The dashed trend lines use LOESS smoothing to estimate the underlying unemployment trajectory. 
-           Because the method smooths short-term shocks, the 2020 COVID-19 spike has less influence on the trend,
-           approximating the broader direction the labor market may have followed without the pandemic disruption.")
+             Because the method smooths short-term shocks, the 2020 COVID-19 spike has less influence on the trend,
+             approximating the broader direction the labor market may have followed without the pandemic disruption.")
       )
-      
     }
-    
   })
+  
   
   # Zuwiyda plot
   output$retirementPlot <- renderPlotly({
