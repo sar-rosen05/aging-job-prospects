@@ -233,7 +233,7 @@ ui <- navbarPage(
                also influence unemployment outcomes."),
              
              tags$li(
-              tags$li(strong("2. Industry and Occupation Trends")),
+               strong("2. Industry and Occupation Trends"),
                strong("Objective and User Guide:"),
                p(" The objective for this graph was not only to see which occupation sector was most
          common for each age group but also how it varied as people grew up and how it 
