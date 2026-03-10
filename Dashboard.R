@@ -260,7 +260,7 @@ ui <- navbarPage(
 ."),
              
              tags$li(strong("3. Entry Level Occupation Trends")),
-             strong("Objective and User Guide"),
+             strong("Objective and User Guide:"),
              p("This visualization explores the most common occupations for workers ages 20–24 and compares how these entry-level jobs 
              have changed across different years. The goal is to highlight the most common occupations for workers ages 20-24 or those 
              who have just graduated from college or are about to enter the workforce and comparing via two different graphs from two different years. 
