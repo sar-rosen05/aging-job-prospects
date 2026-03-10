@@ -261,6 +261,29 @@ ui <- navbarPage(
 ."),
              
              tags$li(strong("3. Entry Level Occupation Trends")),
+             strong("Objective and User Guide"),
+             p("This visualization explores the most common occupations for workers ages 20–24 and compares how these entry-level jobs 
+             have changed across different years. The goal is to highlight the most common occupations for workers ages 20-24 or those 
+             who have just graduated from college or are about to enter the workforce and comparing via two different graphs from two different years. 
+             Users are able to interact with the graphs via selecting Year One and Year Two (2011 to 2024) to compare two years, 
+             they’re also able to Select or Type an Occupation to highlight to see if the occupation made it to the list, and last feature is that 
+             users are able to select how much to display ranging from (3, 5, 10, 20, 30). Users can also switch from two different tabs, a Graph and a Table, 
+             hover over the bars to show what the occupation, total employment, and the year. They can also click and drag creating a square to zoom into the visualization."),
+             
+             strong("Methods:"), 
+             p("To identify the most common occupations for workers ages 20–24, the cleaned dataset was first filtered to include only 
+             individuals within the 20–24 age group and a user-selected year. The filtered data was then processed using the slice_max() function 
+             to select the top occupations based on total employment (in thousands). The number of occupations displayed is determined by the user 
+             through an input control that allows them to select how many occupations to display on the graph. The data is then visualized using interactive bar charts 
+             created with ggplot2 and plotly, allowing users to compare the top occupations between two selected years. Additionally, users can highlight a specific occupation, 
+             which is displayed in red while the remaining occupations appear in gray."), 
+             
+             strong("Limitations:"),
+             p("To identify the most common occupations for workers ages 20–24, the cleaned dataset was first filtered to include only individuals within the 20–24 age group 
+             and a user-selected year. The filtered data was then processed using the slice_max() function to select the top occupations based on total employment (in thousands). 
+             The number of occupations displayed is determined by the user through an input control that allows them to select how many occupations to display on the graph. 
+             The data is then visualized using interactive bar charts created with ggplot2 and plotly, allowing users to compare the top occupations between two selected years. 
+             Additionally, users can highlight a specific occupation, which is displayed in red while the remaining occupations appear in gray."), 
              
              tags$li(strong("4. Automation Impact")),
              
