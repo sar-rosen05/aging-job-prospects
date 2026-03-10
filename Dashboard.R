@@ -233,7 +233,7 @@ ui <- navbarPage(
                also influence unemployment outcomes."),
              
              tags$li(
-              tags$li(strong("2. Industry and Occupation Trends")),
+               strong("2. Industry and Occupation Trends"),
                strong("Objective and User Guide:"),
                p(" The objective for this graph was not only to see which occupation sector was most
          common for each age group but also how it varied as people grew up and how it 
@@ -261,8 +261,30 @@ ui <- navbarPage(
 ."),
              
              tags$li(strong("3. Entry Level Occupation Trends")),
+             strong("Objective and User Guide"),
+             p("This visualization explores the most common occupations for workers ages 20–24 and compares how these entry-level jobs 
+             have changed across different years. The goal is to highlight the most common occupations for workers ages 20-24 or those 
+             who have just graduated from college or are about to enter the workforce and comparing via two different graphs from two different years. 
+             Users are able to interact with the graphs via selecting Year One and Year Two (2011 to 2024) to compare two years, 
+             they’re also able to Select or Type an Occupation to highlight to see if the occupation made it to the list, and last feature is that 
+             users are able to select how much to display ranging from (3, 5, 10, 20, 30). Users can also switch from two different tabs, a Graph and a Table, 
+             hover over the bars to show what the occupation, total employment, and the year. They can also click and drag creating a square to zoom into the visualization."),
              
-             tags$li(strong("4. Automation Impact")),
+             strong("Methods:"), 
+             p("To identify the most common occupations for workers ages 20–24, the cleaned dataset was first filtered to include only 
+             individuals within the 20–24 age group and a user-selected year. The filtered data was then processed using the slice_max() function 
+             to select the top occupations based on total employment (in thousands). The number of occupations displayed is determined by the user 
+             through an input control that allows them to select how many occupations to display on the graph. The data is then visualized using interactive bar charts 
+             created with ggplot2 and plotly, allowing users to compare the top occupations between two selected years. Additionally, users can highlight a specific occupation, 
+             which is displayed in red while the remaining occupations appear in gray."), 
+             
+             strong("Limitations:"),
+             p("One limitation of this visualization is that it only focuses on workers ages 20–24, which may not represent all individuals entering the workforce after college. 
+               Additionally, the dashboard displays only the top occupations based on employment size, meaning smaller occupations may not appear depending on the number selected by the user. 
+               The dashboard also compares only two years at a time, which helps with direct comparison but may limit the ability to see long-term trends. 
+               Finally, the visualization shows total employment counts rather than percentages or growth rates, which does not account for changes in the overall workforce size over time."), 
+             
+             tags$li(strong("4. Workforce Breakdown")),
              
              tags$li(strong("5. Unemployment by Race")),
              
@@ -450,8 +472,9 @@ ui <- navbarPage(
                ),
                tabsetPanel(
                  tabPanel("Graph", plotlyOutput("Entry_Age_Occupation_Map2")),
-                 tabPanel("Table", tableOutput("Top_Occupations_Table2") )
-               )
+                 tabPanel("Table", tableOutput("Top_Occupations_Table2"))
+               ),
+               helpText("Tip: Drag to zoom, double-click to reset. Hover for exact values.")
              )
            )
   ),
@@ -806,7 +829,8 @@ server <- function(input, output) {
       theme_minimal() +
       theme(legend.position = "none") +
       theme(plot.title = element_text(
-        face = "bold.italic",
+        family = "Times New Roman",
+        face = "bold",
         size = 16
       ))
     
