@@ -485,12 +485,42 @@ ui <- navbarPage(
            )
   ),
   
-  tabPanel(" Workforce Breakdown",
-           h3("Put your plots here"),
-           p("Add a summary of your code here."),
-           plotOutput("automationPlot")
-  ),
-  
+tabPanel(" Workforce Breakdown",
+         sidebarLayout(
+           sidebarPanel(
+             selectInput("samuel_occupation", "Select Occupation:",
+                         choices = sort(unique(clean11b_data$occupation)),
+                         selected = "Management, professional, and related occupations"),
+             sliderInput("samuel_year_range", "Year Range:",
+                         min = 2011, max = 2024, value = c(2011, 2024), step = 1, sep = ""),
+             selectInput("samuel_chart_type", "Chart Type:",
+                         choices = c("Grouped Bar" = "bar", "Line Trend" = "line")),             
+           selectInput("samuel_sex", "Select Sex:",
+                         choices = c("All", "Men", "Women"),
+                         selected = "All"),
+             selectInput("samuel_race", "Select Race:",
+                         choices = c("All", "Asian", "Black or African American",
+                                     "Hispanic or Latino", "White"),
+                         selected = "All"),
+           ),
+           mainPanel(
+             h3("Workforce Breakdown: Occupation Shifts Across Age Groups (25+)"),
+             p("This tab explores how the distribution of workers aged 25 and older shifts across 
+          occupations over time (2011–2024). The first chart shows raw worker counts by age group 
+          for a selected occupation, allowing users to compare how employment levels change year 
+          to year. The second chart shows each age group's share of that occupation, revealing 
+          whether older or younger workers are becoming more or less dominant over time. The third 
+          chart breaks down full-time, part-time, and unemployed workers for the 25–54 and 55+ age 
+          groups, showing how work status has shifted across the years. Use the sidebar to select 
+          an occupation, adjust the year range, and toggle between bar and line chart views."),
+             plotlyOutput("samuel_occ_chart", height = "350px"),
+             br(),
+             plotlyOutput("samuel_share_chart", height = "300px"),
+             br(),
+             plotlyOutput("samuel_status_chart", height = "350px")
+           )
+         )
+),
   tabPanel(" Unemployment by Race",
            h3("Put your plots here"),
            p("Add a summary of your code here."),
@@ -970,8 +1000,88 @@ server <- function(input, output) {
         margin = list(t = 80)
       )
   })
-}
+  
   # Rishita's Plot (Unemployement Rate by Race (2011-2023))
   
+# Samuel - Workforce Breakdown
+output$samuel_occ_chart <- renderPlotly({
+  df <- clean11b_data %>%
+    filter(occupation == input$samuel_occupation,
+           year >= input$samuel_year_range[1], year <= input$samuel_year_range[2],
+           age_group %in% c("25_to_34_years","35_to_44_years","45_to_54_years",
+                            "55_to_64_years","65_years_and_over")) %>%
+    mutate(Age_Label = factor(age_group,
+                              levels = c("25_to_34_years","35_to_44_years","45_to_54_years",
+                                         "55_to_64_years","65_years_and_over"),
+                              labels = c("25-34","35-44","45-54","55-64","65+")),
+           employment_thousands = replace_na(employment_thousands, 0))
+  if (input$samuel_chart_type == "bar") {
+    plot_ly(df, x = ~factor(year), y = ~employment_thousands, color = ~Age_Label,
+            type = "bar", colors = brewer.pal(5, "Set2"),
+            text = ~paste0(Age_Label, ": ", scales::comma(employment_thousands), "k"),
+            hoverinfo = "text") %>%
+      layout(barmode = "group", font = list(family = "Times New Roman"),
+             xaxis = list(title = ""),
+             yaxis = list(title = "Workers (thousands)"),
+             title = list(text = "Workers by Age Group Over Time",
+                          font = list(family = "Times New Roman")))
+  } else {
+    plot_ly(df, x = ~year, y = ~employment_thousands, color = ~Age_Label,
+            type = "scatter", mode = "lines+markers", colors = brewer.pal(5, "Set2"),
+            text = ~paste0(Age_Label, ": ", scales::comma(employment_thousands), "k"),
+            hoverinfo = "text") %>%
+      layout(font = list(family = "Times New Roman"),
+             xaxis = list(title = ""),
+             yaxis = list(title = "Share (%)"),
+             title = list(text = "Workers by Age Group Over Time",
+                          font = list(family = "Times New Roman")))
+  }
+})
 
+output$samuel_share_chart <- renderPlotly({
+  df <- clean11b_data %>%
+    filter(occupation == input$samuel_occupation,
+           year >= input$samuel_year_range[1], year <= input$samuel_year_range[2],
+           age_group %in% c("25_to_34_years","35_to_44_years","45_to_54_years",
+                            "55_to_64_years","65_years_and_over")) %>%
+    mutate(Age_Label = factor(age_group,
+                              levels = c("25_to_34_years","35_to_44_years","45_to_54_years",
+                                         "55_to_64_years","65_years_and_over"),
+                              labels = c("25-34","35-44","45-54","55-64","65+")),
+           employment_thousands = replace_na(employment_thousands, 0)) %>%
+    group_by(year) %>%
+    mutate(Share = round(employment_thousands / sum(employment_thousands, na.rm = TRUE) * 100, 1)) %>%
+    ungroup()
+  plot_ly(df, x = ~factor(year), y = ~Share, color = ~Age_Label,
+          type = "bar", colors = brewer.pal(5, "Set2"),
+          text = ~paste0(Age_Label, ": ", Share, "%"), hoverinfo = "text") %>%
+    layout(barmode = "stack", font = list(family = "Times New Roman"),
+           xaxis = list(title = ""),
+           yaxis = list(title = "Share (%)"),
+           title = list(text = "Age Group Share of Occupation Over Time",
+                        font = list(family = "Times New Roman")))
+}) 
+
+output$samuel_status_chart <- renderPlotly({
+  df <- clean8_data %>%
+    filter(Age %in% c("25 to 54", "55+"),
+           Year >= input$samuel_year_range[1], Year <= input$samuel_year_range[2])
+  if (input$samuel_sex != "All") df <- df %>% filter(Sex == input$samuel_sex)
+  if (input$samuel_race != "All") df <- df %>% filter(Race == input$samuel_race)
+  df <- df %>%
+    group_by(Year, Age) %>%
+    summarise(FT = sum(FT, na.rm = TRUE), PT = sum(PT, na.rm = TRUE),
+              Unemp = sum(Unemp, na.rm = TRUE), .groups = "drop") %>%
+    pivot_longer(cols = c(FT, PT, Unemp), names_to = "Status", values_to = "Workers")
+  plot_ly(df, x = ~factor(Year), y = ~Workers, color = ~Status,
+          type = "bar", colors = brewer.pal(3, "Set2"),
+          text = ~paste0(Age, " - ", Status, ": ", scales::comma(Workers), "k"),
+          hoverinfo = "text") %>%
+    layout(barmode = "group", font = list(family = "Times New Roman"),
+           xaxis = list(title = ""),
+           yaxis = list(title = "Workers (thousands)"),
+           title = list(text = "Full-Time vs Part-Time vs Unemployed (Ages 25+)",
+                        font = list(family = "Times New Roman")))
+})
+}
 shinyApp(ui, server)
