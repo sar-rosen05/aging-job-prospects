@@ -579,7 +579,9 @@ server <- function(input, output) {
         color = "Age Group"
       ) +
       theme_fivethirtyeight() +
-      theme(text = element_text(family = "Times New Roman"))
+      theme(
+        text = element_text(family = "Times New Roman")
+      )
     
     if (input$show_points) {
       p <- p + geom_point(size = 2, alpha = ifelse(input$show_trend, 0.4, 1))
@@ -595,34 +597,27 @@ server <- function(input, output) {
       )
     }
     
+    # Convert to plotly and force white background
     ggplotly(p, tooltip = "text") %>%
       layout(
         hovermode = "x unified",
         xaxis = list(fixedrange = TRUE),
-        yaxis = list(fixedrange = TRUE)
+        yaxis = list(fixedrange = TRUE),
+        plot_bgcolor = "white",   # panel background
+        paper_bgcolor = "white"   # entire plot background
       ) %>%
       config(displayModeBar = FALSE)
   })
   
-
-  
-  
-  # Other members' plots placeholders
-
-  
   output$trendNote <- renderUI({
-    
     if (input$show_trend) {
-      
       div(
         style="margin-top:10px; font-size:13px; color:gray40;",
         HTML("<b>Note:</b> The dashed trend lines use LOESS smoothing to estimate the underlying unemployment trajectory. 
-           Because the method smooths short-term shocks, the 2020 COVID-19 spike has less influence on the trend,
-           approximating the broader direction the labor market may have followed without the pandemic disruption.")
+             Because the method smooths short-term shocks, the 2020 COVID-19 spike has less influence on the trend,
+             approximating the broader direction the labor market may have followed without the pandemic disruption.")
       )
-      
     }
-    
   })
   
   # Zuwiyda plot
