@@ -883,6 +883,7 @@ server <- function(input, output) {
       geom_point(color = colors[1], size = 2) +
       labs(
         title = paste("Retirement Trend:", input$occ_ret),
+        x = NULL,
         y = unique(d$metric_label)
       ) +
       theme_minimal(base_size = 13, base_family = "Times New Roman") +
