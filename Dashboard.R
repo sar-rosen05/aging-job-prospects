@@ -565,7 +565,11 @@ server <- function(input, output) {
                                  "<br>Age:", Age,
                                  "<br>Unemployment Rate:", percent(Unemployment_Rate, accuracy = 1))
                 )) +
+      # main lines
       geom_line(size = 1.2, alpha = ifelse(input$show_trend, 0.35, 1)) +
+      # 0% baseline
+      geom_hline(yintercept = 0, color = "gray70", linetype = "dashed", linewidth = 0.7) +
+      # color & linetype scales
       scale_color_brewer(palette = input$color_palette) +
       scale_linetype_identity() +
       scale_y_continuous(labels = percent_format()) +
@@ -583,10 +587,12 @@ server <- function(input, output) {
         text = element_text(family = "Times New Roman")
       )
     
+    # optional points
     if (input$show_points) {
       p <- p + geom_point(size = 2, alpha = ifelse(input$show_trend, 0.4, 1))
     }
     
+    # optional LOESS trend
     if (input$show_trend) {
       p <- p + geom_smooth(
         method = "loess",
@@ -597,18 +603,19 @@ server <- function(input, output) {
       )
     }
     
-    # Convert to plotly and force white background
+    # convert to plotly and force white background
     ggplotly(p, tooltip = "text") %>%
       layout(
         hovermode = "x unified",
         xaxis = list(fixedrange = TRUE),
         yaxis = list(fixedrange = TRUE),
-        plot_bgcolor = "white",   # panel background
-        paper_bgcolor = "white"   # entire plot background
+        plot_bgcolor = "white",
+        paper_bgcolor = "white"
       ) %>%
       config(displayModeBar = FALSE)
   })
   
+  # trend note
   output$trendNote <- renderUI({
     if (input$show_trend) {
       div(
@@ -619,6 +626,7 @@ server <- function(input, output) {
       )
     }
   })
+  
   
   # Zuwiyda plot
   output$retirementPlot <- renderPlotly({
