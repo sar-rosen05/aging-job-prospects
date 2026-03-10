@@ -847,63 +847,86 @@ server <- function(input, output) {
     data %>%
       mutate(highlight = ifelse(occupation == input$Highlight_Occupation, 
                                 "Selected", 
-                                "Other")
-      )
+                                "Other"))
   }
   
-  #Function to Create Plots 
+  # Function to Create Plots 
   make_plot <- function(data, selected_year){
+    
+    # Brewer palette for occupations
+    occ_colors <- brewer.pal(
+      min(length(unique(data$occupation)), 12),
+      input$color_palette
+    )
+    
+    # Name colors so they match occupations correctly
+    names(occ_colors) <- unique(data$occupation)
+    
     p <- data %>%
-      ggplot(aes(x = reorder(occupation, employment_thousands),
-                 y = employment_thousands,
-                 fill = if(input$Highlight_Occupation == "None"){
-                   occupation
-                 } else {
-                   highlight
-                 }, 
-                 text = paste(
-                   "Occupation:", occupation, 
-                   "<br> Total Employment:", employment_thousands, "(thousands)",
-                   "<br> Year", year)
-                 
-      )
-      ) +
-      
+      ggplot(aes(
+        x = reorder(occupation, employment_thousands),
+        y = employment_thousands,
+        fill = if (input$Highlight_Occupation == "None") {
+          occupation
+        } else {
+          highlight
+        },
+        text = paste(
+          "Occupation:", occupation, 
+          "<br>Total Employment:", employment_thousands, "(thousands)",
+          "<br>Year:", year
+        )
+      )) +
       geom_col(width = 0.7) +
-      labs(title = paste0(" Top ", input$Select_TopOccupations, " Entry Level Occupations ", "(",selected_year,")"),
-           x = "Occupation",
-           y = "Total Employment") +
+      labs(
+        title = paste0("Top ", input$Select_TopOccupations, " Entry Level Occupations (", selected_year, ")"),
+        x = NULL,
+        y = "Total Employment"
+      ) +
       coord_flip() +
-      theme_minimal() +
-      theme(legend.position = "none") +
-      theme(plot.title = element_text(
-        family = "Times New Roman",
-        face = "bold",
-        size = 16
-      ))
+      theme_minimal(base_family = "Times New Roman") +
+      theme(
+        legend.position = "none",
+        plot.title = element_text(
+          family = "Times New Roman",
+          face = "bold",
+          size = 16
+        ),
+        axis.title = element_text(
+          family = "Times New Roman",
+          face = "bold"
+        ),
+        axis.text = element_text(
+          family = "Times New Roman"
+        )
+      )
     
-    
-    # If User Selected an Occupation Highlight it with red and others as gray 
-    if(input$Highlight_Occupation != "None"){
+    # If no occupation is highlighted, use the Brewer palette
+    if(input$Highlight_Occupation == "None"){
+      p <- p + scale_fill_manual(values = occ_colors)
+    } else {
+      # Use palette color for selected, light gray for others
+      selected_color <- occ_colors[data$occupation[data$highlight == "Selected"][1]]
+      
       p <- p + scale_fill_manual(values = c(
-        "Selected" = "red", 
-        "Other" = "gray"))
+        "Selected" = selected_color,
+        "Other" = "gray80"
+      ))
     }
     
-    ggplotly(p, tooltip = "text")
+    ggplotly(p, tooltip = "text") %>%
+      layout(font = list(family = "Times New Roman"))
   }
   
   # Graph 1
   output$Entry_Age_Occupation_Map1 <- renderPlotly({ 
     data <- get_top_occupation(input$Select_FirstYear) 
-    
     make_plot(data, input$Select_FirstYear)
   })
   
   # Graph 2
   output$Entry_Age_Occupation_Map2 <- renderPlotly({
     data <- get_top_occupation(input$Select_SecondYear)
-    
     make_plot(data, input$Select_SecondYear)
   })
   
