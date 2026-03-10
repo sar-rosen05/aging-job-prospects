@@ -852,16 +852,6 @@ server <- function(input, output) {
   
   # Function to Create Plots 
   make_plot <- function(data, selected_year){
-    
-    # Brewer palette for occupations
-    occ_colors <- brewer.pal(
-      min(length(unique(data$occupation)), 12),
-      input$color_palette
-    )
-    
-    # Name colors so they match occupations correctly
-    names(occ_colors) <- unique(data$occupation)
-    
     p <- data %>%
       ggplot(aes(
         x = reorder(occupation, employment_thousands),
@@ -901,17 +891,11 @@ server <- function(input, output) {
         )
       )
     
-    # If no occupation is highlighted, use the Brewer palette
-    if(input$Highlight_Occupation == "None"){
-      p <- p + scale_fill_manual(values = occ_colors)
-    } else {
-      # Use palette color for selected, light gray for others
-      selected_color <- occ_colors[data$occupation[data$highlight == "Selected"][1]]
-      
+    # If User Selected an Occupation Highlight it with red and others as gray 
+    if(input$Highlight_Occupation != "None"){
       p <- p + scale_fill_manual(values = c(
-        "Selected" = selected_color,
-        "Other" = "gray80"
-      ))
+        "Selected" = "red", 
+        "Other" = "gray"))
     }
     
     ggplotly(p, tooltip = "text") %>%
