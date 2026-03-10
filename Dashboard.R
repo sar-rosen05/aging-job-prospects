@@ -568,7 +568,7 @@ server <- function(input, output) {
       # main lines
       geom_line(size = 1.2, alpha = ifelse(input$show_trend, 0.35, 1)) +
       # 0% baseline
-      geom_hline(yintercept = 0, color = "gray70", linetype = "dashed", linewidth = 0.7) +
+      geom_hline(yintercept = 0, color = "gray70", linetype = "solid", linewidth = 0.1) +
       # color & linetype scales
       scale_color_brewer(palette = input$color_palette) +
       scale_linetype_identity() +
