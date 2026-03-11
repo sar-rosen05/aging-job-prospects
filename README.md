@@ -1,5 +1,5 @@
 # Aging Job Prospects Dashboard (2011–2024)
-Linke to the originial challenge overview: https://github.com/UWB-Adv-Data-Vis/Aging-Job-Prospects
+Link to the original challenge overview: https://github.com/UWB-Adv-Data-Vis/Aging-Job-Prospects
 ## Project Description
 This project analyzes and visualizes trends in the U.S. job market between 2011 and 2024 using an interactive dashboard built with **R Shiny**. The goal of the project is to explore how demographic and structural factors such as **age, race, gender, and time** influence employment patterns.
 
