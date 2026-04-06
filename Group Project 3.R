@@ -206,7 +206,7 @@ ui <- navbarPage(
            p(
              "Link to our Github repository and full challenge: ",
              a("View on GitHub",
-               href = "https://github.com/UWB-Adv-Data-Vis-2026-Wi-A/aging-job-prospects-group-3/tree/main",
+               href = "https://github.com/UWB-Adv-Data-Vis/Aging-Job-Prospects",
                target = "_blank")
            ),
            p("Below is the objective and user guide for each of the seven graphs included in the dashboard:"),
